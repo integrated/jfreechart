@@ -263,9 +263,20 @@ class DefaultChartEditor extends JPanel implements ActionListener, ChartEditor {
 
         this.titleEditor.setTitleProperties(chart);
         this.plotEditor.updatePlotProperties(chart.getPlot());
+        
 
         chart.setAntiAlias(getAntiAlias());
         chart.setBackgroundPaint(getBackgroundPaint());
+//        chart.setBackgroundImage(null);
+//        chart.setBackgroundImageAlignment(null);
+//        chart.setBackgroundImageAlpha(null);
+//        chart.setBorderPaint(null);
+//        chart.setBorderStroke(null);
+//        chart.setBorderVisible(null);
+//        chart.setPadding(null);
+//        chart.setSubtitles(null);
+//        chart.setTextAntiAlias(null);
+//        chart.setTitle(null);
     }
 
 }
