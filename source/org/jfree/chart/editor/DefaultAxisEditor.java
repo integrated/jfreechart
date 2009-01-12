@@ -64,6 +64,7 @@ import javax.swing.JTextField;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.util.ResourceBundleWrapper;
+import org.jfree.chart.JFreeChart;
 import org.jfree.layout.LCBLayout;
 import org.jfree.ui.FontChooserPanel;
 import org.jfree.ui.FontDisplayField;
@@ -73,7 +74,7 @@ import org.jfree.ui.RectangleInsets;
 /**
  * A panel for editing the properties of an axis.
  */
-class DefaultAxisEditor extends JPanel implements ActionListener {
+class DefaultAxisEditor extends BaseEditor implements ActionListener {
 
     /** The axis label. */
     private JTextField label;
@@ -132,6 +133,9 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
     /** A tabbed pane for... */
     private JTabbedPane otherTabs;
 
+    /** The axis being edited */
+    protected Axis axis;
+
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
             = ResourceBundleWrapper.getBundle(
@@ -143,19 +147,21 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
      *
      * @param axis  the axis whose properties are to be displayed/edited in
      *              the panel.
+     * @param chart The chart the axis belongs to.
+     * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      *
      * @return A panel or <code>null</code< if axis is <code>null</code>.
      */
-    public static DefaultAxisEditor getInstance(Axis axis) {
+    public static DefaultAxisEditor getInstance(JFreeChart chart, Axis axis, boolean immediateUpdate) {
 
         if (axis != null) {
             // figure out what type of axis we have and instantiate the
             // appropriate panel
             if (axis instanceof NumberAxis) {
-                return new DefaultNumberAxisEditor((NumberAxis) axis);
+                return new DefaultNumberAxisEditor(chart, (NumberAxis) axis, immediateUpdate);
             }
             else {
-                return new DefaultAxisEditor(axis);
+                return new DefaultAxisEditor(chart, axis, immediateUpdate);
             }
         }
         else {
@@ -170,9 +176,12 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
      *
      * @param axis  the axis whose properties are to be displayed/edited in
      *              the panel.
+     * @param chart The chart the axis belongs to.
+     * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      */
-    public DefaultAxisEditor(Axis axis) {
-
+    public DefaultAxisEditor(JFreeChart chart, Axis axis, boolean immediateUpdate) {
+        super(chart, immediateUpdate);
+        this.axis = axis;
         this.labelFont = axis.getLabelFont();
         this.labelPaintSample = new PaintSample(axis.getLabelPaint());
         this.tickLabelFont = axis.getTickLabelFont();
@@ -196,6 +205,8 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         interior.add(new JLabel(localizationResources.getString("Label")));
         this.label = new JTextField(axis.getLabel());
+        label.addActionListener(updateHandler);
+        label.getDocument().addDocumentListener(updateHandler);
         interior.add(this.label);
         interior.add(new JPanel());
 
@@ -204,6 +215,7 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
         interior.add(this.labelFontField);
         JButton b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectLabelFont");
+        b.addActionListener(updateHandler);
         b.addActionListener(this);
         interior.add(b);
 
@@ -211,6 +223,7 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
         interior.add(this.labelPaintSample);
         b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectLabelPaint");
+        b.addActionListener(updateHandler);
         b.addActionListener(this);
         interior.add(b);
 
@@ -256,6 +269,7 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
             localizationResources.getString("Show_tick_labels"),
             axis.isTickLabelsVisible()
         );
+        this.showTickLabelsCheckBox.addActionListener(updateHandler);
         ticks.add(this.showTickLabelsCheckBox);
         ticks.add(new JPanel());
         ticks.add(new JPanel());
@@ -267,6 +281,7 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
         ticks.add(this.tickLabelFontField);
         b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectTickLabelFont");
+        b.addActionListener(updateHandler);
         b.addActionListener(this);
         ticks.add(b);
 
@@ -274,6 +289,7 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
             localizationResources.getString("Show_tick_marks"),
             axis.isTickMarksVisible()
         );
+        this.showTickMarksCheckBox.addActionListener(updateHandler);
         ticks.add(this.showTickMarksCheckBox);
         ticks.add(new JPanel());
         ticks.add(new JPanel());
@@ -502,9 +518,9 @@ class DefaultAxisEditor extends JPanel implements ActionListener {
      * Sets the properties of the specified axis to match the properties
      * defined on this panel.
      *
-     * @param axis  the axis.
+     * @param chart The chart.
      */
-    public void setAxisProperties(Axis axis) {
+    public void updateChart(JFreeChart chart) {
         axis.setLabel(getLabel());
         axis.setLabelFont(getLabelFont());
         axis.setLabelPaint(getLabelPaint());

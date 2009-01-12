@@ -64,6 +64,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.GreyPalette;
 import org.jfree.chart.plot.RainbowPalette;
 import org.jfree.chart.util.ResourceBundleWrapper;
+import org.jfree.chart.JFreeChart;
 import org.jfree.layout.LCBLayout;
 
 /**
@@ -93,6 +94,11 @@ class DefaultColorBarEditor extends DefaultNumberAxisEditor {
     /** An array of availiable sample palettes. */
     private PaletteSample[] availablePaletteSamples;
 
+    /**
+     * The color bar.
+     */
+    private ColorBar colorBar;
+
     /** The resourceBundle for the localization. */
    protected  static ResourceBundle localizationResources
            = ResourceBundleWrapper.getBundle(
@@ -103,8 +109,9 @@ class DefaultColorBarEditor extends DefaultNumberAxisEditor {
      *
      * @param colorBar  the color bar.
      */
-    public DefaultColorBarEditor(ColorBar colorBar) {
-        super((NumberAxis) colorBar.getAxis());
+    public DefaultColorBarEditor(JFreeChart chart, ColorBar colorBar, boolean immediateUpdate) {
+        super(chart, (NumberAxis) colorBar.getAxis(), immediateUpdate);
+        this.colorBar = colorBar;
         this.invertPalette = colorBar.getColorPalette().isInverse();
         this.stepPalette = colorBar.getColorPalette().isStepped();
         this.currentPalette = new PaletteSample(colorBar.getColorPalette());
@@ -198,10 +205,10 @@ class DefaultColorBarEditor extends DefaultNumberAxisEditor {
      * Sets the properties of the specified axis to match the properties
      * defined on this panel.
      *
-     * @param colorBar  the color bar.
+     * @param chart  the chart.
      */
-    public void setAxisProperties(ColorBar colorBar) {
-        super.setAxisProperties(colorBar.getAxis());
+    public void updateChart(JFreeChart chart) {
+        super.updateChart(chart);
         colorBar.setColorPalette(this.currentPalette.getPalette());
         colorBar.getColorPalette().setInverse(this.invertPalette); //dmo added
         colorBar.getColorPalette().setStepped(this.stepPalette); //dmo added
@@ -215,10 +222,10 @@ class DefaultColorBarEditor extends DefaultNumberAxisEditor {
      *
      * @return A panel or <code>null</code< if axis is <code>null</code>.
      */
-    public static DefaultColorBarEditor getInstance(ColorBar colorBar) {
+    public static DefaultColorBarEditor getInstance(JFreeChart chart, ColorBar colorBar, boolean immediateUpdate) {
 
         if (colorBar != null) {
-            return new DefaultColorBarEditor(colorBar);
+            return new DefaultColorBarEditor(chart, colorBar, immediateUpdate);
         }
         else {
             return null;

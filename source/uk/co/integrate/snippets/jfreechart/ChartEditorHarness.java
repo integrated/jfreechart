@@ -3,8 +3,8 @@ package uk.co.integrate.snippets.jfreechart;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.editor.DefaultChartEditor;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
@@ -49,9 +49,11 @@ public class ChartEditorHarness extends JFrame {
                 "catLabel", "valLabel", dataset, PlotOrientation.VERTICAL,
                 true, true, true);
 
-        ChartPanel panel = new ChartPanel(chart, true, true, true, true, true);
+        ChartPanel panel = new ChartPanel(chart, false, true, true, true, true);
+        DefaultChartEditor editor = new DefaultChartEditor(chart, true);
         setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
+        add(editor, BorderLayout.EAST);
         pack();
     }
 

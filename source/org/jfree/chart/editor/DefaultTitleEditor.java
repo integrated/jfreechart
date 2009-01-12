@@ -43,10 +43,7 @@
 
 package org.jfree.chart.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Paint;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -72,7 +69,7 @@ import org.jfree.ui.PaintSample;
 /**
  * A panel for editing the properties of a chart title.
  */
-class DefaultTitleEditor extends JPanel implements ActionListener {
+class DefaultTitleEditor extends BaseEditor implements ActionListener {
 
     /** Whether or not to display the title on the chart. */
     private boolean showTitle;
@@ -109,7 +106,8 @@ class DefaultTitleEditor extends JPanel implements ActionListener {
      *
      * @param title  the title, which should be changed.
      */
-    public DefaultTitleEditor(Title title) {
+    public DefaultTitleEditor(JFreeChart chart, Title title, boolean immediateUpdate) {
+        super(chart, immediateUpdate);
 
         TextTitle t = (title != null ? (TextTitle) title
                 : new TextTitle(localizationResources.getString("Title")));
@@ -128,33 +126,43 @@ class DefaultTitleEditor extends JPanel implements ActionListener {
             )
         );
 
-        JPanel interior = new JPanel(new LCBLayout(4));
+        JPanel interior = new JPanel(new GridBagLayout());
+        GridBagConstraints c = LayoutHelper.getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        interior.add(new JLabel(localizationResources.getString("Show_Title")));
+        interior.add(new JLabel(localizationResources.getString("Show_Title")),c);
+        c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
         this.showTitleCheckBox = new JCheckBox();
         this.showTitleCheckBox.setSelected(this.showTitle);
         this.showTitleCheckBox.setActionCommand("ShowTitle");
+        this.showTitleCheckBox.addActionListener(updateHandler);
         this.showTitleCheckBox.addActionListener(this);
-        interior.add(new JPanel());
-        interior.add(this.showTitleCheckBox);
+        interior.add(this.showTitleCheckBox,c);
 
+        LayoutHelper.startNewRow(c);
         JLabel titleLabel = new JLabel(localizationResources.getString("Text"));
-        interior.add(titleLabel);
-        interior.add(this.titleField);
-        interior.add(new JPanel());
+        interior.add(titleLabel,c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+        interior.add(this.titleField,c);
+        this.titleField.addActionListener(updateHandler);
+        this.titleField.getDocument().addDocumentListener(updateHandler);
 
+        LayoutHelper.startNewRow(c);
         JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
         this.fontfield = new FontDisplayField(this.titleFont);
         this.selectFontButton = new JButton(
             localizationResources.getString("Select...")
         );
         this.selectFontButton.setActionCommand("SelectFont");
+        this.selectFontButton.addActionListener(updateHandler);
         this.selectFontButton.addActionListener(this);
-        interior.add(fontLabel);
-        interior.add(this.fontfield);
-        interior.add(this.selectFontButton);
+        interior.add(fontLabel,c);
+        c.gridx++; c.weightx = 1;
+        interior.add(this.fontfield,c);
+        c.gridx++;
+        interior.add(this.selectFontButton,c);
 
+        LayoutHelper.startNewRow(c);
         JLabel colorLabel = new JLabel(
             localizationResources.getString("Color")
         );
@@ -162,10 +170,13 @@ class DefaultTitleEditor extends JPanel implements ActionListener {
             localizationResources.getString("Select...")
         );
         this.selectPaintButton.setActionCommand("SelectPaint");
+        this.selectPaintButton.addActionListener(updateHandler);
         this.selectPaintButton.addActionListener(this);
-        interior.add(colorLabel);
-        interior.add(this.titlePaint);
-        interior.add(this.selectPaintButton);
+        interior.add(colorLabel,c);
+        c.gridx++; c.weightx = 1;
+        interior.add(this.titlePaint,c);
+        c.gridx++;
+        interior.add(this.selectPaintButton,c);
 
         this.enableOrDisableControls();
 
@@ -284,7 +295,7 @@ class DefaultTitleEditor extends JPanel implements ActionListener {
      *
      * @param chart  the chart whose title is to be modified.
      */
-    public void setTitleProperties(JFreeChart chart) {
+    public void updateChart(JFreeChart chart) {
         if (this.showTitle) {
             TextTitle title = chart.getTitle();
             if (title == null) {

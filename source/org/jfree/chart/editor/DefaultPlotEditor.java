@@ -75,6 +75,7 @@ import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.util.ResourceBundleWrapper;
+import org.jfree.chart.JFreeChart;
 import org.jfree.layout.LCBLayout;
 import org.jfree.ui.PaintSample;
 import org.jfree.ui.RectangleInsets;
@@ -85,7 +86,7 @@ import org.jfree.util.BooleanUtilities;
 /**
  * A panel for editing the properties of a {@link Plot}.
  */
-class DefaultPlotEditor extends JPanel implements ActionListener {
+class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
     /** Orientation constants. */
     private final static String[] orientationNames = {"Vertical", "Horizontal"};
@@ -171,7 +172,8 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
      *
      * @param plot  the plot, which should be changed.
      */
-    public DefaultPlotEditor(Plot plot) {
+    public DefaultPlotEditor(JFreeChart chart, Plot plot, boolean immediateUpdate) {
+        super(chart, immediateUpdate);
 
         this.plotInsets = plot.getInsets();
         this.backgroundPaintSample = new PaintSample(plot.getBackgroundPaint());
@@ -250,6 +252,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
         JButton button = new JButton(localizationResources.getString(
                 "Select..."));
         button.setActionCommand("OutlineStroke");
+        button.addActionListener(updateHandler);
         button.addActionListener(this);
         interior.add(this.outlineStrokeSample);
         interior.add(button);
@@ -259,6 +262,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
         );
         button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("OutlinePaint");
+        button.addActionListener(updateHandler);
         button.addActionListener(this);
         interior.add(this.outlinePaintSample);
         interior.add(button);
@@ -268,6 +272,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
         );
         button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("BackgroundPaint");
+        button.addActionListener(updateHandler);
         button.addActionListener(this);
         interior.add(this.backgroundPaintSample);
         interior.add(button);
@@ -283,6 +288,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
             this.orientationCombo = new JComboBox(orientationNames);
             this.orientationCombo.setSelectedIndex(index);
             this.orientationCombo.setActionCommand("Orientation");
+            this.orientationCombo.addActionListener(updateHandler);
             this.orientationCombo.addActionListener(this);
             interior.add(new JPanel());
             interior.add(this.orientationCombo);
@@ -295,6 +301,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
             this.drawLinesCheckBox = new JCheckBox();
             this.drawLinesCheckBox.setSelected(this.drawLines.booleanValue());
             this.drawLinesCheckBox.setActionCommand("DrawLines");
+            this.drawLinesCheckBox.addActionListener(updateHandler);
             this.drawLinesCheckBox.addActionListener(this);
             interior.add(new JPanel());
             interior.add(this.drawLinesCheckBox);
@@ -307,6 +314,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
             this.drawShapesCheckBox = new JCheckBox();
             this.drawShapesCheckBox.setSelected(this.drawShapes.booleanValue());
             this.drawShapesCheckBox.setActionCommand("DrawShapes");
+            this.drawShapesCheckBox.addActionListener(updateHandler);
             this.drawShapesCheckBox.addActionListener(this);
             interior.add(new JPanel());
             interior.add(this.drawShapesCheckBox);
@@ -329,7 +337,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
             domainAxis = ((XYPlot) plot).getDomainAxis();
         }
         this.domainAxisPropertyPanel
-            = DefaultAxisEditor.getInstance(domainAxis);
+            = DefaultAxisEditor.getInstance(chart, domainAxis, immediateUpdate);
         if (this.domainAxisPropertyPanel != null) {
             this.domainAxisPropertyPanel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)
@@ -349,7 +357,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
         }
 
         this.rangeAxisPropertyPanel
-            = DefaultAxisEditor.getInstance(rangeAxis);
+            = DefaultAxisEditor.getInstance(chart, rangeAxis, immediateUpdate);
         if (this.rangeAxisPropertyPanel != null) {
             this.rangeAxisPropertyPanel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)
@@ -367,7 +375,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
         }
 
         this.colorBarAxisPropertyPanel
-            = DefaultColorBarEditor.getInstance(colorBar);
+            = DefaultColorBarEditor.getInstance(chart, colorBar, immediateUpdate);
         if (this.colorBarAxisPropertyPanel != null) {
             this.colorBarAxisPropertyPanel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)
@@ -571,10 +579,10 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
     /**
      * Updates the plot properties to match the properties defined on the panel.
      *
-     * @param plot  The plot.
+     * @param chart  The chart.
      */
-    public void updatePlotProperties(Plot plot) {
-
+    public void updateChart(JFreeChart chart) {
+        Plot plot = chart.getPlot();
         // set the plot properties...
         plot.setOutlinePaint(getOutlinePaint());
         plot.setOutlineStroke(getOutlineStroke());
@@ -593,7 +601,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
                 domainAxis = p.getDomainAxis();
             }
             if (domainAxis != null) {
-                this.domainAxisPropertyPanel.setAxisProperties(domainAxis);
+                this.domainAxisPropertyPanel.updateChart(chart);
             }
         }
 
@@ -608,7 +616,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
                 rangeAxis = p.getRangeAxis();
             }
             if (rangeAxis != null) {
-                this.rangeAxisPropertyPanel.setAxisProperties(rangeAxis);
+                this.rangeAxisPropertyPanel.updateChart(chart);
             }
         }
 
@@ -670,7 +678,7 @@ class DefaultPlotEditor extends JPanel implements ActionListener {
                 colorBar = p.getColorBar();
             }
             if (colorBar != null) {
-                this.colorBarAxisPropertyPanel.setAxisProperties(colorBar);
+                this.colorBarAxisPropertyPanel.updateChart(chart);
             }
         }
 //dmo: (end dmo additions)

@@ -58,9 +58,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
-import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.util.ResourceBundleWrapper;
+import org.jfree.chart.JFreeChart;
 import org.jfree.layout.LCBLayout;
 import org.jfree.ui.PaintSample;
 import org.jfree.ui.StrokeChooserPanel;
@@ -114,10 +114,11 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
      * Standard constructor: builds a property panel for the specified axis.
      *
      * @param axis  the axis, which should be changed.
+     * @param chart The chart the axis belongs to.
+     * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      */
-    public DefaultNumberAxisEditor(NumberAxis axis) {
-
-        super(axis);
+    public DefaultNumberAxisEditor(JFreeChart chart, NumberAxis axis, boolean immediateUpdate) {
+        super(chart, axis, immediateUpdate);
 
         this.autoRange = axis.isAutoRange();
         this.minimumValue = axis.getLowerBound();
@@ -144,6 +145,7 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
             localizationResources.getString("Auto-adjust_range"), this.autoRange
         );
         this.autoRangeCheckBox.setActionCommand("AutoRangeOnOff");
+        this.autoRangeCheckBox.addActionListener(updateHandler);
         this.autoRangeCheckBox.addActionListener(this);
         range.add(this.autoRangeCheckBox);
         range.add(new JPanel());
@@ -156,6 +158,7 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
         );
         this.minimumRangeValue.setEnabled(!this.autoRange);
         this.minimumRangeValue.setActionCommand("MinimumRange");
+        this.minimumRangeValue.addActionListener(updateHandler);
         this.minimumRangeValue.addActionListener(this);
         this.minimumRangeValue.addFocusListener(this);
         range.add(this.minimumRangeValue);
@@ -169,6 +172,7 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
         );
         this.maximumRangeValue.setEnabled(!this.autoRange);
         this.maximumRangeValue.setActionCommand("MaximumRange");
+        this.maximumRangeValue.addActionListener(updateHandler);
         this.maximumRangeValue.addActionListener(this);
         this.maximumRangeValue.addFocusListener(this);
         range.add(this.maximumRangeValue);
@@ -279,9 +283,15 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
     public void focusLost(FocusEvent event) {
         if (event.getSource() == this.minimumRangeValue) {
             validateMinimum();
+            if(immediateUpdate) {
+                updateChart(chart);
+            }
         }
         else if (event.getSource() == this.maximumRangeValue) {
             validateMaximum();
+            if(immediateUpdate) {
+                updateChart(chart);
+            }
         }
     }
 
@@ -344,10 +354,10 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
      * Sets the properties of the specified axis to match the properties
      * defined on this panel.
      *
-     * @param axis  the axis.
+     * @param chart The chart.
      */
-    public void setAxisProperties(Axis axis) {
-        super.setAxisProperties(axis);
+    public void updateChart(JFreeChart chart) {
+        super.updateChart(chart);
         NumberAxis numberAxis = (NumberAxis) axis;
         numberAxis.setAutoRange(this.autoRange);
         if (!this.autoRange) {

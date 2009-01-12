@@ -43,9 +43,7 @@
 
 package org.jfree.chart.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Paint;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -63,14 +61,13 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
-import org.jfree.layout.LCBLayout;
 import org.jfree.ui.PaintSample;
 
 /**
  * A panel for editing chart properties (includes subpanels for the title,
  * legend and plot).
  */
-class DefaultChartEditor extends JPanel implements ActionListener, ChartEditor {
+public class DefaultChartEditor extends BaseEditor implements ActionListener, ChartEditor {
 
     /** A panel for displaying/editing the properties of the title. */
     private DefaultTitleEditor titleEditor;
@@ -99,6 +96,18 @@ class DefaultChartEditor extends JPanel implements ActionListener, ChartEditor {
      * @param chart  the chart, whichs properties should be changed.
      */
     public DefaultChartEditor(JFreeChart chart) {
+        this(chart, false);
+    }
+
+    /**
+     * Standard constructor - the property panel is made up of a number of
+     * sub-panels that are displayed in the tabbed pane.
+     *
+     * @param chart  the chart, whichs properties should be changed.
+     * @param immediateUpdate If true, changes are applied to the chart as they are made without waiting for the OK button.
+     */
+    public DefaultChartEditor(JFreeChart chart, boolean immediateUpdate) {
+        super(chart, immediateUpdate);
         setLayout(new BorderLayout());
 
         JPanel other = new JPanel(new BorderLayout());
@@ -109,67 +118,88 @@ class DefaultChartEditor extends JPanel implements ActionListener, ChartEditor {
             BorderFactory.createEtchedBorder(),
             localizationResources.getString("General")));
 
-        JPanel interior = new JPanel(new LCBLayout(6));
+        JPanel interior = new JPanel(new GridBagLayout());
+        GridBagConstraints c = LayoutHelper.getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
         this.antialias = new JCheckBox(localizationResources.getString(
                 "Draw_anti-aliased"));
         this.antialias.setSelected(chart.getAntiAlias());
-        interior.add(this.antialias);
-        interior.add(new JLabel(""));
-        interior.add(new JLabel(""));
+        antialias.addActionListener(updateHandler);
+        this.antialias.addActionListener(this);
+        interior.add(this.antialias,c);
+        c.gridx++;
+        interior.add(new JLabel(""),c);
+        c.gridx++;
+        interior.add(new JLabel(""),c);
+        c.gridx=0; c.gridy++;
         interior.add(new JLabel(localizationResources.getString(
-                "Background_paint")));
+                "Background_paint")),c);
+        c.gridx++; c.weightx = 1.0;
         this.background = new PaintSample(chart.getBackgroundPaint());
-        interior.add(this.background);
+        interior.add(this.background,c);
+        c.gridx++;
         JButton button = new JButton(localizationResources.getString(
                 "Select..."));
         button.setActionCommand("BackgroundPaint");
+        button.addActionListener(updateHandler);
         button.addActionListener(this);
-        interior.add(button);
+        interior.add(button,c);
 
+        LayoutHelper.startNewRow(c);
         interior.add(new JLabel(localizationResources.getString(
-                "Series_Paint")));
+                "Series_Paint")),c);
+        c.gridx++; c.weightx=1;
         JTextField info = new JTextField(localizationResources.getString(
                 "No_editor_implemented"));
         info.setEnabled(false);
-        interior.add(info);
+        interior.add(info,c);
+        c.gridx++;
         button = new JButton(localizationResources.getString("Edit..."));
         button.setEnabled(false);
-        interior.add(button);
+        interior.add(button,c);
 
+        LayoutHelper.startNewRow(c);
         interior.add(new JLabel(localizationResources.getString(
-                "Series_Stroke")));
+                "Series_Stroke")),c);
+        c.gridx++; c.weightx=1;
         info = new JTextField(localizationResources.getString(
                 "No_editor_implemented"));
         info.setEnabled(false);
-        interior.add(info);
+        interior.add(info,c);
+        c.gridx++;
         button = new JButton(localizationResources.getString("Edit..."));
         button.setEnabled(false);
-        interior.add(button);
+        interior.add(button,c);
 
+        LayoutHelper.startNewRow(c);
         interior.add(new JLabel(localizationResources.getString(
-                "Series_Outline_Paint")));
+                "Series_Outline_Paint")),c);
+        c.gridx++; c.weightx=1;
         info = new JTextField(localizationResources.getString(
                 "No_editor_implemented"));
         info.setEnabled(false);
-        interior.add(info);
+        interior.add(info,c);
+        c.gridx++;
         button = new JButton(localizationResources.getString("Edit..."));
         button.setEnabled(false);
-        interior.add(button);
+        interior.add(button,c);
 
+        LayoutHelper.startNewRow(c);
         interior.add(new JLabel(localizationResources.getString(
-                "Series_Outline_Stroke")));
+                "Series_Outline_Stroke")),c);
+        c.gridx++; c.weightx=1;
         info = new JTextField(localizationResources.getString(
                 "No_editor_implemented"));
         info.setEnabled(false);
-        interior.add(info);
+        interior.add(info,c);
+        c.gridx++;
         button = new JButton(localizationResources.getString("Edit..."));
         button.setEnabled(false);
-        interior.add(button);
+        interior.add(button,c);
 
         general.add(interior, BorderLayout.NORTH);
-        other.add(general, BorderLayout.NORTH);
+        other.add(general, BorderLayout.CENTER);
 
         JPanel parts = new JPanel(new BorderLayout());
 
@@ -178,16 +208,16 @@ class DefaultChartEditor extends JPanel implements ActionListener, ChartEditor {
 
         JTabbedPane tabs = new JTabbedPane();
 
-        this.titleEditor = new DefaultTitleEditor(title);
+        this.titleEditor = new DefaultTitleEditor(chart, title, this.immediateUpdate);
         this.titleEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         tabs.addTab(localizationResources.getString("Title"), this.titleEditor);
 
-        this.plotEditor = new DefaultPlotEditor(plot);
+        this.plotEditor = new DefaultPlotEditor(chart, plot, this.immediateUpdate);
         this.plotEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         tabs.addTab(localizationResources.getString("Plot"), this.plotEditor);
 
         tabs.add(localizationResources.getString("Other"), other);
-        parts.add(tabs, BorderLayout.NORTH);
+        parts.add(tabs, BorderLayout.CENTER);
         add(parts);
     }
 
@@ -261,8 +291,8 @@ class DefaultChartEditor extends JPanel implements ActionListener, ChartEditor {
      */
     public void updateChart(JFreeChart chart) {
 
-        this.titleEditor.setTitleProperties(chart);
-        this.plotEditor.updatePlotProperties(chart.getPlot());
+        this.titleEditor.updateChart(chart);
+        this.plotEditor.updateChart(chart);
         
 
         chart.setAntiAlias(getAntiAlias());
