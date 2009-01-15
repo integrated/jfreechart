@@ -42,8 +42,7 @@
 
 package org.jfree.chart.editor;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -137,21 +136,22 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
 
         JTabbedPane other = getOtherTabs();
 
-        JPanel range = new JPanel(new LCBLayout(3));
+        JPanel range = new JPanel(new GridBagLayout());
+        GridBagConstraints c = getNewConstraints();
         range.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-        range.add(new JPanel());
+        c.gridx++; c.gridwidth = 2;
         this.autoRangeCheckBox = new JCheckBox(
             localizationResources.getString("Auto-adjust_range"), this.autoRange
         );
         this.autoRangeCheckBox.setActionCommand("AutoRangeOnOff");
         this.autoRangeCheckBox.addActionListener(updateHandler);
         this.autoRangeCheckBox.addActionListener(this);
-        range.add(this.autoRangeCheckBox);
-        range.add(new JPanel());
+        range.add(this.autoRangeCheckBox, c);
 
+        startNewRow(c);
         range.add(
-            new JLabel(localizationResources.getString("Minimum_range_value"))
+            new JLabel(localizationResources.getString("Minimum_range_value")), c
         );
         this.minimumRangeValue = new JTextField(
             Double.toString(this.minimumValue)
@@ -161,11 +161,12 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
         this.minimumRangeValue.addActionListener(updateHandler);
         this.minimumRangeValue.addActionListener(this);
         this.minimumRangeValue.addFocusListener(this);
-        range.add(this.minimumRangeValue);
-        range.add(new JPanel());
+        c.gridx++; c.gridwidth=2;
+        range.add(this.minimumRangeValue, c);
 
+        startNewRow(c);
         range.add(
-            new JLabel(localizationResources.getString("Maximum_range_value"))
+            new JLabel(localizationResources.getString("Maximum_range_value")), c
         );
         this.maximumRangeValue = new JTextField(
             Double.toString(this.maximumValue)
@@ -175,8 +176,8 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
         this.maximumRangeValue.addActionListener(updateHandler);
         this.maximumRangeValue.addActionListener(this);
         this.maximumRangeValue.addFocusListener(this);
-        range.add(this.maximumRangeValue);
-        range.add(new JPanel());
+        c.gridx++; c.gridwidth=2;
+        range.add(this.maximumRangeValue, c);
 
         other.add(localizationResources.getString("Range"), range);
 

@@ -5,8 +5,11 @@ import org.jfree.chart.JFreeChart;
 import javax.swing.*;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +35,21 @@ abstract class BaseEditor extends JPanel implements ChartEditor {
         this.chart = chart;
     }
 
-    private class UpdateHandler implements ActionListener, DocumentListener {
+    protected static GridBagConstraints getNewConstraints() {
+        return new GridBagConstraints(0,0,1,1,0,0,GridBagConstraints.CENTER,GridBagConstraints.HORIZONTAL,
+                new Insets(2,3,2,3), 0,0);
+    }
+
+    protected static void startNewRow(GridBagConstraints c) {
+        c.gridx=0;
+        c.gridy++;
+        c.weightx = 0;
+        c.gridwidth = 1;
+        c.anchor = GridBagConstraints.CENTER;
+        c.fill = GridBagConstraints.HORIZONTAL;
+    }
+
+    private class UpdateHandler implements ActionListener, DocumentListener, ChangeListener {
         private void chartPropertyChanged() {
             if(immediateUpdate) {
                 updateChart(chart);
@@ -52,6 +69,10 @@ abstract class BaseEditor extends JPanel implements ChartEditor {
         }
 
         public void changedUpdate(DocumentEvent e) {
+            chartPropertyChanged();
+        }
+
+        public void stateChanged(ChangeEvent e) {
             chartPropertyChanged();
         }
     }

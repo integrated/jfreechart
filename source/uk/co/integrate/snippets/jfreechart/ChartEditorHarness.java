@@ -17,7 +17,7 @@ import java.awt.event.WindowEvent;
  * User: Dan
  * Date: 05-Jan-2009
  * Time: 14:52:19
- * To change this template use File | Settings | File Templates.
+ * Simple application to allow easy testing of changes to the editor classes
  */
 public class ChartEditorHarness extends JFrame {
     private final static int DATA_POINTS = 10;
@@ -58,6 +58,18 @@ public class ChartEditorHarness extends JFrame {
     }
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         ChartEditorHarness harness = new ChartEditorHarness();
         harness.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e) {

@@ -44,11 +44,7 @@
 
 package org.jfree.chart.editor;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Paint;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -76,7 +72,6 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
-import org.jfree.layout.LCBLayout;
 import org.jfree.ui.PaintSample;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.StrokeChooserPanel;
@@ -231,7 +226,8 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
             )
         );
 
-        JPanel interior = new JPanel(new LCBLayout(7));
+        JPanel interior = new JPanel(new GridBagLayout());
+        GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
 //        interior.add(new JLabel(localizationResources.getString("Insets")));
@@ -247,77 +243,91 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
 //        interior.add(button);
 
         interior.add(
-            new JLabel(localizationResources.getString("Outline_stroke"))
+            new JLabel(localizationResources.getString("Outline_stroke")), c
         );
+        c.gridx++;
         JButton button = new JButton(localizationResources.getString(
                 "Select..."));
         button.setActionCommand("OutlineStroke");
         button.addActionListener(updateHandler);
         button.addActionListener(this);
-        interior.add(this.outlineStrokeSample);
-        interior.add(button);
+        interior.add(this.outlineStrokeSample,c);
+        c.gridx++;
+        interior.add(button,c);
 
+        startNewRow(c);
         interior.add(
-            new JLabel(localizationResources.getString("Outline_Paint"))
+            new JLabel(localizationResources.getString("Outline_Paint")), c
         );
+        c.gridx++;
         button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("OutlinePaint");
         button.addActionListener(updateHandler);
         button.addActionListener(this);
-        interior.add(this.outlinePaintSample);
-        interior.add(button);
+        interior.add(this.outlinePaintSample,c);
+        c.gridx++;
+        interior.add(button,c);
 
+        startNewRow(c);
         interior.add(
-            new JLabel(localizationResources.getString("Background_paint"))
+            new JLabel(localizationResources.getString("Background_paint")), c
         );
+        c.gridx++;
         button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("BackgroundPaint");
         button.addActionListener(updateHandler);
         button.addActionListener(this);
-        interior.add(this.backgroundPaintSample);
-        interior.add(button);
+        interior.add(this.backgroundPaintSample,c);
+        c.gridx++;
+        interior.add(button,c);
 
         if (this.plotOrientation != null) {
+            startNewRow(c);
             boolean isVertical
                 = this.plotOrientation.equals(PlotOrientation.VERTICAL);
             int index
                 = isVertical ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL;
             interior.add(
-                new JLabel(localizationResources.getString("Orientation"))
+                new JLabel(localizationResources.getString("Orientation")), c
             );
+            c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.NONE;
             this.orientationCombo = new JComboBox(orientationNames);
             this.orientationCombo.setSelectedIndex(index);
             this.orientationCombo.setActionCommand("Orientation");
             this.orientationCombo.addActionListener(updateHandler);
             this.orientationCombo.addActionListener(this);
-            interior.add(new JPanel());
-            interior.add(this.orientationCombo);
+            interior.add(this.orientationCombo,c);
         }
 
         if (this.drawLines != null) {
+            startNewRow(c);
             interior.add(
-                new JLabel(localizationResources.getString("Draw_lines"))
+                new JLabel(localizationResources.getString("Draw_lines")), c
             );
+            c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.NONE;
             this.drawLinesCheckBox = new JCheckBox();
             this.drawLinesCheckBox.setSelected(this.drawLines.booleanValue());
             this.drawLinesCheckBox.setActionCommand("DrawLines");
             this.drawLinesCheckBox.addActionListener(updateHandler);
             this.drawLinesCheckBox.addActionListener(this);
-            interior.add(new JPanel());
-            interior.add(this.drawLinesCheckBox);
+            interior.add(this.drawLinesCheckBox, c);
         }
 
         if (this.drawShapes != null) {
+            startNewRow(c);
             interior.add(
-                new JLabel(localizationResources.getString("Draw_shapes"))
+                new JLabel(localizationResources.getString("Draw_shapes")), c
             );
+            c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.NONE;
             this.drawShapesCheckBox = new JCheckBox();
             this.drawShapesCheckBox.setSelected(this.drawShapes.booleanValue());
             this.drawShapesCheckBox.setActionCommand("DrawShapes");
             this.drawShapesCheckBox.addActionListener(updateHandler);
             this.drawShapesCheckBox.addActionListener(this);
-            interior.add(new JPanel());
-            interior.add(this.drawShapesCheckBox);
+            interior.add(this.drawShapesCheckBox, c);
         }
 
         general.add(interior, BorderLayout.NORTH);
@@ -499,14 +509,13 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      * Allow the user to change the outline stroke.
      */
     private void attemptOutlineStrokeSelection() {
-        StrokeChooserPanel panel
-            = new StrokeChooserPanel(null, this.availableStrokeSamples);
-        int result = JOptionPane.showConfirmDialog(this, panel,
+        StrokeEditorPanel dialog = new StrokeEditorPanel((BasicStroke)outlineStrokeSample.getStroke());
+        int result = JOptionPane.showConfirmDialog(this, dialog,
             localizationResources.getString("Stroke_Selection"),
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
-            this.outlineStrokeSample.setStroke(panel.getSelectedStroke());
+            this.outlineStrokeSample.setStroke(dialog.getSelectedStroke());
         }
     }
 

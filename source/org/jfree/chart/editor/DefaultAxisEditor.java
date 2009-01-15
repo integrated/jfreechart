@@ -43,10 +43,7 @@
 
 package org.jfree.chart.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Paint;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -201,52 +198,38 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
             )
         );
 
-        JPanel interior = new JPanel(new LCBLayout(5));
+        JPanel interior = new JPanel(new GridBagLayout());
+        GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        interior.add(new JLabel(localizationResources.getString("Label")));
+        interior.add(new JLabel(localizationResources.getString("Label")), c);
+        c.gridx++; c.gridwidth = 2;
         this.label = new JTextField(axis.getLabel());
         label.addActionListener(updateHandler);
         label.getDocument().addDocumentListener(updateHandler);
-        interior.add(this.label);
-        interior.add(new JPanel());
+        interior.add(this.label, c);
 
-        interior.add(new JLabel(localizationResources.getString("Font")));
+        startNewRow(c);
+        interior.add(new JLabel(localizationResources.getString("Font")),c);
+        c.gridx++;
         this.labelFontField = new FontDisplayField(this.labelFont);
-        interior.add(this.labelFontField);
+        interior.add(this.labelFontField,c);
+        c.gridx++;
         JButton b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectLabelFont");
         b.addActionListener(updateHandler);
         b.addActionListener(this);
-        interior.add(b);
+        interior.add(b,c);
 
-        interior.add(new JLabel(localizationResources.getString("Paint")));
-        interior.add(this.labelPaintSample);
+        startNewRow(c);
+        interior.add(new JLabel(localizationResources.getString("Paint")),c);
+        c.gridx++;
+        interior.add(this.labelPaintSample,c);
+        c.gridx++;
         b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectLabelPaint");
         b.addActionListener(updateHandler);
         b.addActionListener(this);
-        interior.add(b);
-
-//        interior.add(
-//            new JLabel(localizationResources.getString("Label_Insets"))
-//        );
-//        b = new JButton(localizationResources.getString("Edit..."));
-//        b.setActionCommand("LabelInsets");
-//        b.addActionListener(this);
-//        this.labelInsetsTextField = new InsetsTextField(this.labelInsets);
-//        interior.add(this.labelInsetsTextField);
-//        interior.add(b);
-//
-//        interior.add(
-//            new JLabel(localizationResources.getString("Tick_Label_Insets"))
-//        );
-//        b = new JButton(localizationResources.getString("Edit..."));
-//        b.setActionCommand("TickLabelInsets");
-//        b.addActionListener(this);
-//        this.tickLabelInsetsTextField
-//            = new InsetsTextField(this.tickLabelInsets);
-//        interior.add(this.tickLabelInsetsTextField);
-//        interior.add(b);
+        interior.add(b,c);
 
         general.add(interior);
 
@@ -262,7 +245,8 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
         this.otherTabs = new JTabbedPane();
         this.otherTabs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        JPanel ticks = new JPanel(new LCBLayout(3));
+        JPanel ticks = new JPanel(new GridBagLayout());
+        c = getNewConstraints();
         ticks.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         this.showTickLabelsCheckBox = new JCheckBox(
@@ -270,29 +254,31 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
             axis.isTickLabelsVisible()
         );
         this.showTickLabelsCheckBox.addActionListener(updateHandler);
-        ticks.add(this.showTickLabelsCheckBox);
-        ticks.add(new JPanel());
-        ticks.add(new JPanel());
+        c.gridwidth = 3;
+        ticks.add(this.showTickLabelsCheckBox, c);
 
+        startNewRow(c);
         ticks.add(
-            new JLabel(localizationResources.getString("Tick_label_font"))
+            new JLabel(localizationResources.getString("Tick_label_font")), c
         );
+        c.gridx++;
         this.tickLabelFontField = new FontDisplayField(this.tickLabelFont);
-        ticks.add(this.tickLabelFontField);
+        ticks.add(this.tickLabelFontField, c);
         b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectTickLabelFont");
         b.addActionListener(updateHandler);
         b.addActionListener(this);
-        ticks.add(b);
+        c.gridx++;
+        ticks.add(b,c);
 
+        startNewRow(c);
+        c.gridwidth = 3;
         this.showTickMarksCheckBox = new JCheckBox(
             localizationResources.getString("Show_tick_marks"),
             axis.isTickMarksVisible()
         );
         this.showTickMarksCheckBox.addActionListener(updateHandler);
-        ticks.add(this.showTickMarksCheckBox);
-        ticks.add(new JPanel());
-        ticks.add(new JPanel());
+        ticks.add(this.showTickMarksCheckBox,c);
 
         this.otherTabs.add(localizationResources.getString("Ticks"), ticks);
 

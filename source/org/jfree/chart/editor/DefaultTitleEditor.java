@@ -61,7 +61,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
-import org.jfree.layout.LCBLayout;
 import org.jfree.ui.FontChooserPanel;
 import org.jfree.ui.FontDisplayField;
 import org.jfree.ui.PaintSample;
@@ -127,7 +126,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         );
 
         JPanel interior = new JPanel(new GridBagLayout());
-        GridBagConstraints c = LayoutHelper.getNewConstraints();
+        GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
         interior.add(new JLabel(localizationResources.getString("Show_Title")),c);
@@ -139,7 +138,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         this.showTitleCheckBox.addActionListener(this);
         interior.add(this.showTitleCheckBox,c);
 
-        LayoutHelper.startNewRow(c);
+        startNewRow(c);
         JLabel titleLabel = new JLabel(localizationResources.getString("Text"));
         interior.add(titleLabel,c);
         c.gridx++; c.weightx = 1; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
@@ -147,7 +146,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         this.titleField.addActionListener(updateHandler);
         this.titleField.getDocument().addDocumentListener(updateHandler);
 
-        LayoutHelper.startNewRow(c);
+        startNewRow(c);
         JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
         this.fontfield = new FontDisplayField(this.titleFont);
         this.selectFontButton = new JButton(
@@ -162,7 +161,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         c.gridx++;
         interior.add(this.selectFontButton,c);
 
-        LayoutHelper.startNewRow(c);
+        startNewRow(c);
         JLabel colorLabel = new JLabel(
             localizationResources.getString("Color")
         );
