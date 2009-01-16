@@ -72,10 +72,9 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.editor.components.BorderPanel;
 import org.jfree.ui.PaintSample;
 import org.jfree.ui.RectangleInsets;
-import org.jfree.ui.StrokeChooserPanel;
-import org.jfree.ui.StrokeSample;
 import org.jfree.util.BooleanUtilities;
 
 /**
@@ -90,12 +89,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
     /** The paint (color) used to fill the background of the plot. */
     private PaintSample backgroundPaintSample;
-
-    /** The stroke (pen) used to draw the outline of the plot. */
-    private StrokeSample outlineStrokeSample;
-
-    /** The paint (color) used to draw the outline of the plot. */
-    private PaintSample outlinePaintSample;
 
     /**
      * A panel used to display/edit the properties of the domain axis (if any).
@@ -112,9 +105,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      * any).
      */
     private DefaultColorBarEditor colorBarAxisPropertyPanel;
-
-    /** An array of stroke samples to choose from. */
-    private StrokeSample[] availableStrokeSamples;
 
     /** The insets for the plot. */
     private RectangleInsets plotInsets;
@@ -151,6 +141,8 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      */
     private JCheckBox drawShapesCheckBox;
 
+    private BorderPanel plotBorder;
+
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
             = ResourceBundleWrapper.getBundle(
@@ -165,15 +157,15 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      * leave one or two 'slots' where the subclasses can extend the user
      * interface.
      *
+     * @param chart the chart, which should be changed.
      * @param plot  the plot, which should be changed.
+     * @param immediateUpdate Whether changes to GUI controls should immediately be applied.
      */
     public DefaultPlotEditor(JFreeChart chart, Plot plot, boolean immediateUpdate) {
         super(chart, immediateUpdate);
 
         this.plotInsets = plot.getInsets();
         this.backgroundPaintSample = new PaintSample(plot.getBackgroundPaint());
-        this.outlineStrokeSample = new StrokeSample(plot.getOutlineStroke());
-        this.outlinePaintSample = new PaintSample(plot.getOutlinePaint());
         if (plot instanceof CategoryPlot) {
             this.plotOrientation = ((CategoryPlot) plot).getOrientation();
         }
@@ -202,14 +194,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         setLayout(new BorderLayout());
 
-        this.availableStrokeSamples = new StrokeSample[3];
-        this.availableStrokeSamples[0]
-                = new StrokeSample(new BasicStroke(1.0f));
-        this.availableStrokeSamples[1]
-                = new StrokeSample(new BasicStroke(2.0f));
-        this.availableStrokeSamples[2]
-                = new StrokeSample(new BasicStroke(3.0f));
-
         // create a panel for the settings...
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(
@@ -220,60 +204,23 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         );
 
         JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(
-            BorderFactory.createTitledBorder(
-                localizationResources.getString("General")
-            )
-        );
 
         JPanel interior = new JPanel(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-//        interior.add(new JLabel(localizationResources.getString("Insets")));
-//        JButton button = new JButton(
-//            localizationResources.getString("Edit...")
-//        );
-//        button.setActionCommand("Insets");
-//        button.addActionListener(this);
-//
-//        this.insetsTextField = new InsetsTextField(this.plotInsets);
-//        this.insetsTextField.setEnabled(false);
-//        interior.add(this.insetsTextField);
-//        interior.add(button);
-
-        interior.add(
-            new JLabel(localizationResources.getString("Outline_stroke")), c
-        );
-        c.gridx++;
-        JButton button = new JButton(localizationResources.getString(
-                "Select..."));
-        button.setActionCommand("OutlineStroke");
-        button.addActionListener(updateHandler);
-        button.addActionListener(this);
-        interior.add(this.outlineStrokeSample,c);
-        c.gridx++;
-        interior.add(button,c);
-
-        startNewRow(c);
-        interior.add(
-            new JLabel(localizationResources.getString("Outline_Paint")), c
-        );
-        c.gridx++;
-        button = new JButton(localizationResources.getString("Select..."));
-        button.setActionCommand("OutlinePaint");
-        button.addActionListener(updateHandler);
-        button.addActionListener(this);
-        interior.add(this.outlinePaintSample,c);
-        c.gridx++;
-        interior.add(button,c);
+        c.gridwidth = 3; c.weightx = 1;
+        plotBorder = new BorderPanel(localizationResources.getString("Border"),
+                plot.isOutlineVisible(), (BasicStroke) plot.getOutlineStroke(), plot.getOutlinePaint());
+        plotBorder.addChangeListener(updateHandler);
+        interior.add(plotBorder, c);
 
         startNewRow(c);
         interior.add(
             new JLabel(localizationResources.getString("Background_paint")), c
         );
         c.gridx++;
-        button = new JButton(localizationResources.getString("Select..."));
+        JButton button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("BackgroundPaint");
         button.addActionListener(updateHandler);
         button.addActionListener(this);
@@ -430,7 +377,7 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      * @return The current outline stroke.
      */
     public Stroke getOutlineStroke() {
-        return this.outlineStrokeSample.getStroke();
+        return this.plotBorder.getBorderStroke();
     }
 
     /**
@@ -439,7 +386,7 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      * @return The current outline paint.
      */
     public Paint getOutlinePaint() {
-        return this.outlinePaintSample.getPaint();
+        return this.plotBorder.getBorderPaint();
     }
 
     /**
@@ -471,15 +418,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         if (command.equals("BackgroundPaint")) {
             attemptBackgroundPaintSelection();
         }
-        else if (command.equals("OutlineStroke")) {
-            attemptOutlineStrokeSelection();
-        }
-        else if (command.equals("OutlinePaint")) {
-            attemptOutlinePaintSelection();
-        }
-//        else if (command.equals("Insets")) {
-//            editInsets();
-//        }
         else if (command.equals("Orientation")) {
             attemptOrientationSelection();
         }
@@ -505,51 +443,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
     }
 
-    /**
-     * Allow the user to change the outline stroke.
-     */
-    private void attemptOutlineStrokeSelection() {
-        StrokeEditorPanel dialog = new StrokeEditorPanel((BasicStroke)outlineStrokeSample.getStroke());
-        int result = JOptionPane.showConfirmDialog(this, dialog,
-            localizationResources.getString("Stroke_Selection"),
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.outlineStrokeSample.setStroke(dialog.getSelectedStroke());
-        }
-    }
-
-    /**
-     * Allow the user to change the outline paint.  We use JColorChooser, so
-     * the user can only choose colors (a subset of all possible paints).
-     */
-    private void attemptOutlinePaintSelection() {
-        Color c;
-        c = JColorChooser.showDialog(
-            this, localizationResources.getString("Outline_Color"), Color.blue
-        );
-        if (c != null) {
-            this.outlinePaintSample.setPaint(c);
-        }
-    }
-
-//    /**
-//     * Allow the user to edit the individual insets' values.
-//     */
-//    private void editInsets() {
-//        InsetsChooserPanel panel = new InsetsChooserPanel(this.plotInsets);
-//        int result = JOptionPane.showConfirmDialog(
-//            this, panel, localizationResources.getString("Edit_Insets"),
-//            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-//        );
-//
-//        if (result == JOptionPane.OK_OPTION) {
-//            this.plotInsets = panel.getInsets();
-//            this.insetsTextField.setInsets(this.plotInsets);
-//        }
-//
-//    }
-//
     /**
      * Allow the user to modify the plot orientation if this is an editor for a
      * <tt>CategoryPlot</tt> or a <tt>XYPlot</tt>.
@@ -593,6 +486,7 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
     public void updateChart(JFreeChart chart) {
         Plot plot = chart.getPlot();
         // set the plot properties...
+        plot.setOutlineVisible(plotBorder.isBorderVisible());
         plot.setOutlinePaint(getOutlinePaint());
         plot.setOutlineStroke(getOutlineStroke());
         plot.setBackgroundPaint(getBackgroundPaint());

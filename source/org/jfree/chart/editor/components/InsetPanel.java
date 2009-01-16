@@ -1,14 +1,11 @@
 package org.jfree.chart.editor.components;
 
 import org.jfree.ui.RectangleInsets;
-import org.jfree.chart.util.ResourceBundleWrapper;
 
 import javax.swing.*;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
-import java.util.ResourceBundle;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,10 +15,6 @@ import java.util.ResourceBundle;
  * Panel that lets a user edit an insets object
  */
 public class InsetPanel extends EditPanel {
-    protected static ResourceBundle localizationResources
-            = ResourceBundleWrapper.getBundle(
-                    "org.jfree.chart.editor.LocalizationBundle");
-
     private RectangleInsets insets;
     private JSpinner left, right, top, bottom;
 
@@ -50,14 +43,6 @@ public class InsetPanel extends EditPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL; c.insets = new Insets(2,3,2,3);
         c.gridx = 0; c.gridy = 0; c.weightx = 0;
-        add(new JLabel(localizationResources.getString("Left")+":"),c);
-        c.gridx++; c.weightx = 1;
-        add(left, c);
-        c.gridx++; c.weightx = 0;
-        add(new JLabel(localizationResources.getString("Right")+":"),c);
-        c.gridx++; c.weightx = 1;
-        add(right, c);
-        c.gridx=0; c.gridy++; c.weightx = 0;
         add(new JLabel(localizationResources.getString("Top")+":"),c);
         c.gridx++; c.weightx = 1;
         add(top, c);
@@ -65,6 +50,14 @@ public class InsetPanel extends EditPanel {
         add(new JLabel(localizationResources.getString("Bottom")+":"),c);
         c.gridx++; c.weightx = 1;
         add(bottom, c);
+        c.gridx=0; c.gridy++; c.weightx = 0;
+        add(new JLabel(localizationResources.getString("Left")+":"),c);
+        c.gridx++; c.weightx = 1;
+        add(left, c);
+        c.gridx++; c.weightx = 0;
+        add(new JLabel(localizationResources.getString("Right")+":"),c);
+        c.gridx++; c.weightx = 1;
+        add(right, c);
     }
 
     public RectangleInsets getSelectedInsets() {

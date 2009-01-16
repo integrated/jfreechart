@@ -1,14 +1,11 @@
 package org.jfree.chart.editor.components;
 
-import org.jfree.ui.PaintSample;
-import org.jfree.chart.util.ResourceBundleWrapper;
-import org.jfree.chart.editor.StrokeEditorPanel;
-
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,15 +15,10 @@ import java.util.ResourceBundle;
  * Edits standard border properties that are available in JFreeChart objects
  */
 public class BorderPanel extends EditPanel {
-
-    protected static ResourceBundle localizationResources
-            = ResourceBundleWrapper.getBundle(
-                    "org.jfree.chart.editor.LocalizationBundle");
     
     private JCheckBox visible;
-    private NoCircleStrokeSample stroke;
-    private PaintSample paint;
-    private JButton strokeButton, paintButton;
+    private StrokeControl strokeControl;
+    private PaintControl paintControl;
 
     private EventHandler handler = new EventHandler();
 
@@ -41,15 +33,12 @@ public class BorderPanel extends EditPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         this.visible = new JCheckBox(localizationResources.getString("Border_Visible"), visible);
-        this.stroke = new NoCircleStrokeSample(stroke);
-        this.paint = new PaintSample(paint);
-
-        this.strokeButton = new JButton(localizationResources.getString("Edit..."));
-        this.paintButton = new JButton(localizationResources.getString("Edit..."));
+        this.strokeControl = new StrokeControl(stroke);
+        this.paintControl = new PaintControl(paint);
 
         this.visible.addActionListener(handler);
-        this.strokeButton.addActionListener(handler);
-        this.paintButton.addActionListener(handler);
+        this.strokeControl.addChangeListener(handler);
+        this.paintControl.addChangeListener(handler);
 
         updateControls();
 
@@ -59,23 +48,19 @@ public class BorderPanel extends EditPanel {
         add(this.visible,c);
         c.gridy++; c.weightx = 0; c.gridwidth = 1;
         add(new JLabel(localizationResources.getString("Border_Stroke")+":"), c);
-        c.gridx++; c.weightx = 1;
-        add(this.stroke, c);
-        c.gridx++; c.weightx = 0;
-        add(this.strokeButton, c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        add(this.strokeControl, c);
 
         c.gridx = 0; c.gridy++;
         add(new JLabel(localizationResources.getString("Border_Paint")+":"), c);
-        c.gridx++; c.weightx = 1;
-        add(this.paint, c);
-        c.gridx++; c.weightx = 0;
-        add(this.paintButton, c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        add(this.paintControl, c);
     }
 
     private void updateControls() {
         boolean b = visible.isSelected();
-        strokeButton.setEnabled(b);
-        paintButton.setEnabled(b);
+        strokeControl.setEnabled(b);
+        paintControl.setEnabled(b);
     }
 
     public boolean isBorderVisible() {
@@ -83,52 +68,24 @@ public class BorderPanel extends EditPanel {
     }
 
     public BasicStroke getBorderStroke() {
-        return (BasicStroke) stroke.getStroke();
+        return strokeControl.getChosenStroke();
     }
 
     public Paint getBorderPaint() {
-        return paint.getPaint();
+        return paintControl.getChosenPaint();
     }
 
-    /**
-     * Allows the user the opportunity to choose a new color for the chart border
-     */
-    private void attemptModifyBorderPaint() {
-        Color c;
-        c = JColorChooser.showDialog(
-            this, localizationResources.getString("Border_Paint"), Color.black
-        );
-        if (c != null) {
-            paint.setPaint(c);
-            fireChangeEvent();
-        }
-    }
-
-    /**
-     * Allows the user the opportunity to choose a new color for the chart border
-     */
-    private void attemptModifyBorderStroke() {
-        StrokeEditorPanel dialog = new StrokeEditorPanel((BasicStroke)stroke.getStroke());
-        int result = JOptionPane.showConfirmDialog(this, dialog,
-            localizationResources.getString("Border_Stroke"),
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            stroke.setStroke(dialog.getSelectedStroke());
-            stroke.invalidate();
-            fireChangeEvent();
-        }
-    }
-
-    private class EventHandler implements ActionListener {
+    private class EventHandler implements ActionListener, ChangeListener {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource() == visible) {
                 updateControls();
                 fireChangeEvent();
-            } else if (e.getSource() == strokeButton) {
-                attemptModifyBorderStroke();
-            } else if (e.getSource() == paintButton) {
-                attemptModifyBorderPaint();
+            }
+        }
+
+        public void stateChanged(ChangeEvent e) {
+            if(e.getSource() == paintControl || e.getSource() == strokeControl) {
+                fireChangeEvent();
             }
         }
     }

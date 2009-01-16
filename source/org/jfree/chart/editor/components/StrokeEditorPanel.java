@@ -1,4 +1,4 @@
-package org.jfree.chart.editor;
+package org.jfree.chart.editor.components;
 
 import org.jfree.ui.StrokeSample;
 import org.jfree.chart.util.ResourceBundleWrapper;

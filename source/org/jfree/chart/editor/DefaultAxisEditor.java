@@ -164,7 +164,6 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
         else {
             return null;
         }
-
     }
 
     /**

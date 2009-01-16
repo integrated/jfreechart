@@ -58,6 +58,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.editor.components.FontControl;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
@@ -79,20 +80,13 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
     /** A field for displaying/editing the title text. */
     private JTextField titleField;
 
-    /** The font used to draw the title. */
-    private Font titleFont;
-
-    /** A field for displaying a description of the title font. */
-    private JTextField fontfield;
-
-    /** The button to use to select a new title font. */
-    private JButton selectFontButton;
-
     /** The paint (color) used to draw the title. */
     private PaintSample titlePaint;
 
     /** The button to use to select a new paint (color) to draw the title. */
     private JButton selectPaintButton;
+
+    private FontControl fontControl;
 
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
@@ -111,7 +105,6 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         TextTitle t = (title != null ? (TextTitle) title
                 : new TextTitle(localizationResources.getString("Title")));
         this.showTitle = (title != null);
-        this.titleFont = t.getFont();
         this.titleField = new JTextField(t.getText());
         this.titlePaint = new PaintSample(t.getPaint());
 
@@ -148,18 +141,11 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
 
         startNewRow(c);
         JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
-        this.fontfield = new FontDisplayField(this.titleFont);
-        this.selectFontButton = new JButton(
-            localizationResources.getString("Select...")
-        );
-        this.selectFontButton.setActionCommand("SelectFont");
-        this.selectFontButton.addActionListener(updateHandler);
-        this.selectFontButton.addActionListener(this);
+        this.fontControl = new FontControl(t.getFont());
+        this.fontControl.addChangeListener(updateHandler);
         interior.add(fontLabel,c);
-        c.gridx++; c.weightx = 1;
-        interior.add(this.fontfield,c);
-        c.gridx++;
-        interior.add(this.selectFontButton,c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        interior.add(this.fontControl,c);
 
         startNewRow(c);
         JLabel colorLabel = new JLabel(
@@ -198,7 +184,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
      * @return The font selected in the panel.
      */
     public Font getTitleFont() {
-        return this.titleFont;
+        return this.fontControl.getChosenFont();
     }
 
     /**
@@ -220,34 +206,11 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
 
         String command = event.getActionCommand();
 
-        if (command.equals("SelectFont")) {
-            attemptFontSelection();
-        }
-        else if (command.equals("SelectPaint")) {
+        if (command.equals("SelectPaint")) {
             attemptPaintSelection();
         }
         else if (command.equals("ShowTitle")) {
             attemptModifyShowTitle();
-        }
-    }
-
-    /**
-     * Presents a font selection dialog to the user.
-     */
-    public void attemptFontSelection() {
-
-        FontChooserPanel panel = new FontChooserPanel(this.titleFont);
-        int result =
-            JOptionPane.showConfirmDialog(
-                this, panel, localizationResources.getString("Font_Selection"),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-            );
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.titleFont = panel.getSelectedFont();
-            this.fontfield.setText(
-                this.titleFont.getFontName() + " " + this.titleFont.getSize()
-            );
         }
     }
 
@@ -284,7 +247,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
     private void enableOrDisableControls() {
         boolean enabled = (this.showTitle == true);
         this.titleField.setEnabled(enabled);
-        this.selectFontButton.setEnabled(enabled);
+        this.fontControl.setEnabled(enabled);
         this.selectPaintButton.setEnabled(enabled);
     }
 

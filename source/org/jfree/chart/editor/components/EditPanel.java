@@ -1,9 +1,12 @@
 package org.jfree.chart.editor.components;
 
+import org.jfree.chart.util.ResourceBundleWrapper;
+
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
+import java.util.ResourceBundle;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,6 +16,9 @@ import java.awt.*;
  * Shared functionality for chart editing panels in this package
  */
 public class EditPanel extends JPanel {
+    protected static ResourceBundle localizationResources
+            = ResourceBundleWrapper.getBundle(
+                    "org.jfree.chart.editor.LocalizationBundle");
 
     public EditPanel() {
         super();

@@ -57,6 +57,7 @@ import javax.imageio.ImageIO;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.editor.components.InsetPanel;
 import org.jfree.chart.editor.components.BorderPanel;
+import org.jfree.chart.editor.components.PaintControl;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
@@ -122,8 +123,14 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
      */
     private JCheckBox antialias;
 
+    /**
+     * A checkbox indicating whether or not the chart's text is drawn with
+     * anti-aliasing.
+     */
+    private JCheckBox textAntialias;
+
     /** The chart background color. */
-    private PaintSample background;
+    private PaintControl backgroundPaint;
 
     /** The label displaying the location of the image file */
     private JLabel imageLabel;
@@ -185,16 +192,10 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
 
         interior.add(new JLabel(localizationResources.getString(
                 "Background_paint")),c);
-        c.gridx++; c.weightx = 1.0;
-        this.background = new PaintSample(chart.getBackgroundPaint());
-        interior.add(this.background,c);
-        c.gridx++;
-        JButton button = new JButton(localizationResources.getString(
-                "Select..."));
-        button.setActionCommand(BACKGROUND_PAINT);
-        button.addActionListener(updateHandler);
-        button.addActionListener(this);
-        interior.add(button,c);
+        c.gridx++; c.weightx = 1.0; c.gridwidth = 2;
+        this.backgroundPaint = new PaintControl(chart.getBackgroundPaint());
+        this.backgroundPaint.addChangeListener(updateHandler);
+        interior.add(this.backgroundPaint,c);
 
         startNewRow(c);
         backImage = chart.getBackgroundImage();
@@ -210,7 +211,7 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         c.gridx++;
         interior.add(imageLabel,c);
         c.gridx++;
-        button = new JButton(localizationResources.getString("Select..."));
+        JButton button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand(IMAGE_FILE_CHOOSE);
         button.addActionListener(updateHandler);
         button.addActionListener(this);
@@ -249,9 +250,6 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         other.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
         JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createEtchedBorder(),
-            localizationResources.getString("General")));
 
         interior = new JPanel(new GridBagLayout());
         c = getNewConstraints();
@@ -261,12 +259,16 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
                 "Draw_anti-aliased"));
         this.antialias.setSelected(chart.getAntiAlias());
         antialias.addActionListener(updateHandler);
-        this.antialias.addActionListener(this);
+        c.gridwidth = 3;
         interior.add(this.antialias,c);
-        c.gridx++;
-        interior.add(new JLabel(""),c);
-        c.gridx++;
-        interior.add(new JLabel(""),c);
+
+        startNewRow(c);
+        Object anti = chart.getTextAntiAlias();
+        this.textAntialias = new JCheckBox(localizationResources.getString("Draw_anti-aliased_text"),
+                anti == null || RenderingHints.VALUE_TEXT_ANTIALIAS_ON.equals(anti));
+        this.textAntialias.addActionListener(updateHandler);
+        c.gridwidth = 3;
+        interior.add(this.textAntialias, c);
 
         startNewRow(c);
         borderPanel = new BorderPanel(localizationResources.getString("Border"),
@@ -398,7 +400,7 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
      * @return The current background paint.
      */
     public Paint getBackgroundPaint() {
-        return this.background.getPaint();
+        return this.backgroundPaint.getChosenPaint();
     }
 
     /**
@@ -408,9 +410,7 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
-        if (command.equals(BACKGROUND_PAINT)) {
-            attemptModifyBackgroundPaint();
-        } else if (IMAGE_FILE_CHOOSE.equals(command)) {
+        if (IMAGE_FILE_CHOOSE.equals(command)) {
             attemptModifyBackgroundImage();
         }
     }
@@ -448,20 +448,6 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
     }
 
     /**
-     * Allows the user the opportunity to select a new background paint.  Uses
-     * JColorChooser, so we are only allowing a subset of all Paint objects to
-     * be selected (fix later).
-     */
-    private void attemptModifyBackgroundPaint() {
-        Color c;
-        c = JColorChooser.showDialog(this, localizationResources.getString(
-                "Background_Color"), Color.blue);
-        if (c != null) {
-            this.background.setPaint(c);
-        }
-    }
-
-    /**
      * Updates the properties of a chart to match the properties defined on the
      * panel.
      *
@@ -474,6 +460,7 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         
 
         chart.setAntiAlias(getAntiAlias());
+        chart.setTextAntiAlias(textAntialias.isSelected());
         chart.setBackgroundPaint(getBackgroundPaint());
         chart.setBackgroundImage(getBackgroundImage());
         chart.setBackgroundImageAlignment(ALIGNMENT_VALS[imageAlign.getSelectedIndex()]);
@@ -483,7 +470,6 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         chart.setBorderVisible(borderPanel.isBorderVisible());
         chart.setPadding(chartPadding.getSelectedInsets());
 //        chart.setSubtitles(null);
-//        chart.setTextAntiAlias(null);
     }
 
     private class ImageFilter extends FileFilter {
