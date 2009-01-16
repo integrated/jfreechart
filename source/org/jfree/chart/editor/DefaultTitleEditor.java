@@ -304,6 +304,12 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
             title.setText(getTitleText());
             title.setFont(getTitleFont());
             title.setPaint(getTitlePaint());
+            //title.setBackgroundPaint();
+            //title.setBorder();
+            //title.setMargin();
+            //title.setPadding();
+            //title.setPosition();
+            //title.setTextAlignment();
         }
         else {
             chart.setTitle((TextTitle) null);

@@ -55,13 +55,13 @@ import javax.swing.filechooser.FileFilter;
 import javax.imageio.ImageIO;
 
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.editor.components.NoCircleStrokeSample;
+import org.jfree.chart.editor.components.InsetPanel;
+import org.jfree.chart.editor.components.BorderPanel;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.ui.PaintSample;
 import org.jfree.ui.Align;
-import org.jfree.ui.StrokeSample;
 
 /**
  * A panel for editing chart properties (includes subpanels for the title,
@@ -92,9 +92,6 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
     /** Action Commands */
     private static final String BACKGROUND_PAINT = "BackgroundPaint";
     private static final String IMAGE_FILE_CHOOSE = "ImageFileChoose";
-    private static final String BORDER_PAINT = "BorderPaint";
-    private static final String BORDER_STROKE = "BorderStroke";
-    private static final String BORDER_VISIBLE = "BorderVisible";
 
     /** Align class constants in the same order as the ALIGNMENT_TEXT array */
     private static final int[] ALIGNMENT_VALS = new int[] {
@@ -140,20 +137,11 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
     /** Control to change alpha-value for background image of chart */
     private JSlider imageAlpha;
 
-    /** Determines whether the chart border is visible */
-    private JCheckBox borderVisible;
+    /** Panel to edit border properties */
+    private BorderPanel borderPanel;
 
-    /** The chosen stroke for the chart border */
-    private StrokeSample borderStroke;
-
-    /** Button to change the chart border stroke */
-    private JButton borderStrokeButton;
-
-    /** The paint for the chart border stroke */
-    private PaintSample borderPaint;
-
-    /** Button to change the chart border paint */
-    private JButton borderPaintButton;
+    /** Component to edit the chart padding values */
+    private InsetPanel chartPadding;
 
     /** The icon size used for the background image icon */
     private final static int ICON_HEIGHT = 50;
@@ -281,39 +269,17 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         interior.add(new JLabel(""),c);
 
         startNewRow(c);
-        borderVisible = new JCheckBox(localizationResources.getString("Border_Visible"));
-        borderVisible.setSelected(chart.isBorderVisible());
-        borderVisible.setActionCommand(BORDER_VISIBLE);
-        borderVisible.addActionListener(updateHandler);
-        borderVisible.addActionListener(this);
+        borderPanel = new BorderPanel(localizationResources.getString("Border"),
+                chart.isBorderVisible(), (BasicStroke) chart.getBorderStroke(), chart.getBorderPaint());
+        borderPanel.addChangeListener(updateHandler);
         c.gridwidth = 3;
-        interior.add(borderVisible, c);
+        interior.add(borderPanel, c);
 
         startNewRow(c);
-        borderStroke = new NoCircleStrokeSample(chart.getBorderStroke());
-        borderStrokeButton = new JButton(localizationResources.getString("Select..."));
-        borderStrokeButton.setActionCommand(BORDER_STROKE);
-        borderStrokeButton.addActionListener(updateHandler);
-        borderStrokeButton.addActionListener(this);
-        interior.add(new JLabel(localizationResources.getString("Border_Stroke")), c);
-        c.gridx++;
-        interior.add(borderStroke, c);
-        c.gridx++;
-        interior.add(borderStrokeButton, c);
-
-        startNewRow(c);
-        borderPaint = new PaintSample(chart.getBorderPaint());
-        borderPaintButton = new JButton(localizationResources.getString("Select..."));
-        borderPaintButton.setActionCommand(BORDER_PAINT);
-        borderPaintButton.addActionListener(updateHandler);
-        borderPaintButton.addActionListener(this);
-        interior.add(new JLabel(localizationResources.getString("Border_Paint")), c);
-        c.gridx++;
-        interior.add(borderPaint, c);
-        c.gridx++;
-        interior.add(borderPaintButton, c);
-
-        setupChartBorderControls();
+        chartPadding = new InsetPanel(localizationResources.getString("Padding"), chart.getPadding());
+        chartPadding.addChangeListener(updateHandler);
+        c.gridwidth = 3;
+        interior.add(chartPadding, c);
 
         startNewRow(c);
         interior.add(new JLabel(localizationResources.getString(
@@ -391,14 +357,6 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         add(parts);
     }
 
-    private void setupChartBorderControls() {
-        boolean chartBorderVisible = borderVisible.isSelected();
-        borderStrokeButton.setEnabled(chartBorderVisible);
-        borderStroke.setEnabled(chartBorderVisible);
-        borderPaintButton.setEnabled(chartBorderVisible);
-        borderPaint.setEnabled(chartBorderVisible);
-    }
-
     /**
      * Returns a reference to the title editor.
      *
@@ -454,40 +412,6 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
             attemptModifyBackgroundPaint();
         } else if (IMAGE_FILE_CHOOSE.equals(command)) {
             attemptModifyBackgroundImage();
-        } else if (BORDER_PAINT.equals(command)) {
-            attemptModifyBorderPaint();
-        } else if (BORDER_STROKE.equals(command)) {
-            attemptModifyBorderStroke();
-        } else if (BORDER_VISIBLE.equals(command)) {
-            setupChartBorderControls();
-        }
-    }
-
-    /**
-     * Allows the user the opportunity to choose a new color for the chart border
-     */
-    private void attemptModifyBorderStroke() {
-        StrokeEditorPanel dialog = new StrokeEditorPanel((BasicStroke)borderStroke.getStroke());
-        int result = JOptionPane.showConfirmDialog(this, dialog,
-            localizationResources.getString("Border_Stroke"),
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            borderStroke.setStroke(dialog.getSelectedStroke());
-            borderStroke.invalidate();
-        }
-    }
-
-    /**
-     * Allows the user the opportunity to choose a new color for the chart border
-     */
-    private void attemptModifyBorderPaint() {
-        Color c;
-        c = JColorChooser.showDialog(
-            this, localizationResources.getString("Border_Paint"), Color.black
-        );
-        if (c != null) {
-            borderPaint.setPaint(c);
         }
     }
 
@@ -554,13 +478,12 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         chart.setBackgroundImage(getBackgroundImage());
         chart.setBackgroundImageAlignment(ALIGNMENT_VALS[imageAlign.getSelectedIndex()]);
         chart.setBackgroundImageAlpha((float)imageAlpha.getValue()/100);
-        chart.setBorderPaint(borderPaint.getPaint());
-        chart.setBorderStroke(borderStroke.getStroke());
-        chart.setBorderVisible(borderVisible.isSelected());
-//        chart.setPadding(null);
+        chart.setBorderPaint(borderPanel.getBorderPaint());
+        chart.setBorderStroke(borderPanel.getBorderStroke());
+        chart.setBorderVisible(borderPanel.isBorderVisible());
+        chart.setPadding(chartPadding.getSelectedInsets());
 //        chart.setSubtitles(null);
 //        chart.setTextAntiAlias(null);
-//        chart.setTitle(null);
     }
 
     private class ImageFilter extends FileFilter {
