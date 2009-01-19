@@ -193,7 +193,7 @@ public class DefaultChartEditor extends BaseEditor implements ActionListener, Ch
         interior.add(new JLabel(localizationResources.getString(
                 "Background_paint")),c);
         c.gridx++; c.weightx = 1.0; c.gridwidth = 2;
-        this.backgroundPaint = new PaintControl(chart.getBackgroundPaint());
+        this.backgroundPaint = new PaintControl(chart.getBackgroundPaint(), true);
         this.backgroundPaint.addChangeListener(updateHandler);
         interior.add(this.backgroundPaint,c);
 

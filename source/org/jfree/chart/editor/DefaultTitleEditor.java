@@ -48,23 +48,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.editor.components.FontControl;
+import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.editor.components.*;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
-import org.jfree.ui.FontChooserPanel;
-import org.jfree.ui.FontDisplayField;
-import org.jfree.ui.PaintSample;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.HorizontalAlignment;
+import org.jfree.ui.VerticalAlignment;
 
 /**
  * A panel for editing the properties of a chart title.
@@ -77,16 +71,42 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
     /** The checkbox to indicate whether or not to display the title. */
     private JCheckBox showTitleCheckBox;
 
+    /** Checkbox to indicate whether the title's frame will expand to fit the available space on
+     * its edge of the chart */
+    private JCheckBox titleExpands;
+
     /** A field for displaying/editing the title text. */
     private JTextField titleField;
 
-    /** The paint (color) used to draw the title. */
-    private PaintSample titlePaint;
+    /** Used to select the paint for the title text */
+    private PaintControl fontPaintControl;
 
-    /** The button to use to select a new paint (color) to draw the title. */
-    private JButton selectPaintButton;
-
+    /** Used to select the font for the title */
     private FontControl fontControl;
+
+    /** Edit the background color of the title */
+    private PaintControl backgroundPaintControl;
+
+    /** The tabs that group the title's properties */
+    private JTabbedPane tabs;
+
+    /** Controls the border of the title, which can be colored */
+    private InsetPanel borderPanel;
+
+    /** Controls the margin of the title */
+    private InsetPanel marginPanel;
+
+    /** Controls the padding of the title */
+    private InsetPanel paddingPanel;
+
+    /** Select the edge of the chart that holds the title */
+    private PositionComboBox posCombo;
+
+    /** Select the horizontal alignment for the title */
+    private HorizontalAlignmentComboBox horizontalAlign = new HorizontalAlignmentComboBox();
+
+    /** Select the vertical alignment for the title */
+    private VerticalAlignmentComboBox verticalAlign = new VerticalAlignmentComboBox();
 
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
@@ -97,7 +117,9 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
      * Standard constructor: builds a panel for displaying/editing the
      * properties of the specified title.
      *
+     * @param chart The chart that is being edited.
      * @param title  the title, which should be changed.
+     * @param immediateUpdate Whether changes should be applied immediately.
      */
     public DefaultTitleEditor(JFreeChart chart, Title title, boolean immediateUpdate) {
         super(chart, immediateUpdate);
@@ -106,17 +128,11 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
                 : new TextTitle(localizationResources.getString("Title")));
         this.showTitle = (title != null);
         this.titleField = new JTextField(t.getText());
-        this.titlePaint = new PaintSample(t.getPaint());
+        this.fontPaintControl = new PaintControl(t.getPaint());
 
         setLayout(new BorderLayout());
 
         JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(
-            BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(),
-                localizationResources.getString("General")
-            )
-        );
 
         JPanel interior = new JPanel(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
@@ -132,7 +148,38 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         interior.add(this.showTitleCheckBox,c);
 
         startNewRow(c);
-        JLabel titleLabel = new JLabel(localizationResources.getString("Text"));
+        interior.add(new JLabel(localizationResources.getString("Expand_to_fit")+":"),c);
+        c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+        this.titleExpands = new JCheckBox();
+        this.titleExpands.setSelected(t.getExpandToFitSpace());
+        this.titleExpands.addActionListener(updateHandler);
+        interior.add(this.titleExpands, c);
+
+        startNewRow(c);
+        JPanel textTab = buildTextTab(t);
+        JPanel boxTab = buildBoxTab(t);
+        JPanel positionTab = buildPositionTab(t);
+
+        tabs = new JTabbedPane();
+        tabs.addTab(localizationResources.getString("Text"), textTab);
+        tabs.addTab(localizationResources.getString("Box"), boxTab);
+        tabs.addTab(localizationResources.getString("Position"), positionTab);
+        c.gridwidth = 3; c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
+        interior.add(tabs, c);
+
+        this.enableOrDisableControls();
+
+        general.add(interior, BorderLayout.CENTER);
+        add(general, BorderLayout.CENTER);
+    }
+
+    private JPanel buildTextTab(TextTitle t) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        JPanel interior = new JPanel(new GridBagLayout());
+        interior.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        GridBagConstraints c = getNewConstraints();
+
+        JLabel titleLabel = new JLabel(localizationResources.getString("Text")+":");
         interior.add(titleLabel,c);
         c.gridx++; c.weightx = 1; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
         interior.add(this.titleField,c);
@@ -151,22 +198,84 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         JLabel colorLabel = new JLabel(
             localizationResources.getString("Color")
         );
-        this.selectPaintButton = new JButton(
-            localizationResources.getString("Select...")
-        );
-        this.selectPaintButton.setActionCommand("SelectPaint");
-        this.selectPaintButton.addActionListener(updateHandler);
-        this.selectPaintButton.addActionListener(this);
+        this.fontPaintControl.addChangeListener(updateHandler);
         interior.add(colorLabel,c);
-        c.gridx++; c.weightx = 1;
-        interior.add(this.titlePaint,c);
-        c.gridx++;
-        interior.add(this.selectPaintButton,c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        interior.add(this.fontPaintControl,c);
 
-        this.enableOrDisableControls();
+        startNewRow(c);
+        JLabel backPaintLabel = new JLabel(
+                localizationResources.getString("Background_paint")
+        );
+        this.backgroundPaintControl = new PaintControl(t.getBackgroundPaint(), true);
+        this.backgroundPaintControl.addChangeListener(updateHandler);
+        interior.add(backPaintLabel, c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        interior.add(this.backgroundPaintControl, c);
 
-        general.add(interior);
-        add(general, BorderLayout.NORTH);
+        wrapper.add(interior, BorderLayout.NORTH);
+
+        return wrapper;
+    }
+
+    private JPanel buildBoxTab(TextTitle t) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        JPanel interior = new JPanel(new GridBagLayout());
+        interior.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        GridBagConstraints c = getNewConstraints();
+
+        c.gridwidth = 3; c.weightx = 1;
+        this.borderPanel = new InsetPanel(localizationResources.getString("Border"), (BlockBorder)t.getFrame());
+        this.borderPanel.addChangeListener(updateHandler);
+        interior.add(this.borderPanel, c);
+
+        startNewRow(c);
+        c.gridwidth = 3; c.weightx = 1;
+        this.marginPanel = new InsetPanel(localizationResources.getString("Margin"), t.getMargin());
+        this.marginPanel.addChangeListener(updateHandler);
+        interior.add(this.marginPanel, c);
+
+        startNewRow(c);
+        c.gridwidth = 3; c.weightx = 1;
+        this.paddingPanel = new InsetPanel(localizationResources.getString("Padding"), t.getPadding());
+        this.paddingPanel.addChangeListener(updateHandler);
+        interior.add(this.paddingPanel, c);
+
+        wrapper.add(interior, BorderLayout.NORTH);
+        return wrapper;
+    }
+
+    private JPanel buildPositionTab(TextTitle t) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        JPanel interior = new JPanel(new GridBagLayout());
+        interior.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        GridBagConstraints c = getNewConstraints();
+
+        interior.add(new JLabel(localizationResources.getString("Edge")+":"), c);
+        c.weightx = 1; c.gridx++;
+        posCombo = new PositionComboBox();
+        posCombo.addActionListener(updateHandler);
+        posCombo.setSelectedObject(t.getPosition());
+        interior.add(posCombo, c);
+
+        startNewRow(c);
+        interior.add(new JLabel(localizationResources.getString("Horizontal_Align")+":"), c);
+        c.weightx = 1; c.gridx++;
+        horizontalAlign = new HorizontalAlignmentComboBox();
+        horizontalAlign.addActionListener(updateHandler);
+        horizontalAlign.setSelectedObject(t.getHorizontalAlignment());
+        interior.add(horizontalAlign, c);
+
+        startNewRow(c);
+        interior.add(new JLabel(localizationResources.getString("Vertical_Align")+":"), c);
+        c.weightx = 1; c.gridx++;
+        verticalAlign = new VerticalAlignmentComboBox();
+        verticalAlign.addActionListener(updateHandler);
+        verticalAlign.setSelectedObject(t.getVerticalAlignment());
+        interior.add(verticalAlign, c);
+
+        wrapper.add(interior, BorderLayout.NORTH);
+        return wrapper;
     }
 
     /**
@@ -193,7 +302,16 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
      * @return The paint selected in the panel.
      */
     public Paint getTitlePaint() {
-        return this.titlePaint.getPaint();
+        return this.fontPaintControl.getChosenPaint();
+    }
+
+    /**
+     * Returns the background paint selected in the panel.
+     *
+     * @return The paint selected in the panel.
+     */
+    public Paint getBackgroundPaint() {
+        return this.backgroundPaintControl.getChosenPaint();
     }
 
     /**
@@ -206,28 +324,8 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
 
         String command = event.getActionCommand();
 
-        if (command.equals("SelectPaint")) {
-            attemptPaintSelection();
-        }
-        else if (command.equals("ShowTitle")) {
+        if (command.equals("ShowTitle")) {
             attemptModifyShowTitle();
-        }
-    }
-
-    /**
-     * Allow the user the opportunity to select a Paint object.  For now, we
-     * just use the standard color chooser - all colors are Paint objects, but
-     * not all Paint objects are colors (later we can implement a more general
-     * Paint chooser).
-     */
-    public void attemptPaintSelection() {
-        Paint p = this.titlePaint.getPaint();
-        Color defaultColor = (p instanceof Color ? (Color) p : Color.blue);
-        Color c = JColorChooser.showDialog(
-            this, localizationResources.getString("Title_Color"), defaultColor
-        );
-        if (c != null) {
-            this.titlePaint.setPaint(c);
         }
     }
 
@@ -245,10 +343,19 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
      * If we are not supposed to show the title, the controls are disabled.
      */
     private void enableOrDisableControls() {
-        boolean enabled = (this.showTitle == true);
+        boolean enabled = (this.showTitle);
         this.titleField.setEnabled(enabled);
+        this.titleExpands.setEnabled(enabled);
         this.fontControl.setEnabled(enabled);
-        this.selectPaintButton.setEnabled(enabled);
+        this.fontPaintControl.setEnabled(enabled);
+        this.backgroundPaintControl.setEnabled(enabled);
+        this.borderPanel.setEnabled(enabled);
+        this.marginPanel.setEnabled(enabled);
+        this.paddingPanel.setEnabled(enabled);
+        this.posCombo.setEnabled(enabled);
+        this.horizontalAlign.setEnabled(enabled);
+        this.verticalAlign.setEnabled(enabled);
+        this.tabs.setEnabled(enabled);
     }
 
     /**
@@ -264,15 +371,17 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
                 title = new TextTitle();
                 chart.setTitle(title);
             }
+            title.setExpandToFitSpace(titleExpands.isSelected());
             title.setText(getTitleText());
             title.setFont(getTitleFont());
             title.setPaint(getTitlePaint());
-            //title.setBackgroundPaint();
-            //title.setBorder();
-            //title.setMargin();
-            //title.setPadding();
-            //title.setPosition();
-            //title.setTextAlignment();
+            title.setBackgroundPaint(getBackgroundPaint());
+            title.setFrame(borderPanel.getSelectedBlockBorder());
+            title.setMargin(marginPanel.getSelectedInsets());
+            title.setPadding(paddingPanel.getSelectedInsets());
+            title.setPosition((RectangleEdge) posCombo.getSelectedObject());
+            title.setHorizontalAlignment((HorizontalAlignment) horizontalAlign.getSelectedObject());
+            title.setVerticalAlignment((VerticalAlignment) verticalAlign.getSelectedObject());
         }
         else {
             chart.setTitle((TextTitle) null);

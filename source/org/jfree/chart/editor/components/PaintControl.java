@@ -14,10 +14,24 @@ import java.awt.*;
  */
 public class PaintControl extends AbstractControl {
     private PaintSample paintSample;
-    public PaintControl(Paint paint) {
-        super(new PaintSample(paint));
+    private boolean allowNulls;
+    private static final Paint DEFAULT_PAINT = Color.BLACK;
 
+    public PaintControl(Paint paint) {
+        this(paint, false);
+    }
+
+    public PaintControl(Paint paint, boolean allowNulls) {
+        super(new PaintSample(paint), allowNulls);
+
+        this.allowNulls = allowNulls;
         this.paintSample = (PaintSample) sample;
+
+        if(allowNulls) {
+            boolean paintNotNull = paint != null;
+            checkBox.setSelected(paintNotNull);
+            setEnabled(paintNotNull, false);
+        }
     }
 
     protected void doEditAction() {
@@ -32,6 +46,10 @@ public class PaintControl extends AbstractControl {
     }
 
     public Paint getChosenPaint() {
-        return paintSample.getPaint();
+        if(allowNulls && !checkBox.isSelected()) {
+            return null;
+        }
+        Paint paint = paintSample.getPaint();
+        return paint == null ? DEFAULT_PAINT : paint;
     }
 }

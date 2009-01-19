@@ -15,15 +15,34 @@ import java.awt.event.ActionEvent;
 public abstract class AbstractControl extends EditPanel {
     protected JComponent sample;
     protected JButton button;
+    protected JCheckBox checkBox = null;
+
+    protected boolean showCheckBox;
 
     private EventHandler handler = new EventHandler();
 
     public AbstractControl(JComponent sample) {
+        this(sample, false);
+    }
+
+    public AbstractControl(JComponent sample, boolean showCheckBox) {
         super(new GridBagLayout());
 
+        this.showCheckBox = showCheckBox;
+
         GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0; c.gridy = 0; c.weightx = 0; c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1; c.insets = new Insets(2,3,2,3);
+        c.gridx = 0; c.gridy = 0; c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(2,3,2,3);
+
+        if(showCheckBox) {
+            c.weightx = 0;
+            checkBox = new JCheckBox();
+            checkBox.addActionListener(handler);
+            add(checkBox, c);
+            c.gridx++;
+        }
+
+        c.weightx = 1;
         this.sample = sample;
         add(sample, c);
 
@@ -34,8 +53,16 @@ public abstract class AbstractControl extends EditPanel {
     }
 
     public void setEnabled(boolean enabled) {
-        button.setEnabled(enabled);
-        sample.setEnabled(enabled);
+        setEnabled(enabled, true);
+    }
+
+    public void setEnabled(boolean enabled, boolean includeCheckbox) {
+        if(includeCheckbox && showCheckBox) {
+            checkBox.setEnabled(enabled);
+        }
+        boolean b = enabled && (!showCheckBox || checkBox.isSelected());
+        button.setEnabled(b);
+        sample.setEnabled(b);
         super.setEnabled(enabled);
     }
 
@@ -45,6 +72,9 @@ public abstract class AbstractControl extends EditPanel {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource() == button) {
                 doEditAction();
+            } else if (e.getSource() == checkBox) {
+                setEnabled(checkBox.isSelected(), false);
+                fireChangeEvent();
             }
         }
     }
