@@ -138,9 +138,8 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        interior.add(new JLabel(localizationResources.getString("Show_Title")),c);
-        c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
-        this.showTitleCheckBox = new JCheckBox();
+        c.anchor = GridBagConstraints.WEST;
+        this.showTitleCheckBox = new JCheckBox(localizationResources.getString("Show_Title"));
         this.showTitleCheckBox.setSelected(this.showTitle);
         this.showTitleCheckBox.setActionCommand("ShowTitle");
         this.showTitleCheckBox.addActionListener(updateHandler);
@@ -148,9 +147,8 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         interior.add(this.showTitleCheckBox,c);
 
         startNewRow(c);
-        interior.add(new JLabel(localizationResources.getString("Expand_to_fit")+":"),c);
-        c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
-        this.titleExpands = new JCheckBox();
+        c.anchor = GridBagConstraints.WEST;
+        this.titleExpands = new JCheckBox(localizationResources.getString("Expand_to_fit"));
         this.titleExpands.setSelected(t.getExpandToFitSpace());
         this.titleExpands.addActionListener(updateHandler);
         interior.add(this.titleExpands, c);
@@ -164,7 +162,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         tabs.addTab(localizationResources.getString("Text"), textTab);
         tabs.addTab(localizationResources.getString("Box"), boxTab);
         tabs.addTab(localizationResources.getString("Position"), positionTab);
-        c.gridwidth = 3; c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
         interior.add(tabs, c);
 
         this.enableOrDisableControls();

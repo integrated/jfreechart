@@ -239,6 +239,7 @@ import org.jfree.util.PaintUtilities;
  * @see Plot
  */
 public class JFreeChart implements Drawable,
+                                   EditableBackground,
                                    TitleChangeListener,
                                    PlotChangeListener,
                                    Serializable,

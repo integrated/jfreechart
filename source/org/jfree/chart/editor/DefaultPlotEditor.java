@@ -73,6 +73,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.editor.components.BorderPanel;
+import org.jfree.chart.editor.components.BackgroundEditingPanel;
 import org.jfree.ui.PaintSample;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.BooleanUtilities;
@@ -87,8 +88,8 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private final static int ORIENTATION_VERTICAL = 0;
     private final static int ORIENTATION_HORIZONTAL = 1;
 
-    /** The paint (color) used to fill the background of the plot. */
-    private PaintSample backgroundPaintSample;
+    /** The panel to adjust the properties of the plot's background */
+    private BackgroundEditingPanel backgroundPanel;
 
     /**
      * A panel used to display/edit the properties of the domain axis (if any).
@@ -165,7 +166,7 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         super(chart, immediateUpdate);
 
         this.plotInsets = plot.getInsets();
-        this.backgroundPaintSample = new PaintSample(plot.getBackgroundPaint());
+        this.backgroundPanel = new BackgroundEditingPanel(plot);
         if (plot instanceof CategoryPlot) {
             this.plotOrientation = ((CategoryPlot) plot).getOrientation();
         }
@@ -208,25 +209,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         JPanel interior = new JPanel(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-
-        c.gridwidth = 3; c.weightx = 1;
-        plotBorder = new BorderPanel(localizationResources.getString("Border"),
-                plot.isOutlineVisible(), (BasicStroke) plot.getOutlineStroke(), plot.getOutlinePaint());
-        plotBorder.addChangeListener(updateHandler);
-        interior.add(plotBorder, c);
-
-        startNewRow(c);
-        interior.add(
-            new JLabel(localizationResources.getString("Background_paint")), c
-        );
-        c.gridx++;
-        JButton button = new JButton(localizationResources.getString("Select..."));
-        button.setActionCommand("BackgroundPaint");
-        button.addActionListener(updateHandler);
-        button.addActionListener(this);
-        interior.add(this.backgroundPaintSample,c);
-        c.gridx++;
-        interior.add(button,c);
 
         if (this.plotOrientation != null) {
             startNewRow(c);
@@ -276,6 +258,21 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
             this.drawShapesCheckBox.addActionListener(this);
             interior.add(this.drawShapesCheckBox, c);
         }
+
+        startNewRow(c);
+        c.gridwidth = 3; c.weightx = 1;
+        plotBorder = new BorderPanel(localizationResources.getString("Border"),
+                plot.isOutlineVisible(), (BasicStroke) plot.getOutlineStroke(), plot.getOutlinePaint());
+        plotBorder.addChangeListener(updateHandler);
+        interior.add(plotBorder, c);
+
+        startNewRow(c);
+        backgroundPanel.setBorder(BorderFactory.createTitledBorder(
+                localizationResources.getString("Background")
+        ));
+        backgroundPanel.addChangeListener(updateHandler);
+        c.gridwidth = 3; c.weightx = 1;
+        interior.add(backgroundPanel,c);
 
         general.add(interior, BorderLayout.NORTH);
 
@@ -363,15 +360,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
     }
 
     /**
-     * Returns the current background paint.
-     *
-     * @return The current background paint.
-     */
-    public Paint getBackgroundPaint() {
-        return this.backgroundPaintSample.getPaint();
-    }
-
-    /**
      * Returns the current outline stroke.
      *
      * @return The current outline stroke.
@@ -415,10 +403,7 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
-        if (command.equals("BackgroundPaint")) {
-            attemptBackgroundPaintSelection();
-        }
-        else if (command.equals("Orientation")) {
+        if (command.equals("Orientation")) {
             attemptOrientationSelection();
         }
         else if (command.equals("DrawLines")) {
@@ -426,20 +411,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
         else if (command.equals("DrawShapes")) {
             attemptDrawShapesSelection();
-        }
-    }
-
-    /**
-     * Allow the user to change the background paint.
-     */
-    private void attemptBackgroundPaintSelection() {
-        Color c;
-        c = JColorChooser.showDialog(
-            this, localizationResources.getString("Background_Color"),
-            Color.blue
-        );
-        if (c != null) {
-            this.backgroundPaintSample.setPaint(c);
         }
     }
 
@@ -489,8 +460,13 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         plot.setOutlineVisible(plotBorder.isBorderVisible());
         plot.setOutlinePaint(getOutlinePaint());
         plot.setOutlineStroke(getOutlineStroke());
-        plot.setBackgroundPaint(getBackgroundPaint());
         plot.setInsets(getPlotInsets());
+
+        plot.setBackgroundAlpha(backgroundPanel.getBackgroundAlpha());
+        plot.setBackgroundImage(backgroundPanel.getBackgroundImage());
+        plot.setBackgroundImageAlignment(backgroundPanel.getBackgroundImageAlignment());
+        plot.setBackgroundImageAlpha(backgroundPanel.getBackgroundImageAlpha());
+        plot.setBackgroundPaint(backgroundPanel.getBackgroundPaint());
 
         // then the axis properties...
         if (this.domainAxisPropertyPanel != null) {

@@ -150,6 +150,7 @@ import javax.swing.event.EventListenerList;
 
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
+import org.jfree.chart.EditableBackground;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
@@ -179,7 +180,7 @@ import org.jfree.util.PublicCloneable;
  * data to the plot.  This base class provides facilities common to most plot
  * types.
  */
-public abstract class Plot implements AxisChangeListener,
+public abstract class Plot implements EditableBackground, AxisChangeListener,
         DatasetChangeListener, MarkerChangeListener, LegendItemSource,
         PublicCloneable, Cloneable, Serializable {
 
