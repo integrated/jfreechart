@@ -50,12 +50,9 @@ import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -74,7 +71,6 @@ import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.editor.components.BorderPanel;
 import org.jfree.chart.editor.components.BackgroundEditingPanel;
-import org.jfree.ui.PaintSample;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.BooleanUtilities;
 
