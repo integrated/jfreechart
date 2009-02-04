@@ -459,9 +459,6 @@ class DefaultPlotEditor extends BaseEditor implements ActionListener {
         plot.setInsets(getPlotInsets());
 
         plot.setBackgroundAlpha(backgroundPanel.getBackgroundAlpha());
-        plot.setBackgroundImage(backgroundPanel.getBackgroundImage());
-        plot.setBackgroundImageAlignment(backgroundPanel.getBackgroundImageAlignment());
-        plot.setBackgroundImageAlpha(backgroundPanel.getBackgroundImageAlpha());
         plot.setBackgroundPaint(backgroundPanel.getBackgroundPaint());
 
         // then the axis properties...

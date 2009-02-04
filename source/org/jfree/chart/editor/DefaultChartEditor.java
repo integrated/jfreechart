@@ -142,11 +142,19 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         interior.add(this.textAntialias, c);
 
         startNewRow(c);
+        c.weightx = 1;
+        background.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Background")));
+        interior.add(background, c);
+
+        startNewRow(c);
+        c.weightx = 1;
+        interior.add(box, c);
+
+        // component that fills remaining space, pushing the rest to the top of the available space
+        // rather than them all being vertically centred.
+        startNewRow(c);
         c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
-        JTabbedPane innerTabs = new JTabbedPane();
-        innerTabs.addTab(localizationResources.getString("Background"), background);
-        innerTabs.addTab(localizationResources.getString("Box"), box);
-        interior.add(innerTabs, c);
+        interior.add(new JPanel(), c);
 
 
         general.add(interior, BorderLayout.CENTER);
@@ -211,14 +219,6 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
     }
 
     /**
-     * Returns a reference to the background image of the chart.
-     * @return An Image for the chart background.
-     */
-    public Image getBackgroundImage() {
-        return this.background.getBackgroundImage();
-    }
-
-    /**
      * Returns the current setting of the anti-alias flag.
      *
      * @return <code>true</code> if anti-aliasing is enabled.
@@ -250,9 +250,6 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         chart.setAntiAlias(getAntiAlias());
         chart.setTextAntiAlias(textAntialias.isSelected());
         chart.setBackgroundPaint(getBackgroundPaint());
-        chart.setBackgroundImage(getBackgroundImage());
-        chart.setBackgroundImageAlignment(background.getBackgroundImageAlignment());
-        chart.setBackgroundImageAlpha(background.getBackgroundImageAlpha());
         chart.setBorderPaint(borderPanel.getBorderPaint());
         chart.setBorderStroke(borderPanel.getBorderStroke());
         chart.setBorderVisible(borderPanel.isBorderVisible());
