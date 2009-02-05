@@ -105,6 +105,9 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
     /** Select the horizontal alignment for the title */
     private HorizontalAlignmentComboBox horizontalAlign = new HorizontalAlignmentComboBox();
 
+    /** Select the text alignment for the title */
+    private HorizontalAlignmentComboBox textAlign = new HorizontalAlignmentComboBox();
+
     /** Select the vertical alignment for the title */
     private VerticalAlignmentComboBox verticalAlign = new VerticalAlignmentComboBox();
 
@@ -185,6 +188,14 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         this.titleField.getDocument().addDocumentListener(updateHandler);
 
         startNewRow(c);
+        interior.add(new JLabel(localizationResources.getString("Text_Align")+":"), c);
+        c.weightx = 1; c.gridx++;
+        textAlign = new HorizontalAlignmentComboBox();
+        textAlign.setSelectedObject(t.getTextAlignment());
+        textAlign.addActionListener(updateHandler);
+        interior.add(textAlign, c);
+
+        startNewRow(c);
         JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
         this.fontControl = new FontControl(t.getFont());
         this.fontControl.addChangeListener(updateHandler);
@@ -252,24 +263,24 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
         interior.add(new JLabel(localizationResources.getString("Edge")+":"), c);
         c.weightx = 1; c.gridx++;
         posCombo = new PositionComboBox();
-        posCombo.addActionListener(updateHandler);
         posCombo.setSelectedObject(t.getPosition());
+        posCombo.addActionListener(updateHandler);
         interior.add(posCombo, c);
 
         startNewRow(c);
         interior.add(new JLabel(localizationResources.getString("Horizontal_Align")+":"), c);
         c.weightx = 1; c.gridx++;
         horizontalAlign = new HorizontalAlignmentComboBox();
-        horizontalAlign.addActionListener(updateHandler);
         horizontalAlign.setSelectedObject(t.getHorizontalAlignment());
+        horizontalAlign.addActionListener(updateHandler);
         interior.add(horizontalAlign, c);
 
         startNewRow(c);
         interior.add(new JLabel(localizationResources.getString("Vertical_Align")+":"), c);
         c.weightx = 1; c.gridx++;
         verticalAlign = new VerticalAlignmentComboBox();
-        verticalAlign.addActionListener(updateHandler);
         verticalAlign.setSelectedObject(t.getVerticalAlignment());
+        verticalAlign.addActionListener(updateHandler);
         interior.add(verticalAlign, c);
 
         wrapper.add(interior, BorderLayout.NORTH);
@@ -343,6 +354,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
     private void enableOrDisableControls() {
         boolean enabled = (this.showTitle);
         this.titleField.setEnabled(enabled);
+        this.textAlign.setEnabled(enabled);
         this.titleExpands.setEnabled(enabled);
         this.fontControl.setEnabled(enabled);
         this.fontPaintControl.setEnabled(enabled);
@@ -371,6 +383,7 @@ class DefaultTitleEditor extends BaseEditor implements ActionListener {
             }
             title.setExpandToFitSpace(titleExpands.isSelected());
             title.setText(getTitleText());
+            title.setTextAlignment((HorizontalAlignment) textAlign.getSelectedObject());
             title.setFont(getTitleFont());
             title.setPaint(getTitlePaint());
             title.setBackgroundPaint(getBackgroundPaint());
