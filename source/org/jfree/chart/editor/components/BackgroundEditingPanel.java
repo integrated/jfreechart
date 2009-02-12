@@ -1,7 +1,6 @@
 package org.jfree.chart.editor.components;
 
 import org.jfree.chart.EditableBackground;
-import org.jfree.chart.plot.Plot;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -19,9 +18,6 @@ public class BackgroundEditingPanel extends EditPanel {
 
     /** The chart background color. */
     private PaintControl backgroundPaint;
-
-    /** Control to change the alpha-value for the background color (only applicable to Plot objects at the moment) */
-    private JSlider backgroundAlpha;
 
     private final EventHandler updateHandler = new EventHandler();
 
@@ -42,22 +38,7 @@ public class BackgroundEditingPanel extends EditPanel {
         this.backgroundPaint.addChangeListener(updateHandler);
         interior.add(this.backgroundPaint,c);
 
-        if(background instanceof Plot) {
-            backgroundAlpha = new JSlider(0,100);
-            backgroundAlpha.addChangeListener(updateHandler);
-            backgroundAlpha.setValue((int)(((Plot)background).getBackgroundAlpha()*100));
-
-            c.gridy++; c.gridx=0; c.weightx = 0; c.gridwidth = 1;
-            interior.add(new JLabel(localizationResources.getString("Background_Alpha")+":"),c);
-            c.gridx++; c.weightx = 1; c.gridwidth = 3;
-            interior.add(backgroundAlpha, c);
-        }
-
         add(interior, BorderLayout.NORTH);
-    }
-
-    public float getBackgroundAlpha() {
-        return (float)backgroundAlpha.getValue()/100;
     }
 
     public Paint getBackgroundPaint() {
