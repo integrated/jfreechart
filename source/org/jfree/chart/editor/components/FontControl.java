@@ -2,6 +2,7 @@ package org.jfree.chart.editor.components;
 
 import org.jfree.ui.FontDisplayField;
 import org.jfree.ui.FontChooserPanel;
+import org.jfree.chart.editor.DefaultChartEditor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,11 +20,12 @@ public class FontControl extends AbstractControl {
         super(new FontDisplayField(font));
         fontField = (FontDisplayField) sample;
         fontField.setEditable(false);
-        fontField.setFont(font.deriveFont(12f));
+        fontField.setFont(new Font(font.getName(), font.getStyle(), 12));
     }
 
     protected void doEditAction() {
-        FontChooserPanel panel = new FontChooserPanel(fontField.getDisplayFont());
+        FontChooserPanel panel = DefaultChartEditor.getDefaultFontChooserPanel();
+        panel.setSelectedFont(getChosenFont());
         int result =
             JOptionPane.showConfirmDialog(
                 this, panel, localizationResources.getString("Font_Selection"),
@@ -31,8 +33,9 @@ public class FontControl extends AbstractControl {
             );
 
         if (result == JOptionPane.OK_OPTION) {
-            fontField.setDisplayFont(panel.getSelectedFont());
-            fontField.setFont(panel.getSelectedFont().deriveFont(12f));
+            Font chosenFont = panel.getSelectedFont();
+            fontField.setDisplayFont(chosenFont);
+            fontField.setFont(new Font(chosenFont.getName(), chosenFont.getStyle(), 12));
             fireChangeEvent();
         }
     }

@@ -55,6 +55,7 @@ import org.jfree.chart.editor.components.BackgroundEditingPanel;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
+import org.jfree.ui.FontChooserPanel;
 
 /**
  * A panel for editing chart properties (includes subpanels for the title,
@@ -71,6 +72,8 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
     /** A panel for displaying/editing the properties of the plot. */
     private DefaultPlotEditor plotEditor;
+
+    private JTabbedPane tabs;
 
     /**
      * A checkbox indicating whether or not the chart is drawn with
@@ -92,6 +95,20 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
     /** The panel that edits the background's properties */
     private BackgroundEditingPanel background;
+
+    private static FontChooserPanel fontChooser;
+
+    static {
+        fontChooser = new FontChooserPanel(new Font("Tahoma", Font.PLAIN, 12));
+    }
+
+    public static FontChooserPanel getDefaultFontChooserPanel() {
+        return fontChooser;
+    }
+
+    public static void setDefaultFontChooserPanel(FontChooserPanel panel) {
+        fontChooser = panel;
+    }
 
     /**
      * Standard constructor - the property panel is made up of a number of
@@ -164,7 +181,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         Title title = chart.getTitle();
         Plot plot = chart.getPlot();
 
-        JTabbedPane tabs = new JTabbedPane();
+        tabs = new JTabbedPane();
 
         tabs.addTab(localizationResources.getString("Chart"), general);
         this.titleEditor = new DefaultTitleEditor(chart, title, this.immediateUpdate);
@@ -177,6 +194,18 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
         parts.add(tabs, BorderLayout.CENTER);
         add(parts);
+    }
+
+    public void addTab(String title, Icon icon, Component component, String tip) {
+        tabs.addTab(title, icon, component, tip);
+    }
+
+    public void removeTabAt(int index) {
+        tabs.removeTabAt(index);
+    }
+
+    public Component getTabComponentAt(int index) {
+        return tabs.getTabComponentAt(index);
     }
 
     private JPanel buildBoxTab(JFreeChart chart) {

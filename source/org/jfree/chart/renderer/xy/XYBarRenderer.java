@@ -156,7 +156,7 @@ public class XYBarRenderer extends AbstractXYItemRenderer
      *
      * @since 1.0.11
      */
-    private static XYBarPainter defaultBarPainter = new GradientXYBarPainter();
+    private static XYBarPainter defaultBarPainter = new StandardXYBarPainter();
 
     /**
      * Returns the default bar painter.
