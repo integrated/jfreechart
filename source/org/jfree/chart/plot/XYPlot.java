@@ -3224,6 +3224,8 @@ public class XYPlot extends Plot implements ValueAxisPlot, Zoomable,
             drawRangeGridlines(g2, dataArea, rangeAxisState.getTicks());
             drawZeroRangeBaseline(g2, dataArea);
         }
+        // draw axes again so they are above the gridlines.
+        drawAxes(g2, area, dataArea, null);
 
         // draw the markers that are associated with a specific renderer...
         for (int i = 0; i < this.renderers.size(); i++) {

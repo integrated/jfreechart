@@ -392,6 +392,14 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
      */
     private boolean domainCrosshairVisible;
 
+
+    /**
+     * Whether to draw the axis gridlines above the data.
+     *
+     * @since custom
+     */
+    private boolean gridLinesOverData;
+
     /**
      * The row key for the crosshair point.
      *
@@ -578,6 +586,7 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
 
         this.annotations = new java.util.ArrayList();
 
+        this.gridLinesOverData = false;
     }
 
     /**
@@ -1856,6 +1865,34 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
             this.rangeGridlinesVisible = visible;
             fireChangeEvent();
         }
+    }
+
+
+
+    /**
+     * Returns a flag that controls whether or not the axis gridlines are drawn after the data
+     * is rendered.
+     *
+     * @return A boolean.
+     *
+     * @see #setGridLinesOverData(boolean)
+     */
+    public boolean isGridLinesOverData() {
+        return gridLinesOverData;
+    }
+
+    /**
+     * Sets the flag that controls whether or not the gridlines are drawn over the
+     * data, and sends a {@link PlotChangeEvent} to
+     * all registered listeners.
+     *
+     * @param gridLinesOverData  the flag.
+     *
+     * @see #isGridLinesOverData()
+     */
+    public void setGridLinesOverData(boolean gridLinesOverData) {
+        this.gridLinesOverData = gridLinesOverData;
+        fireChangeEvent();
     }
 
     /**
@@ -3309,18 +3346,12 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
         Shape savedClip = g2.getClip();
         g2.clip(dataArea);
 
-        drawDomainGridlines(g2, dataArea);
+        if(!isGridLinesOverData()) {
+            doGridLineDraw(g2, parentState, dataArea, axisStateMap);
+            // redraw the axes so they appear over the gridlines.
+            drawAxes(g2, area, dataArea, state);
+        }
 
-        AxisState rangeAxisState = (AxisState) axisStateMap.get(getRangeAxis());
-        if (rangeAxisState == null) {
-            if (parentState != null) {
-                rangeAxisState = (AxisState) parentState.getSharedAxisStates()
-                        .get(getRangeAxis());
-            }
-        }
-        if (rangeAxisState != null) {
-            drawRangeGridlines(g2, dataArea, rangeAxisState.getTicks());
-        }
 
         // draw the markers...
         for (int i = 0; i < this.renderers.size(); i++) {
@@ -3351,6 +3382,13 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
                     || foundData;
             }
         }
+
+        if(isGridLinesOverData()) {
+            doGridLineDraw(g2, parentState, dataArea, axisStateMap);
+            // redraw the axes so they appear over the gridlines.
+            drawAxes(g2, area, dataArea, state);
+        }
+
         // draw the foreground markers...
         for (int i = 0; i < this.renderers.size(); i++) {
             drawDomainMarkers(g2, dataArea, i, Layer.FOREGROUND);
@@ -3415,6 +3453,21 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
             }
         }
 
+    }
+
+    protected void doGridLineDraw(Graphics2D g2, PlotState parentState, Rectangle2D dataArea, Map axisStateMap) {
+        drawDomainGridlines(g2, dataArea);
+
+        AxisState rangeAxisState = (AxisState) axisStateMap.get(getRangeAxis());
+        if (rangeAxisState == null) {
+            if (parentState != null) {
+                rangeAxisState = (AxisState) parentState.getSharedAxisStates()
+                        .get(getRangeAxis());
+            }
+        }
+        if (rangeAxisState != null) {
+            drawRangeGridlines(g2, dataArea, rangeAxisState.getTicks());
+        }
     }
 
     /**
