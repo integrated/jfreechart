@@ -211,6 +211,15 @@ public abstract class AbstractCategoryItemLabelGenerator
     }
 
     /**
+     * Returns the percent formatter
+     *
+     * @return The percent formatter (possibly <code>null</code>).
+     */
+    public NumberFormat getPercentFormat() {
+        return this.percentFormat;
+    }
+
+    /**
      * Generates a for the specified item.
      *
      * @param dataset  the dataset (<code>null</code> not permitted).
@@ -224,10 +233,9 @@ public abstract class AbstractCategoryItemLabelGenerator
         if (dataset == null) {
             throw new IllegalArgumentException("Null 'dataset' argument.");
         }
-        String result = null;
+
         Object[] items = createItemArray(dataset, row, column);
-        result = MessageFormat.format(this.labelFormat, items);
-        return result;
+        return MessageFormat.format(this.labelFormat, items);
 
     }
 
@@ -293,6 +301,9 @@ public abstract class AbstractCategoryItemLabelGenerator
         if (!ObjectUtilities.equal(this.numberFormat, that.numberFormat)) {
             return false;
         }
+        if (!ObjectUtilities.equal(this.percentFormat, that.percentFormat)) {
+            return false;
+        }
         return true;
     }
 
@@ -326,6 +337,9 @@ public abstract class AbstractCategoryItemLabelGenerator
         }
         if (this.dateFormat != null) {
             clone.dateFormat = (DateFormat) this.dateFormat.clone();
+        }
+        if(this.percentFormat != null) {
+            clone.percentFormat = (NumberFormat) this.percentFormat.clone();
         }
         return clone;
     }
