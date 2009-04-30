@@ -46,30 +46,27 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.Axis;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
-import org.jfree.layout.LCBLayout;
-import org.jfree.ui.PaintSample;
-import org.jfree.ui.StrokeChooserPanel;
-import org.jfree.ui.StrokeSample;
+import org.jfree.chart.editor.themes.iPlusAxisTheme;
 
 /**
  * A panel for editing the properties of a value axis.
  */
-class DefaultNumberAxisEditor extends DefaultAxisEditor
-        implements FocusListener {
+public class DefaultNumberAxisEditor extends DefaultAxisEditor
+        implements FocusListener, ActionListener {
 
     /** A flag that indicates whether or not the axis range is determined
      *  automatically.
@@ -93,16 +90,6 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
     /** A text field for entering the maximum value in the axis range. */
     private JTextField maximumRangeValue;
 
-    /** The paint selected for drawing the gridlines. */
-    private PaintSample gridPaintSample;
-
-    /** The stroke selected for drawing the gridlines. */
-    private StrokeSample gridStrokeSample;
-
-    /** An array of stroke samples to choose from (since I haven't written a
-     *  decent StrokeChooser component yet).
-     */
-    private StrokeSample[] availableStrokeSamples;
 
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
@@ -112,27 +99,16 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
     /**
      * Standard constructor: builds a property panel for the specified axis.
      *
-     * @param axis  the axis, which should be changed.
+     * @param theme The theme to be edited.
      * @param chart The chart the axis belongs to.
      * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      */
-    public DefaultNumberAxisEditor(JFreeChart chart, NumberAxis axis, boolean immediateUpdate) {
-        super(chart, axis, immediateUpdate);
+    public DefaultNumberAxisEditor(iPlusAxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
+        super(theme, chart, immediateUpdate);
 
-        this.autoRange = axis.isAutoRange();
-        this.minimumValue = axis.getLowerBound();
-        this.maximumValue = axis.getUpperBound();
-
-        this.gridPaintSample = new PaintSample(Color.blue);
-        this.gridStrokeSample = new StrokeSample(new BasicStroke(1.0f));
-
-        this.availableStrokeSamples = new StrokeSample[3];
-        this.availableStrokeSamples[0] = new StrokeSample(
-                new BasicStroke(1.0f));
-        this.availableStrokeSamples[1] = new StrokeSample(
-                new BasicStroke(2.0f));
-        this.availableStrokeSamples[2] = new StrokeSample(
-                new BasicStroke(3.0f));
+        this.autoRange = theme.isAutoRange();
+        this.minimumValue = theme.getMinRange();
+        this.maximumValue = theme.getMaxRange();
 
         JTabbedPane other = getOtherTabs();
 
@@ -181,6 +157,8 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
 
         other.add(localizationResources.getString("Range"), range);
 
+        addCustomTabs(other);
+
     }
 
     /**
@@ -216,13 +194,7 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
-        if (command.equals("GridStroke")) {
-            attemptGridStrokeSelection();
-        }
-        else if (command.equals("GridPaint")) {
-            attemptGridPaintSelection();
-        }
-        else if (command.equals("AutoRangeOnOff")) {
+        if (command.equals("AutoRangeOnOff")) {
             toggleAutoRange();
         }
         else if (command.equals("MinimumRange")) {
@@ -230,40 +202,6 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
         }
         else if (command.equals("MaximumRange")) {
             validateMaximum();
-        }
-        else {
-            // pass to the super-class for handling
-            super.actionPerformed(event);
-        }
-    }
-
-    /**
-     * Handle a grid stroke selection.
-     */
-    private void attemptGridStrokeSelection() {
-        StrokeChooserPanel panel = new StrokeChooserPanel(
-            null, this.availableStrokeSamples
-        );
-        int result = JOptionPane.showConfirmDialog(
-            this, panel, localizationResources.getString("Stroke_Selection"),
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-        );
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.gridStrokeSample.setStroke(panel.getSelectedStroke());
-        }
-    }
-
-    /**
-     * Handle a grid paint selection.
-     */
-    private void attemptGridPaintSelection() {
-        Color c;
-        c = JColorChooser.showDialog(
-            this, localizationResources.getString("Grid_Color"), Color.blue
-        );
-        if (c != null) {
-            this.gridPaintSample.setPaint(c);
         }
     }
 
@@ -351,18 +289,21 @@ class DefaultNumberAxisEditor extends DefaultAxisEditor
         this.maximumRangeValue.setText(Double.toString(this.maximumValue));
     }
 
-    /**
-     * Sets the properties of the specified axis to match the properties
-     * defined on this panel.
-     *
-     * @param chart The chart.
-     */
-    public void updateChart(JFreeChart chart) {
-        super.updateChart(chart);
-        NumberAxis numberAxis = (NumberAxis) axis;
-        numberAxis.setAutoRange(this.autoRange);
-        if (!this.autoRange) {
-            numberAxis.setRange(this.minimumValue, this.maximumValue);
+    protected void applyToAxes(Axis[] axes) {
+        super.applyToAxes(axes);
+
+        theme.setAutoRange(this.autoRange);
+        theme.setMinRange(this.minimumValue);
+        theme.setMaxRange(this.maximumValue);
+
+        for(int i = 0; i < axes.length; i++) {
+            if(axes[i] instanceof NumberAxis) {
+                NumberAxis numberAxis = (NumberAxis) axes[i];
+                numberAxis.setAutoRange(this.autoRange);
+                if (!this.autoRange) {
+                    numberAxis.setRange(this.minimumValue, this.maximumValue);
+                }
+            }
         }
     }
 

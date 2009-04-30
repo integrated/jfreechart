@@ -1,6 +1,7 @@
 package org.jfree.chart.editor.components;
 
 import org.jfree.chart.util.ResourceBundleWrapper;
+import org.jfree.chart.editor.BaseEditor;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -51,5 +52,13 @@ public class EditPanel extends JPanel {
                 ((ChangeListener)listeners[i+1]).stateChanged(e);
             }
         }
+    }
+
+    protected static GridBagConstraints getNewConstraints() {
+        return BaseEditor.getNewConstraints();
+    }
+
+    protected static void startNewRow(GridBagConstraints c) {
+        BaseEditor.startNewRow(c);
     }
 }

@@ -1,5 +1,9 @@
 package org.jfree.chart.editor.components;
 
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.editor.themes.iPlusChartTheme;
+import org.jfree.chart.editor.themes.ChartBorder;
+
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -73,6 +77,20 @@ public class BorderPanel extends EditPanel {
 
     public Paint getBorderPaint() {
         return paintControl.getChosenPaint();
+    }
+
+    public void apply(JFreeChart chart, iPlusChartTheme theme) {
+        if(chart != null) {
+            chart.setBorderVisible(isBorderVisible());
+            chart.setBorderStroke(getBorderStroke());
+            chart.setBorderPaint(getBorderPaint());
+        }
+        if(theme != null) {
+            ChartBorder cBorder = theme.getBorder();
+            cBorder.setVisible(isBorderVisible());
+            cBorder.setStroke(getBorderStroke());
+            cBorder.setPaint(getBorderPaint());
+        }
     }
 
     private class EventHandler implements ActionListener, ChangeListener {

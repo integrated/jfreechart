@@ -52,10 +52,12 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.editor.components.InsetPanel;
 import org.jfree.chart.editor.components.BorderPanel;
 import org.jfree.chart.editor.components.BackgroundEditingPanel;
+import org.jfree.chart.editor.themes.iPlusChartTheme;
+import org.jfree.chart.editor.themes.ChartBorder;
 import org.jfree.chart.plot.Plot;
-import org.jfree.chart.title.Title;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.ui.FontChooserPanel;
+import org.jfree.ui.RectangleInsets;
 
 /**
  * A panel for editing chart properties (includes subpanels for the title,
@@ -68,12 +70,16 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
                     "org.jfree.chart.editor.LocalizationBundle");
 
     /** A panel for displaying/editing the properties of the title. */
-    private DefaultTitleEditor titleEditor;
+    private DefaultChartTitleEditor titleEditor;
 
     /** A panel for displaying/editing the properties of the plot. */
     private DefaultPlotEditor plotEditor;
 
+    private DefaultLegendEditor legendEditor;
+
     private JTabbedPane tabs;
+
+    protected iPlusChartTheme theme;
 
     /**
      * A checkbox indicating whether or not the chart is drawn with
@@ -114,28 +120,32 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
      * Standard constructor - the property panel is made up of a number of
      * sub-panels that are displayed in the tabbed pane.
      *
+     * @param theme The theme that will be edited.
      * @param chart  the chart, whichs properties should be changed.
      */
-    public DefaultChartEditor(JFreeChart chart) {
-        this(chart, false);
+    public DefaultChartEditor(iPlusChartTheme theme, JFreeChart chart) {
+        this(theme, chart, false);
     }
 
     /**
      * Standard constructor - the property panel is made up of a number of
      * sub-panels that are displayed in the tabbed pane.
      *
+     * @param theme The theme that will be edited.
      * @param chart  the chart, whichs properties should be changed.
      * @param immediateUpdate If true, changes are applied to the chart as they are made without waiting for the OK button.
      */
-    public DefaultChartEditor(JFreeChart chart, boolean immediateUpdate) {
+    public DefaultChartEditor(iPlusChartTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(chart, immediateUpdate);
         setLayout(new BorderLayout());
 
+        this.theme = theme;
+
         // background tab
-        background = new BackgroundEditingPanel(chart);
+        background = new BackgroundEditingPanel(theme);
         background.addChangeListener(updateHandler);
         // box tab
-        JPanel box = buildBoxTab(chart);
+        JPanel box = buildBoxTab();
 
         JPanel general = new JPanel(new BorderLayout());
 
@@ -145,15 +155,14 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
         this.antialias = new JCheckBox(localizationResources.getString(
                 "Draw_anti-aliased"));
-        this.antialias.setSelected(chart.getAntiAlias());
+        this.antialias.setSelected(theme.isAntiAliased());
         antialias.addActionListener(updateHandler);
         c.weightx = 1;
         interior.add(this.antialias,c);
 
         startNewRow(c);
-        Object anti = chart.getTextAntiAlias();
         this.textAntialias = new JCheckBox(localizationResources.getString("Draw_anti-aliased_text"),
-                anti == null || RenderingHints.VALUE_TEXT_ANTIALIAS_ON.equals(anti));
+                theme.isAntiAliasedText());
         this.textAntialias.addActionListener(updateHandler);
         c.weightx = 1;
         interior.add(this.textAntialias, c);
@@ -178,22 +187,41 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
         JPanel parts = new JPanel(new BorderLayout());
 
-        Title title = chart.getTitle();
         Plot plot = chart.getPlot();
 
         tabs = new JTabbedPane();
 
         tabs.addTab(localizationResources.getString("Chart"), general);
-        this.titleEditor = new DefaultTitleEditor(chart, title, this.immediateUpdate);
+        this.titleEditor = initTitleEditor();
         this.titleEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         tabs.addTab(localizationResources.getString("Title"), this.titleEditor);
 
-        this.plotEditor = new DefaultPlotEditor(chart, plot, this.immediateUpdate);
+        this.plotEditor = initPlotEditor(plot);
         this.plotEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         tabs.addTab(localizationResources.getString("Plot"), this.plotEditor);
 
+        this.legendEditor = initLegendEditor();
+        this.legendEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        tabs.addTab(localizationResources.getString("Legend"), this.legendEditor);
+
+        addCustomTabs(tabs);
+
         parts.add(tabs, BorderLayout.CENTER);
         add(parts);
+
+        theme.apply(chart);
+    }
+
+    protected DefaultChartTitleEditor initTitleEditor() {
+        return new DefaultChartTitleEditor(theme.getTitleTheme(), chart, this.immediateUpdate);
+    }
+
+    protected DefaultPlotEditor initPlotEditor(Plot plot) {
+        return new DefaultPlotEditor(theme.getPlotTheme(), chart, plot, this.immediateUpdate);
+    }
+
+    protected DefaultLegendEditor initLegendEditor() {
+        return new DefaultLegendEditor(theme.getLegendTheme(), chart, this.immediateUpdate);
     }
 
     public void addTab(String title, Icon icon, Component component, String tip) {
@@ -205,22 +233,24 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
     }
 
     public Component getTabComponentAt(int index) {
-        return tabs.getTabComponentAt(index);
+        return tabs.getComponentAt(index);
     }
 
-    private JPanel buildBoxTab(JFreeChart chart) {
+    private JPanel buildBoxTab() {
         JPanel box = new JPanel(new BorderLayout());
         JPanel interior = new JPanel(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
 
+        ChartBorder border = theme.getBorder();
+
         borderPanel = new BorderPanel(localizationResources.getString("Border"),
-                chart.isBorderVisible(), (BasicStroke) chart.getBorderStroke(), chart.getBorderPaint());
+                border.isVisible(), border.getStroke(), border.getPaint());
         borderPanel.addChangeListener(updateHandler);
         c.gridwidth = 3; c.weightx = 1;
         interior.add(borderPanel, c);
 
         startNewRow(c);
-        chartPadding = new InsetPanel(localizationResources.getString("Padding"), chart.getPadding());
+        chartPadding = new InsetPanel(localizationResources.getString("Padding"), theme.getPadding());
         chartPadding.addChangeListener(updateHandler);
         c.gridwidth = 3;
         interior.add(chartPadding, c);
@@ -234,7 +264,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
      *
      * @return A panel for editing the title.
      */
-    public DefaultTitleEditor getTitleEditor() {
+    public DefaultChartTitleEditor getTitleEditor() {
       return this.titleEditor;
     }
 
@@ -275,14 +305,33 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
         this.titleEditor.updateChart(chart);
         this.plotEditor.updateChart(chart);
+        this.legendEditor.updateChart(chart);
 
-        chart.setAntiAlias(getAntiAlias());
-        chart.setTextAntiAlias(textAntialias.isSelected());
-        chart.setBackgroundPaint(getBackgroundPaint());
-        chart.setBorderPaint(borderPanel.getBorderPaint());
-        chart.setBorderStroke(borderPanel.getBorderStroke());
-        chart.setBorderVisible(borderPanel.isBorderVisible());
-        chart.setPadding(chartPadding.getSelectedInsets());
-//        chart.setSubtitles(null);
+        boolean antiAlias = getAntiAlias();
+        chart.setAntiAlias(antiAlias);
+        theme.setAntiAliased(antiAlias);
+
+        boolean textAlias = textAntialias.isSelected();
+        chart.setTextAntiAlias(textAlias);
+        theme.setAntiAliasedText(textAlias);
+
+        Paint backgroundPaint = getBackgroundPaint();
+        chart.setBackgroundPaint(backgroundPaint);
+        theme.setChartBackgroundPaint(backgroundPaint);
+
+        borderPanel.apply(chart, theme);
+
+        RectangleInsets padding = chartPadding.getSelectedInsets();
+        chart.setPadding(padding);
+        theme.setPadding(padding);
+
+        applyCustomEditors(chart);
+    }
+
+    public void setLiveUpdates(boolean val) {
+        super.setLiveUpdates(val);
+        titleEditor.setLiveUpdates(val);
+        plotEditor.setLiveUpdates(val);
+        legendEditor.setLiveUpdates(val);
     }
 }

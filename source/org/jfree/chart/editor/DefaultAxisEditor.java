@@ -48,54 +48,45 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
-import org.jfree.layout.LCBLayout;
-import org.jfree.ui.FontChooserPanel;
-import org.jfree.ui.FontDisplayField;
-import org.jfree.ui.PaintSample;
-import org.jfree.ui.RectangleInsets;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.editor.components.FontControl;
+import org.jfree.chart.editor.components.PaintControl;
+import org.jfree.chart.editor.components.LineEditorPanel;
+import org.jfree.chart.editor.themes.iPlusAxisTheme;
 
 /**
  * A panel for editing the properties of an axis.
  */
-class DefaultAxisEditor extends BaseEditor implements ActionListener {
+public class DefaultAxisEditor extends BaseEditor {
+
+    protected iPlusAxisTheme theme;
 
     /** The axis label. */
     private JTextField label;
 
-    /** The label font. */
-    private Font labelFont;
+    /** Used to select the font for the title */
+    private FontControl labelFontControl;
 
-    /** The label paint. */
-    private PaintSample labelPaintSample;
+    private PaintControl labelPaintControl;
 
-    /** A field showing a description of the label font. */
-    private JTextField labelFontField;
 
-    /** The font for displaying tick labels on the axis. */
-    private Font tickLabelFont;
+    /** Used to select the font for the title */
+    private FontControl tickFontControl;
 
-    /**
-     * A field containing a description of the font for displaying tick labels
-     * on the axis.
-     */
-    private JTextField tickLabelFontField;
+    private PaintControl tickPaintControl;
 
-    /** The paint (color) for the tick labels. */
-    private PaintSample tickLabelPaintSample;
+    private JSpinner labelAngle;
+
+    private LineEditorPanel axisLine;
 
     /**
      * An empty sub-panel for extending the user interface to handle more
@@ -115,23 +106,8 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
     /** A flag that indicates whether or not the tick marks are visible. */
     private JCheckBox showTickMarksCheckBox;
 
-//    /** Insets text field. */
-//    private InsetsTextField tickLabelInsetsTextField;
-//
-//    /** Label insets text field. */
-//    private InsetsTextField labelInsetsTextField;
-
-    /** The tick label insets. */
-    private RectangleInsets tickLabelInsets;
-
-    /** The label insets. */
-    private RectangleInsets labelInsets;
-
     /** A tabbed pane for... */
     private JTabbedPane otherTabs;
-
-    /** The axis being edited */
-    protected Axis axis;
 
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
@@ -142,6 +118,7 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
      * A static method that returns a panel that is appropriate for the axis
      * type.
      *
+     * @param theme The axis theme that will be edited
      * @param axis  the axis whose properties are to be displayed/edited in
      *              the panel.
      * @param chart The chart the axis belongs to.
@@ -149,16 +126,18 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
      *
      * @return A panel or <code>null</code< if axis is <code>null</code>.
      */
-    public static DefaultAxisEditor getInstance(JFreeChart chart, Axis axis, boolean immediateUpdate) {
+    public static DefaultAxisEditor getInstance(iPlusAxisTheme theme, JFreeChart chart, Axis axis, boolean immediateUpdate) {
 
         if (axis != null) {
             // figure out what type of axis we have and instantiate the
             // appropriate panel
             if (axis instanceof NumberAxis) {
-                return new DefaultNumberAxisEditor(chart, (NumberAxis) axis, immediateUpdate);
+                return new DefaultNumberAxisEditor(theme, chart, immediateUpdate);
+            } else if (axis instanceof CategoryAxis) {
+                return new DefaultCategoryAxisEditor(theme, chart, immediateUpdate);
             }
             else {
-                return new DefaultAxisEditor(chart, axis, immediateUpdate);
+                return new DefaultAxisEditor(theme, chart, immediateUpdate);
             }
         }
         else {
@@ -169,88 +148,105 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
     /**
      * Standard constructor: builds a panel for displaying/editing the
      * properties of the specified axis.
-     *
-     * @param axis  the axis whose properties are to be displayed/edited in
-     *              the panel.
+     * @param theme The theme that will be edited.
      * @param chart The chart the axis belongs to.
      * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      */
-    public DefaultAxisEditor(JFreeChart chart, Axis axis, boolean immediateUpdate) {
+    public DefaultAxisEditor(iPlusAxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(chart, immediateUpdate);
-        this.axis = axis;
-        this.labelFont = axis.getLabelFont();
-        this.labelPaintSample = new PaintSample(axis.getLabelPaint());
-        this.tickLabelFont = axis.getTickLabelFont();
-        this.tickLabelPaintSample = new PaintSample(axis.getTickLabelPaint());
+        this.theme = theme;
 
-        // Insets values
-        this.tickLabelInsets = axis.getTickLabelInsets();
-        this.labelInsets = axis.getLabelInsets();
+        setLayout(new GridBagLayout());
 
-        setLayout(new BorderLayout());
-
-        JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(
-            BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(),
-                localizationResources.getString("General")
-            )
-        );
-
-        JPanel interior = new JPanel(new GridBagLayout());
-        GridBagConstraints c = getNewConstraints();
-        interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        interior.add(new JLabel(localizationResources.getString("Label")), c);
-        c.gridx++; c.gridwidth = 2;
-        this.label = new JTextField(axis.getLabel());
-        label.addActionListener(updateHandler);
-        label.getDocument().addDocumentListener(updateHandler);
-        interior.add(this.label, c);
-
-        startNewRow(c);
-        interior.add(new JLabel(localizationResources.getString("Font")),c);
-        c.gridx++;
-        this.labelFontField = new FontDisplayField(this.labelFont);
-        interior.add(this.labelFontField,c);
-        c.gridx++;
-        JButton b = new JButton(localizationResources.getString("Select..."));
-        b.setActionCommand("SelectLabelFont");
-        b.addActionListener(updateHandler);
-        b.addActionListener(this);
-        interior.add(b,c);
-
-        startNewRow(c);
-        interior.add(new JLabel(localizationResources.getString("Paint")),c);
-        c.gridx++;
-        interior.add(this.labelPaintSample,c);
-        c.gridx++;
-        b = new JButton(localizationResources.getString("Select..."));
-        b.setActionCommand("SelectLabelPaint");
-        b.addActionListener(updateHandler);
-        b.addActionListener(this);
-        interior.add(b,c);
-
-        general.add(interior);
-
-        add(general, BorderLayout.NORTH);
-
+        JPanel labelPanel = getLabelPanel();
+        axisLine = new LineEditorPanel(localizationResources.getString("Axis_Line"),
+                theme.isLineVisible(), theme.getLinePaint(), theme.getLineStroke());
+        axisLine.addChangeListener(updateHandler);
+        
         this.slot1 = new JPanel(new BorderLayout());
 
         JPanel other = new JPanel(new BorderLayout());
         other.setBorder(BorderFactory.createTitledBorder(
-                             BorderFactory.createEtchedBorder(),
                              localizationResources.getString("Other")));
 
         this.otherTabs = new JTabbedPane();
         this.otherTabs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
+        JPanel ticks = getTicksPanel(theme);
+
+        this.otherTabs.add(localizationResources.getString("Ticks"), ticks);
+
+        other.add(this.otherTabs);
+
+        addCustomTabs(this.otherTabs);
+
+        this.slot1.add(other);
+
+        this.slot2 = new JPanel(new BorderLayout());
+        this.slot2.add(this.slot1, BorderLayout.NORTH);
+
+        GridBagConstraints c = getNewConstraints();
+        c.weightx = 1;
+        add(labelPanel, c);
+        startNewRow(c);
+        c.weightx = 1;
+        add(axisLine, c);
+        startNewRow(c);
+        c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
+        add(this.slot2, c);
+
+    }
+
+    private JPanel getLabelPanel() {
+        Font labelFont = theme.getAxisLabelFont();
+        JPanel labelPanel = new JPanel(new GridBagLayout());
+        labelPanel.setBorder(
+            BorderFactory.createTitledBorder(
+                localizationResources.getString("Label")
+            )
+        );
+
+        GridBagConstraints c = getNewConstraints();
+        labelPanel.add(new JLabel(localizationResources.getString("Text")), c);
+        c.gridx++; c.gridwidth = 2;
+        this.label = new JTextField(theme.getAxisLabel());
+        this.label.addActionListener(updateHandler);
+        this.label.getDocument().addDocumentListener(updateHandler);
+        labelPanel.add(this.label, c);
+
+        startNewRow(c);
+        labelPanel.add(new JLabel(localizationResources.getString("Font")),c);
+        this.labelFontControl = new FontControl(labelFont);
+        this.labelFontControl.addChangeListener(updateHandler);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        labelPanel.add(this.labelFontControl,c);
+
+        startNewRow(c);
+        labelPanel.add(new JLabel(localizationResources.getString("Paint")),c);
+        this.labelPaintControl = new PaintControl(theme.getAxisLabelPaint());
+        this.labelPaintControl.addChangeListener(updateHandler);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        labelPanel.add(this.labelPaintControl,c);
+
+        startNewRow(c);
+        this.labelAngle = new JSpinner(new SpinnerNumberModel(theme.getLabelAngleDegs(), 0, 360, 1.0));
+        labelAngle.addChangeListener(updateHandler);
+        labelPanel.add(new JLabel(localizationResources.getString("Label_angle")), c);
+        c.gridx++; c.gridwidth = 2; c.fill= GridBagConstraints.NONE;  c.anchor = GridBagConstraints.WEST;
+        labelPanel.add(labelAngle, c);
+
+        return labelPanel;
+    }
+
+    private JPanel getTicksPanel(iPlusAxisTheme theme) {
+        GridBagConstraints c;
         JPanel ticks = new JPanel(new GridBagLayout());
         c = getNewConstraints();
         ticks.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         this.showTickLabelsCheckBox = new JCheckBox(
             localizationResources.getString("Show_tick_labels"),
-            axis.isTickLabelsVisible()
+            theme.isShowTickLabels()
         );
         this.showTickLabelsCheckBox.addActionListener(updateHandler);
         c.gridwidth = 3;
@@ -258,37 +254,42 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
 
         startNewRow(c);
         ticks.add(
-            new JLabel(localizationResources.getString("Tick_label_font")), c
+            new JLabel(localizationResources.getString("Font")), c
         );
+        this.tickFontControl = new FontControl(theme.getTickLabelFont());
+        this.tickFontControl.addChangeListener(updateHandler);
         c.gridx++;
-        this.tickLabelFontField = new FontDisplayField(this.tickLabelFont);
-        ticks.add(this.tickLabelFontField, c);
-        b = new JButton(localizationResources.getString("Select..."));
-        b.setActionCommand("SelectTickLabelFont");
-        b.addActionListener(updateHandler);
-        b.addActionListener(this);
+        c.weightx = 1;
+        c.gridwidth = 2;
+        ticks.add(this.tickFontControl,c);
+        
+        startNewRow(c);
+        ticks.add(
+            new JLabel(localizationResources.getString("Paint")), c
+        );
+        this.tickPaintControl = new PaintControl(theme.getTickLabelPaint());
+        this.tickPaintControl.addChangeListener(updateHandler);
         c.gridx++;
-        ticks.add(b,c);
+        c.weightx = 1;
+        c.gridwidth = 2;
+        ticks.add(this.tickPaintControl,c);
 
         startNewRow(c);
         c.gridwidth = 3;
         this.showTickMarksCheckBox = new JCheckBox(
             localizationResources.getString("Show_tick_marks"),
-            axis.isTickMarksVisible()
+            theme.isShowTickMarks()
         );
         this.showTickMarksCheckBox.addActionListener(updateHandler);
         ticks.add(this.showTickMarksCheckBox,c);
 
-        this.otherTabs.add(localizationResources.getString("Ticks"), ticks);
+        addAxisTypeSpecificTickControls(ticks, c);
 
-        other.add(this.otherTabs);
+        return ticks;
+    }
 
-        this.slot1.add(other);
-
-        this.slot2 = new JPanel(new BorderLayout());
-        this.slot2.add(this.slot1, BorderLayout.NORTH);
-        add(this.slot2);
-
+    protected void addAxisTypeSpecificTickControls(JPanel ticks, GridBagConstraints c) {
+        // do nothing. Used in sub-classes.
     }
 
     /**
@@ -306,7 +307,7 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
      * @return The current label font.
      */
     public Font getLabelFont() {
-        return this.labelFont;
+        return this.labelFontControl.getChosenFont();
     }
 
     /**
@@ -315,7 +316,7 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
      * @return The current label paint.
      */
     public Paint getLabelPaint() {
-        return this.labelPaintSample.getPaint();
+        return this.labelPaintControl.getChosenPaint();
     }
 
     /**
@@ -333,16 +334,16 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
      * @return The font used to draw the tick labels.
      */
     public Font getTickLabelFont() {
-        return this.tickLabelFont;
+        return this.tickFontControl.getChosenFont();
     }
 
     /**
-     * Returns the current tick label paint.
+     * Returns the paint used to draw the tick labels (if they are showing).
      *
-     * @return The current tick label paint.
+     * @return The paint used to draw the tick labels.
      */
     public Paint getTickLabelPaint() {
-        return this.tickLabelPaintSample.getPaint();
+        return this.tickPaintControl.getChosenPaint();
     }
 
     /**
@@ -356,27 +357,6 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
     }
 
     /**
-     * Returns the current tick label insets value
-     *
-     * @return The current tick label insets value.
-     */
-    public RectangleInsets getTickLabelInsets() {
-        return (this.tickLabelInsets == null)
-            ? new RectangleInsets(0, 0, 0, 0)
-            : this.tickLabelInsets;
-    }
-
-    /**
-     * Returns the current label insets value
-     *
-     * @return The current label insets value.
-     */
-    public RectangleInsets getLabelInsets() {
-        return (this.labelInsets == null)
-            ? new RectangleInsets(0, 0, 0, 0) : this.labelInsets;
-    }
-
-    /**
      * Returns a reference to the tabbed pane.
      *
      * @return A reference to the tabbed pane.
@@ -385,119 +365,9 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
         return this.otherTabs;
     }
 
-    /**
-     * Handles user interaction with the property panel.
-     *
-     * @param event  information about the event that triggered the call to
-     *      this method.
-     */
-    public void actionPerformed(ActionEvent event) {
-        String command = event.getActionCommand();
-        if (command.equals("SelectLabelFont")) {
-            attemptLabelFontSelection();
-        }
-        else if (command.equals("SelectLabelPaint")) {
-            attemptModifyLabelPaint();
-        }
-        else if (command.equals("SelectTickLabelFont")) {
-            attemptTickLabelFontSelection();
-        }
-//        else if (command.equals("LabelInsets")) {
-//            editLabelInsets();
-//        }
-//        else if (command.equals("TickLabelInsets")) {
-//            editTickLabelInsets();
-//        }
+    public double getLabelAngleInDegs() {
+        return ((Number)labelAngle.getModel().getValue()).doubleValue();
     }
-
-    /**
-     * Presents a font selection dialog to the user.
-     */
-    private void attemptLabelFontSelection() {
-
-        FontChooserPanel panel = new FontChooserPanel(this.labelFont);
-        int result = JOptionPane.showConfirmDialog(this, panel,
-            localizationResources.getString("Font_Selection"),
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.labelFont = panel.getSelectedFont();
-            this.labelFontField.setText(
-                this.labelFont.getFontName() + " " + this.labelFont.getSize()
-            );
-        }
-
-    }
-
-    /**
-     * Allows the user the opportunity to change the outline paint.
-     */
-    private void attemptModifyLabelPaint() {
-        Color c;
-        c = JColorChooser.showDialog(
-            this, localizationResources.getString("Label_Color"), Color.blue
-        );
-        if (c != null) {
-            this.labelPaintSample.setPaint(c);
-        }
-    }
-
-    /**
-     * Presents a tick label font selection dialog to the user.
-     */
-    public void attemptTickLabelFontSelection() {
-
-        FontChooserPanel panel = new FontChooserPanel(this.tickLabelFont);
-        int result = JOptionPane.showConfirmDialog(this, panel,
-            localizationResources.getString("Font_Selection"),
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (result == JOptionPane.OK_OPTION) {
-            this.tickLabelFont = panel.getSelectedFont();
-            this.tickLabelFontField.setText(
-                this.tickLabelFont.getFontName() + " "
-                + this.tickLabelFont.getSize()
-            );
-        }
-
-    }
-
-//    /**
-//     * Presents insets chooser panel allowing user to modify tick label's
-//     * individual insets values. Updates the current insets text field if
-//     * edit is accepted.
-//     */
-//    private void editTickLabelInsets() {
-//        InsetsChooserPanel panel = new InsetsChooserPanel(
-//            this.tickLabelInsets);
-//        int result =  JOptionPane.showConfirmDialog(
-//            this, panel, localizationResources.getString("Edit_Insets"),
-//            JOptionPane.PLAIN_MESSAGE
-//        );
-//
-//        if (result == JOptionPane.OK_OPTION) {
-//            this.tickLabelInsets = panel.getInsets();
-//            this.tickLabelInsetsTextField.setInsets(this.tickLabelInsets);
-//        }
-//    }
-//
-//    /**
-//     * Presents insets chooser panel allowing user to modify label's
-//     * individual insets values. Updates the current insets text field if edit
-//     * is accepted.
-//     */
-//    private void editLabelInsets() {
-//        InsetsChooserPanel panel = new InsetsChooserPanel(this.labelInsets);
-//        int result = JOptionPane.showConfirmDialog(
-//            this, panel, localizationResources.getString("Edit_Insets"),
-//            JOptionPane.PLAIN_MESSAGE
-//        );
-//
-//        if (result == JOptionPane.OK_OPTION) {
-//            this.labelInsets = panel.getInsets();
-//            this.labelInsetsTextField.setInsets(this.labelInsets);
-//        }
-//    }
 
     /**
      * Sets the properties of the specified axis to match the properties
@@ -506,16 +376,75 @@ class DefaultAxisEditor extends BaseEditor implements ActionListener {
      * @param chart The chart.
      */
     public void updateChart(JFreeChart chart) {
-        axis.setLabel(getLabel());
-        axis.setLabelFont(getLabelFont());
-        axis.setLabelPaint(getLabelPaint());
-        axis.setTickMarksVisible(isTickMarksVisible());
-        // axis.setTickMarkStroke(getTickMarkStroke());
-        axis.setTickLabelsVisible(isTickLabelsVisible());
-        axis.setTickLabelFont(getTickLabelFont());
-        axis.setTickLabelPaint(getTickLabelPaint());
-        axis.setTickLabelInsets(getTickLabelInsets());
-        axis.setLabelInsets(getLabelInsets());
+        Axis[] axes = getAxes(chart, theme);
+
+        applyToAxes(axes);
+        applyCustomEditors(chart);
+    }
+
+    protected void applyToAxes(Axis[] axes) {
+
+        theme.setAxisLabel(getLabel());
+        theme.setAxisLabelFont(getLabelFont());
+        theme.setAxisLabelPaint(getLabelPaint());
+        theme.setTickLabelFont(getTickLabelFont());
+        Paint tickLabelPaint = getTickLabelPaint();
+        theme.setTickLabelPaint(tickLabelPaint);
+        theme.setShowTickLabels(isTickLabelsVisible());
+        theme.setShowTickMarks(isTickMarksVisible());
+        double angle = getLabelAngleInDegs();
+        theme.setLabelAngleDegs(angle);
+
+        boolean lineVis = axisLine.isLineVisible();
+        theme.setLineVisible(lineVis);
+        Paint linePaint = axisLine.getLinePaint();
+        theme.setLinePaint(linePaint);
+        BasicStroke lineStroke = axisLine.getLineStroke();
+        theme.setLineStroke(lineStroke);
+
+        for(int i = 0; i < axes.length; i++) {
+            axes[i].setLabel(getLabel());
+            axes[i].setLabelFont(getLabelFont());
+            axes[i].setLabelPaint(getLabelPaint());
+            axes[i].setTickMarksVisible(isTickMarksVisible());
+            axes[i].setTickLabelsVisible(isTickLabelsVisible());
+            axes[i].setTickLabelFont(getTickLabelFont());
+            axes[i].setTickLabelPaint(getTickLabelPaint());
+            axes[i].setLabelAngle(Math.toRadians(angle));
+            axes[i].setAxisLineVisible(lineVis);
+            axes[i].setAxisLinePaint(linePaint);
+            axes[i].setAxisLineStroke(lineStroke);
+        }
+    }
+
+    /**
+     * Returns all the range/domain axes of the chart as an array. Whether to return the range or domain
+     * is determined by the type attribute of the axis theme.
+     * @param chart The chart to extract axes from.
+     * @param theme The theme that needs the axes.
+     * @return All the relevant axes, or an empty array. Empty array definitely returned if the chart plot is not
+     * either a CategoryPlot or an XYPlot.
+     */
+    public static Axis[] getAxes(JFreeChart chart, iPlusAxisTheme theme) {
+        Axis[] axes = new Axis[0];
+        boolean domain = theme.getType() == iPlusAxisTheme.DOMAIN_AXIS;
+        Plot plot = chart.getPlot();
+
+        if(plot instanceof CategoryPlot) {
+            CategoryPlot cPlot = (CategoryPlot) plot;
+            axes = new Axis[domain ? cPlot.getDomainAxisCount() : cPlot.getRangeAxisCount()];
+            for(int i = 0; i < axes.length; i++) {
+                axes[i] = domain ? (Axis) cPlot.getDomainAxis(i) : cPlot.getRangeAxis(i);
+            }
+        } else if (plot instanceof XYPlot) {
+            XYPlot xPlot = (XYPlot) plot;
+            axes = new Axis[domain ? xPlot.getDomainAxisCount() : xPlot.getRangeAxisCount()];
+            for(int i = 0; i < axes.length; i++) {
+                axes[i] = domain ? (Axis) xPlot.getDomainAxis(i) : xPlot.getRangeAxis(i);
+            }
+        }
+
+        return axes;
     }
 
 }

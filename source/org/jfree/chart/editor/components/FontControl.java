@@ -1,6 +1,5 @@
 package org.jfree.chart.editor.components;
 
-import org.jfree.ui.FontDisplayField;
 import org.jfree.ui.FontChooserPanel;
 import org.jfree.chart.editor.DefaultChartEditor;
 

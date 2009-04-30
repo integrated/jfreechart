@@ -1,6 +1,8 @@
 package org.jfree.chart.editor.components;
 
 import org.jfree.chart.EditableBackground;
+import org.jfree.chart.editor.themes.iPlusPlotTheme;
+import org.jfree.chart.editor.themes.iPlusChartTheme;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -22,7 +24,15 @@ public class BackgroundEditingPanel extends EditPanel {
     private final EventHandler updateHandler = new EventHandler();
 
 
-    public BackgroundEditingPanel(EditableBackground background) {
+    public BackgroundEditingPanel(iPlusPlotTheme theme) {
+        this(theme.getPlotBackgroundPaint());
+    }
+
+    public BackgroundEditingPanel(iPlusChartTheme theme) {
+        this(theme.getChartBackgroundPaint());
+    }
+
+    private BackgroundEditingPanel(Paint backPaint) {
         setLayout(new BorderLayout());
         JPanel interior = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -34,7 +44,7 @@ public class BackgroundEditingPanel extends EditPanel {
         interior.add(new JLabel(localizationResources.getString(
                 "Background_paint")),c);
         c.gridx++; c.weightx = 1.0; c.gridwidth = 3;
-        this.backgroundPaint = new PaintControl(background.getBackgroundPaint(), true);
+        this.backgroundPaint = new PaintControl(backPaint, true);
         this.backgroundPaint.addChangeListener(updateHandler);
         interior.add(this.backgroundPaint,c);
 
