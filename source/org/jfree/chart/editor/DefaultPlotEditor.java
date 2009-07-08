@@ -346,10 +346,10 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
         labelFormat.setToolTipText(tip);
 
-        numberFormatDisplay = new NumberFormatDisplay(theme.getNumberFormatString());
+        numberFormatDisplay = buildNumberFormatDisplay(theme.getNumberFormatString());
         numberFormatDisplay.addChangeListener(updateHandler);
 
-        percentFormatDisplay = new NumberFormatDisplay(theme.getPercentFormatString());
+        percentFormatDisplay = buildNumberFormatDisplay(theme.getPercentFormatString());
         percentFormatDisplay.addChangeListener(updateHandler);
 
         labelFont = new FontControl(theme.getLabelFont());
@@ -450,6 +450,10 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
 
         return retVal;
+    }
+
+    protected NumberFormatDisplay buildNumberFormatDisplay(String formatStr) {
+        return new NumberFormatDisplay(formatStr);
     }
 
     protected JPanel getGridlinesPanel() {
