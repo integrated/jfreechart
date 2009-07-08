@@ -959,6 +959,21 @@ public class BarRenderer extends AbstractCategoryItemRenderer
                          int column,
                          int pass) {
 
+        drawItem(g2, state, dataArea, plot, domainAxis, rangeAxis, dataset,
+                row, column, pass, false);
+
+    }
+    public void drawItem(Graphics2D g2,
+                         CategoryItemRendererState state,
+                         Rectangle2D dataArea,
+                         CategoryPlot plot,
+                         CategoryAxis domainAxis,
+                         ValueAxis rangeAxis,
+                         CategoryDataset dataset,
+                         int row,
+                         int column,
+                         int pass,
+                         boolean justLabel) {
         // nothing is drawn for null values...
         Number dataValue = dataset.getValue(row, column);
         if (dataValue == null) {
@@ -1024,11 +1039,13 @@ public class BarRenderer extends AbstractCategoryItemRenderer
             bar = new Rectangle2D.Double(barW0, barL0 - barL0Adj,
                     state.getBarWidth(), barLength + barLengthAdj);
         }
-        if (getShadowsVisible()) {
-            this.barPainter.paintBarShadow(g2, this, row, column, bar, barBase,
-                true);
+        if(!justLabel) {
+            if (getShadowsVisible()) {
+                this.barPainter.paintBarShadow(g2, this, row, column, bar, barBase,
+                    true);
+            }
+            this.barPainter.paintBar(g2, this, row, column, bar, barBase);
         }
-        this.barPainter.paintBar(g2, this, row, column, bar, barBase);
 
         CategoryItemLabelGenerator generator = getItemLabelGenerator(row,
                 column);
@@ -1048,8 +1065,8 @@ public class BarRenderer extends AbstractCategoryItemRenderer
         if (entities != null) {
             addItemEntity(entities, dataset, row, column, bar);
         }
-
     }
+
 
     /**
      * Calculates the available space for each series.

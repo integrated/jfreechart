@@ -216,6 +216,7 @@ import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.event.RendererChangeListener;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRendererState;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.data.Range;
 import org.jfree.data.category.CategoryDataset;
@@ -3369,24 +3370,14 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
         g2.setComposite(AlphaComposite.getInstance(
                 AlphaComposite.SRC_OVER, getForegroundAlpha()));
 
-        DatasetRenderingOrder order = getDatasetRenderingOrder();
-        if (order == DatasetRenderingOrder.FORWARD) {
-            for (int i = 0; i < this.datasets.size(); i++) {
-                foundData = render(g2, dataArea, i, state, crosshairState)
-                    || foundData;
-            }
-        }
-        else {  // DatasetRenderingOrder.REVERSE
-            for (int i = this.datasets.size() - 1; i >= 0; i--) {
-                foundData = render(g2, dataArea, i, state, crosshairState)
-                    || foundData;
-            }
-        }
+        foundData = doRender(g2, state, dataArea, crosshairState, foundData, false);
 
         if(isGridLinesOverData()) {
             doGridLineDraw(g2, parentState, dataArea, axisStateMap);
             // redraw the axes so they appear over the gridlines.
             drawAxes(g2, area, dataArea, state);
+
+            foundData = doRender(g2, state, dataArea, crosshairState, foundData, true);
         }
 
         // draw the foreground markers...
@@ -3453,6 +3444,25 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
             }
         }
 
+    }
+
+    private boolean doRender(Graphics2D g2, PlotRenderingInfo state, Rectangle2D dataArea,
+                             CategoryCrosshairState crosshairState, boolean foundData,
+                             boolean justLabel) {
+        DatasetRenderingOrder order = getDatasetRenderingOrder();
+        if (order == DatasetRenderingOrder.FORWARD) {
+            for (int i = 0; i < this.datasets.size(); i++) {
+                foundData = render(g2, dataArea, i, state, crosshairState, justLabel)
+                    || foundData;
+            }
+        }
+        else {  // DatasetRenderingOrder.REVERSE
+            for (int i = this.datasets.size() - 1; i >= 0; i--) {
+                foundData = render(g2, dataArea, i, state, crosshairState, justLabel)
+                    || foundData;
+            }
+        }
+        return foundData;
     }
 
     protected void doGridLineDraw(Graphics2D g2, PlotState parentState, Rectangle2D dataArea, Map axisStateMap) {
@@ -3597,11 +3607,13 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
      * @since 1.0.11
      */
     public boolean render(Graphics2D g2, Rectangle2D dataArea, int index,
-            PlotRenderingInfo info, CategoryCrosshairState crosshairState) {
+            PlotRenderingInfo info, CategoryCrosshairState crosshairState,
+            boolean justLabel) {
 
         boolean foundData = false;
         CategoryDataset currentDataset = getDataset(index);
         CategoryItemRenderer renderer = getRenderer(index);
+        BarRenderer barRender = renderer instanceof BarRenderer ? (BarRenderer) renderer : null;
         CategoryAxis domainAxis = getDomainAxisForDataset(index);
         ValueAxis rangeAxis = getRangeAxisForDataset(index);
         boolean hasData = !DatasetUtilities.isEmptyOrNull(currentDataset);
@@ -3619,16 +3631,26 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
                     for (int column = 0; column < columnCount; column++) {
                         if (this.rowRenderingOrder == SortOrder.ASCENDING) {
                             for (int row = 0; row < rowCount; row++) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
+                                if(barRender == null)
+                                    renderer.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass);
+                                else
+                                    barRender.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass, justLabel);
                             }
                         }
                         else {
                             for (int row = rowCount - 1; row >= 0; row--) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
+                                if(barRender == null)
+                                    renderer.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass);
+                                else
+                                    barRender.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass, justLabel);
                             }
                         }
                     }
