@@ -290,6 +290,36 @@ public class StackedBarRenderer extends BarRenderer
                          int row,
                          int column,
                          int pass) {
+        drawItem(g2, state, dataArea, plot, domainAxis, rangeAxis,
+                dataset, row, column, pass, false);
+    }
+
+    /**
+     * Draws a stacked bar for a specific item.
+     *
+     * @param g2  the graphics device.
+     * @param state  the renderer state.
+     * @param dataArea  the plot area.
+     * @param plot  the plot.
+     * @param domainAxis  the domain (category) axis.
+     * @param rangeAxis  the range (value) axis.
+     * @param dataset  the data.
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
+     * @param pass  the pass index.
+     * @param justLabel whether to just draw the labels (used when gridlines drawn above the data).
+     */
+    public void drawItem(Graphics2D g2,
+                         CategoryItemRendererState state,
+                         Rectangle2D dataArea,
+                         CategoryPlot plot,
+                         CategoryAxis domainAxis,
+                         ValueAxis rangeAxis,
+                         CategoryDataset dataset,
+                         int row,
+                         int column,
+                         int pass,
+                         boolean justLabel) {
 
         // nothing is drawn for null values...
         Number dataValue = dataset.getValue(row, column);
@@ -367,7 +397,7 @@ public class StackedBarRenderer extends BarRenderer
         double barLength = Math.max(Math.abs(translatedValue - translatedBase),
                 getMinimumBarLength());
 
-        Rectangle2D bar = null;
+        Rectangle2D bar;
         if (orientation == PlotOrientation.HORIZONTAL) {
             bar = new Rectangle2D.Double(barL0, barW0, barLength,
                     state.getBarWidth());
@@ -376,7 +406,7 @@ public class StackedBarRenderer extends BarRenderer
             bar = new Rectangle2D.Double(barW0, barL0, state.getBarWidth(),
                     barLength);
         }
-        if (pass == 0) {
+        if (!justLabel && pass == 0) {
             if (getShadowsVisible()) {
                 boolean pegToBase = (positive && (positiveBase == getBase()))
                         || (!positive && (negativeBase == getBase()));
@@ -384,7 +414,7 @@ public class StackedBarRenderer extends BarRenderer
                         barBase, pegToBase);
             }
         }
-        else if (pass == 1) {
+        else if (!justLabel && pass == 1) {
             getBarPainter().paintBar(g2, this, row, column, bar, barBase);
 
             // add an item entity, if this information is being collected
@@ -418,10 +448,7 @@ public class StackedBarRenderer extends BarRenderer
             return false;
         }
         StackedBarRenderer that = (StackedBarRenderer) obj;
-        if (this.renderAsPercentages != that.renderAsPercentages) {
-            return false;
-        }
-        return super.equals(obj);
+        return this.renderAsPercentages == that.renderAsPercentages && super.equals(obj);
     }
 
 }
