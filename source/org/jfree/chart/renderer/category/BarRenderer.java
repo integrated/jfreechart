@@ -988,22 +988,6 @@ public class BarRenderer extends AbstractCategoryItemRenderer
                          int column,
                          int pass,
                          boolean justLabel) {
-
-        drawItem(g2, state, dataArea, plot, domainAxis, rangeAxis, dataset,
-                row, column, pass, false);
-
-    }
-    public void drawItem(Graphics2D g2,
-                         CategoryItemRendererState state,
-                         Rectangle2D dataArea,
-                         CategoryPlot plot,
-                         CategoryAxis domainAxis,
-                         ValueAxis rangeAxis,
-                         CategoryDataset dataset,
-                         int row,
-                         int column,
-                         int pass,
-                         boolean justLabel) {
         // nothing is drawn for null values...
         Number dataValue = dataset.getValue(row, column);
         if (dataValue == null) {
