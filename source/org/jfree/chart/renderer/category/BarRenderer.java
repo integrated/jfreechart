@@ -138,7 +138,7 @@ import org.jfree.util.PublicCloneable;
  * alt="BarRendererSample.png" />
  */
 public class BarRenderer extends AbstractCategoryItemRenderer
-        implements Cloneable, PublicCloneable, Serializable {
+        implements LabelRenderer, Cloneable, PublicCloneable, Serializable {
 
     /** For serialization. */
     private static final long serialVersionUID = 6000649414965887481L;
@@ -958,6 +958,36 @@ public class BarRenderer extends AbstractCategoryItemRenderer
                          int row,
                          int column,
                          int pass) {
+        drawItem(g2, state, dataArea, plot, domainAxis, rangeAxis, dataset,
+                row,column, pass, false);
+    }
+
+    /**
+     * Draws the bar for a single (series, category) data item.
+     *
+     * @param g2  the graphics device.
+     * @param state  the renderer state.
+     * @param dataArea  the data area.
+     * @param plot  the plot.
+     * @param domainAxis  the domain axis.
+     * @param rangeAxis  the range axis.
+     * @param dataset  the dataset.
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
+     * @param pass  the pass index.
+     * @param justLabel whether to just render the data labels.
+     */
+    public void drawItem(Graphics2D g2,
+                         CategoryItemRendererState state,
+                         Rectangle2D dataArea,
+                         CategoryPlot plot,
+                         CategoryAxis domainAxis,
+                         ValueAxis rangeAxis,
+                         CategoryDataset dataset,
+                         int row,
+                         int column,
+                         int pass,
+                         boolean justLabel) {
 
         drawItem(g2, state, dataArea, plot, domainAxis, rangeAxis, dataset,
                 row, column, pass, false);

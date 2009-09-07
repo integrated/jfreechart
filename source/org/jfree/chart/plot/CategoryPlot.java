@@ -216,7 +216,7 @@ import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.event.RendererChangeListener;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRendererState;
-import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LabelRenderer;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.data.Range;
 import org.jfree.data.category.CategoryDataset;
@@ -3447,8 +3447,7 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
     }
 
     private boolean doRender(Graphics2D g2, PlotRenderingInfo state, Rectangle2D dataArea,
-                             CategoryCrosshairState crosshairState, boolean foundData,
-                             boolean justLabel) {
+                             CategoryCrosshairState crosshairState, boolean foundData, boolean justLabel) {
         DatasetRenderingOrder order = getDatasetRenderingOrder();
         if (order == DatasetRenderingOrder.FORWARD) {
             for (int i = 0; i < this.datasets.size(); i++) {
@@ -3601,6 +3600,7 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
      * @param info  an optional object for collection dimension information.
      * @param crosshairState  a state object for tracking crosshair info
      *        (<code>null</code> permitted).
+     * @param justLabel Controls whether the method draws just the labels or everything including the labels.
      *
      * @return A boolean that indicates whether or not real data was found.
      *
@@ -3613,7 +3613,7 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
         boolean foundData = false;
         CategoryDataset currentDataset = getDataset(index);
         CategoryItemRenderer renderer = getRenderer(index);
-        BarRenderer barRender = renderer instanceof BarRenderer ? (BarRenderer) renderer : null;
+        LabelRenderer labelRenderer = renderer instanceof LabelRenderer ? (LabelRenderer) renderer : null;
         CategoryAxis domainAxis = getDomainAxisForDataset(index);
         ValueAxis rangeAxis = getRangeAxisForDataset(index);
         boolean hasData = !DatasetUtilities.isEmptyOrNull(currentDataset);
@@ -3631,24 +3631,24 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
                     for (int column = 0; column < columnCount; column++) {
                         if (this.rowRenderingOrder == SortOrder.ASCENDING) {
                             for (int row = 0; row < rowCount; row++) {
-                                if(barRender == null)
+                                if(labelRenderer == null)
                                     renderer.drawItem(g2, state, dataArea, this,
                                             domainAxis, rangeAxis, currentDataset,
                                             row, column, pass);
                                 else
-                                    barRender.drawItem(g2, state, dataArea, this,
+                                    labelRenderer.drawItem(g2, state, dataArea, this,
                                             domainAxis, rangeAxis, currentDataset,
                                             row, column, pass, justLabel);
                             }
                         }
                         else {
                             for (int row = rowCount - 1; row >= 0; row--) {
-                                if(barRender == null)
+                                if(labelRenderer == null)
                                     renderer.drawItem(g2, state, dataArea, this,
                                             domainAxis, rangeAxis, currentDataset,
                                             row, column, pass);
                                 else
-                                    barRender.drawItem(g2, state, dataArea, this,
+                                    labelRenderer.drawItem(g2, state, dataArea, this,
                                             domainAxis, rangeAxis, currentDataset,
                                             row, column, pass, justLabel);
                             }
@@ -3659,16 +3659,26 @@ public class CategoryPlot extends Plot implements ValueAxisPlot,
                     for (int column = columnCount - 1; column >= 0; column--) {
                         if (this.rowRenderingOrder == SortOrder.ASCENDING) {
                             for (int row = 0; row < rowCount; row++) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
+                                if(labelRenderer == null)
+                                    renderer.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass);
+                                else
+                                    labelRenderer.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass, justLabel);
                             }
                         }
                         else {
                             for (int row = rowCount - 1; row >= 0; row--) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
+                                if(labelRenderer == null)
+                                    renderer.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass);
+                                else
+                                    labelRenderer.drawItem(g2, state, dataArea, this,
+                                            domainAxis, rangeAxis, currentDataset,
+                                            row, column, pass, justLabel);
                             }
                         }
                     }

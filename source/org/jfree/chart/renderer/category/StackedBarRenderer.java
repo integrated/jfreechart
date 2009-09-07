@@ -123,7 +123,7 @@ import org.jfree.util.PublicCloneable;
  * alt="StackedBarRendererSample.png" />
  */
 public class StackedBarRenderer extends BarRenderer
-        implements Cloneable, PublicCloneable, Serializable {
+        implements LabelRenderer, Cloneable, PublicCloneable, Serializable {
 
     /** For serialization. */
     static final long serialVersionUID = 6402943811500067531L;
