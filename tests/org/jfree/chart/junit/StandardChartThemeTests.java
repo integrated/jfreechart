@@ -64,7 +64,9 @@ import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PieLabelLinkStyle;
 import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.category.GradientBarPainter;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.GradientXYBarPainter;
 import org.jfree.ui.RectangleInsets;
 
 /**
@@ -242,12 +244,20 @@ public class StandardChartThemeTests extends TestCase {
         assertTrue(t1.equals(t2));
 
         //barPainter;
+        t1.setBarPainter(new GradientBarPainter());
+        assertFalse(t1.equals(t2));
+        t2.setBarPainter(new GradientBarPainter());
+        assertTrue(t1.equals(t2));
         t1.setBarPainter(new StandardBarPainter());
         assertFalse(t1.equals(t2));
         t2.setBarPainter(new StandardBarPainter());
         assertTrue(t1.equals(t2));
 
         //xyBarPainter;
+        t1.setXYBarPainter(new GradientXYBarPainter());
+        assertFalse(t1.equals(t2));
+        t2.setXYBarPainter(new GradientXYBarPainter());
+        assertTrue(t1.equals(t2));
         t1.setXYBarPainter(new StandardXYBarPainter());
         assertFalse(t1.equals(t2));
         t2.setXYBarPainter(new StandardXYBarPainter());

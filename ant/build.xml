@@ -17,6 +17,18 @@
 
 <project name="jfreechart" default="all" basedir="..">
 
+    <target name="clean" depends="initialise" description="Clear out generated files from working directory. Required for code coverage on TeamCity">
+        <delete dir="${basedir}/build" includeemptydirs="true"/>
+        <delete dir="${basedir}/distribution" includeemptydirs="true"/>
+        <delete dir="${basedir}/javadoc" includeemptydirs="true"/>
+        <delete dir="${basedir}/build-tests" includeemptydirs="true"/>
+        <delete dir="${basedir}/build-tests-reports" includeemptydirs="true"/>
+        <delete dir="${basedir}/out" includeemptydirs="true"/>
+        <delete>
+            <fileset dir="${basedir}" includes="${jfreechart.name}-${jfreechart.version}*"/>
+        </delete>
+    </target>
+
     <!-- Initialisation. -->
     <target name="initialise" description="Initialise required settings.">
         <tstamp />
