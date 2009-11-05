@@ -17,7 +17,8 @@
 
 <project name="jfreechart" default="all" basedir="..">
 
-    <target name="clean" depends="initialise" description="Clear out generated files from working directory. Required for code coverage on TeamCity">
+    <target name="clean" depends="initialise, swt-clean" description="Clear out generated files from working directory. Required for code coverage on TeamCity">
+
         <delete dir="${basedir}/build" includeemptydirs="true"/>
         <delete dir="${basedir}/distribution" includeemptydirs="true"/>
         <delete dir="${basedir}/javadoc" includeemptydirs="true"/>
@@ -27,6 +28,12 @@
         <delete>
             <fileset dir="${basedir}" includes="${jfreechart.name}-${jfreechart.version}*"/>
         </delete>
+    </target>
+
+    <target name="swt-clean" depends="initialise">
+        <ant antfile="${basedir}/ant/build-swt.xml"
+                     target="clean" dir="${basedir}">
+        </ant>
     </target>
 
     <!-- Initialisation. -->
@@ -100,6 +107,12 @@
              basedir="${basedir}/build" >
         </jar>
 
+
+
+        <ant antfile="${basedir}/ant/build-swt.xml"
+                     target="all" dir="${basedir}">
+        </ant>
+
         <!-- delete the temp directory -->
         <delete dir="${basedir}/build" />
 
@@ -146,7 +159,7 @@
     <target name="javadoc" 
     	    description="Generate the Javadoc HTML pages."
 	        depends="initialise">
-        <delete dir="${basedir}/javadoc" />
+        <!-- delete dir="${basedir}/javadoc" / -->
         <mkdir dir="${basedir}/javadoc" />
         <javadoc destdir="${basedir}/javadoc" 
                  windowtitle="JFreeChart Class Library (version ${jfreechart.version})"
@@ -238,7 +251,8 @@
         <!-- copy across lib files -->
         <copy file="${jcommon.jar}" tofile="${basedir}/distribution/lib/${jcommon.name}-${jcommon.version}.jar" />
         <copy file="${basedir}/lib/swtgraphics2d.jar" tofile="${basedir}/distribution/lib/swtgraphics2d.jar" failonerror="false" />
-        <copy file="${basedir}/jfreechart-${jfreechart.version}-swt.jar" tofile="${basedir}/distribution/lib/${jfreechart.name}-${jfreechart.version}-swt.jar" />
+        <copy file="${basedir}/lib/jfreechart-${jfreechart.version}-swt.jar" tofile="${basedir}/distribution/lib/${jfreechart.name}-${jfreechart.version}-swt.jar" />
+        <!-- copy file="${basedir}/jfreechart-${jfreechart.version}-swt.jar" tofile="${basedir}/distribution/lib/${jfreechart.name}-${jfreechart.version}-swt.jar" / -->
         <copy file="${servlet.jar}" tofile="${basedir}/distribution/lib/servlet.jar" />
         <copy file="${gnujaxp.jar}" tofile="${basedir}/distribution/lib/gnujaxp.jar" />
         <copy file="${junit.jar}" tofile="${basedir}/distribution/lib/junit.jar" />

@@ -77,6 +77,12 @@
 
     </target>
 
+    <target name="clean" depends="initialise">
+        <delete dir="${basedir}/build" />
+        <delete file="${basedir}/lib/${jfreechart.name}-${jfreechart.version}-swt.jar"/>
+        <delete file="${basedir}/lib/swtgraphics2d.jar"/>
+    </target>
+
     <!-- ALL -->
     <target name="all" 
             depends="compile-swtgraphics,compile-swt"
