@@ -251,6 +251,8 @@ public class DefaultAxisEditor extends BaseEditor {
         this.showTickLabelsCheckBox.addActionListener(updateHandler);
         c.gridwidth = 3;
         ticks.add(this.showTickLabelsCheckBox, c);
+        
+        addAxisTypeSpecificTickControls(ticks, c);
 
         startNewRow(c);
         ticks.add(
@@ -282,8 +284,6 @@ public class DefaultAxisEditor extends BaseEditor {
         );
         this.showTickMarksCheckBox.addActionListener(updateHandler);
         ticks.add(this.showTickMarksCheckBox,c);
-
-        addAxisTypeSpecificTickControls(ticks, c);
 
         return ticks;
     }
