@@ -41,6 +41,7 @@
 package org.jfree.chart.editor;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.editor.themes.BasicChartTheme;
 
 /**
  * A default implementation of the {@link ChartEditorFactory} interface.
@@ -61,7 +62,7 @@ public class DefaultChartEditorFactory implements ChartEditorFactory {
      * @return A chart editor for the given chart.
      */
     public ChartEditor createEditor(JFreeChart chart) {
-        return null;
+        return new DefaultChartEditor(new BasicChartTheme("basic"), chart);
     }
 
 }

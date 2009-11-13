@@ -12,7 +12,7 @@ import org.jfree.chart.editor.components.InsetPanel;
 import org.jfree.chart.editor.components.PositionComboBox;
 import org.jfree.chart.editor.components.HorizontalAlignmentComboBox;
 import org.jfree.chart.editor.components.VerticalAlignmentComboBox;
-import org.jfree.chart.editor.themes.iPlusTitleTheme;
+import org.jfree.chart.editor.themes.TitleTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
  * Base class for the legend and chart title editors.
  */
 public abstract class DefaultTitleEditor extends BaseEditor {
-    private iPlusTitleTheme theme;
+    private TitleTheme theme;
 
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
@@ -51,7 +51,7 @@ public abstract class DefaultTitleEditor extends BaseEditor {
     /** Select the vertical alignment for the title */
     private VerticalAlignmentComboBox verticalAlign = new VerticalAlignmentComboBox();
 
-    public DefaultTitleEditor(iPlusTitleTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultTitleEditor(TitleTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(chart, immediateUpdate);
         this.theme = theme;
     }

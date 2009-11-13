@@ -44,8 +44,6 @@
 package org.jfree.chart.editor;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
 import javax.swing.*;
@@ -61,14 +59,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.editor.components.FontControl;
 import org.jfree.chart.editor.components.PaintControl;
 import org.jfree.chart.editor.components.LineEditorPanel;
-import org.jfree.chart.editor.themes.iPlusAxisTheme;
+import org.jfree.chart.editor.themes.AxisTheme;
 
 /**
  * A panel for editing the properties of an axis.
  */
 public class DefaultAxisEditor extends BaseEditor {
 
-    protected iPlusAxisTheme theme;
+    protected AxisTheme theme;
 
     /** The axis label. */
     private JTextField label;
@@ -126,7 +124,7 @@ public class DefaultAxisEditor extends BaseEditor {
      *
      * @return A panel or <code>null</code< if axis is <code>null</code>.
      */
-    public static DefaultAxisEditor getInstance(iPlusAxisTheme theme, JFreeChart chart, Axis axis, boolean immediateUpdate) {
+    public static DefaultAxisEditor getInstance(AxisTheme theme, JFreeChart chart, Axis axis, boolean immediateUpdate) {
 
         if (axis != null) {
             // figure out what type of axis we have and instantiate the
@@ -152,7 +150,7 @@ public class DefaultAxisEditor extends BaseEditor {
      * @param chart The chart the axis belongs to.
      * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      */
-    public DefaultAxisEditor(iPlusAxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultAxisEditor(AxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(chart, immediateUpdate);
         this.theme = theme;
 
@@ -238,7 +236,7 @@ public class DefaultAxisEditor extends BaseEditor {
         return labelPanel;
     }
 
-    private JPanel getTicksPanel(iPlusAxisTheme theme) {
+    private JPanel getTicksPanel(AxisTheme theme) {
         GridBagConstraints c;
         JPanel ticks = new JPanel(new GridBagLayout());
         c = getNewConstraints();
@@ -425,9 +423,9 @@ public class DefaultAxisEditor extends BaseEditor {
      * @return All the relevant axes, or an empty array. Empty array definitely returned if the chart plot is not
      * either a CategoryPlot or an XYPlot.
      */
-    public static Axis[] getAxes(JFreeChart chart, iPlusAxisTheme theme) {
+    public static Axis[] getAxes(JFreeChart chart, AxisTheme theme) {
         Axis[] axes = new Axis[0];
-        boolean domain = theme.getType() == iPlusAxisTheme.DOMAIN_AXIS;
+        boolean domain = theme.getType() == AxisTheme.DOMAIN_AXIS;
         Plot plot = chart.getPlot();
 
         if(plot instanceof CategoryPlot) {

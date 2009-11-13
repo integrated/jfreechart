@@ -7,9 +7,9 @@ import java.awt.*;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 15:23:46
- * To change this template use File | Settings | File Templates.
+ * Information that is commonly needed for border styles within JFreeChart.
  */
-public interface ChartBorder {
+public interface ChartBorder extends Cloneable {
     boolean isVisible();
 
     void setVisible(boolean visible);

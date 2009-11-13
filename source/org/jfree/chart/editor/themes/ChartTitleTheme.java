@@ -9,9 +9,9 @@ import java.awt.*;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 14:58:28
- * To change this template use File | Settings | File Templates.
+ * Information that a ChartEditor GUI can change about the main title within a chart.
  */
-public interface iPlusChartTitleTheme extends iPlusTitleTheme {
+public interface ChartTitleTheme extends TitleTheme {
     Font getTitleFont();
 
     void setTitleFont(Font font);

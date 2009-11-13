@@ -52,7 +52,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.editor.components.InsetPanel;
 import org.jfree.chart.editor.components.BorderPanel;
 import org.jfree.chart.editor.components.BackgroundEditingPanel;
-import org.jfree.chart.editor.themes.iPlusChartTheme;
+import org.jfree.chart.editor.themes.ExtendedChartTheme;
 import org.jfree.chart.editor.themes.ChartBorder;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.util.ResourceBundleWrapper;
@@ -79,7 +79,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
     private JTabbedPane tabs;
 
-    protected iPlusChartTheme theme;
+    protected ExtendedChartTheme theme;
 
     /**
      * A checkbox indicating whether or not the chart is drawn with
@@ -123,7 +123,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
      * @param theme The theme that will be edited.
      * @param chart  the chart, whichs properties should be changed.
      */
-    public DefaultChartEditor(iPlusChartTheme theme, JFreeChart chart) {
+    public DefaultChartEditor(ExtendedChartTheme theme, JFreeChart chart) {
         this(theme, chart, false);
     }
 
@@ -135,7 +135,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
      * @param chart  the chart, whichs properties should be changed.
      * @param immediateUpdate If true, changes are applied to the chart as they are made without waiting for the OK button.
      */
-    public DefaultChartEditor(iPlusChartTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultChartEditor(ExtendedChartTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(chart, immediateUpdate);
         setLayout(new BorderLayout());
 

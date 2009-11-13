@@ -11,9 +11,13 @@ import org.jfree.ui.VerticalAlignment;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 14:55:43
- * To change this template use File | Settings | File Templates.
+ * Information that a ChartEditor GUI can change about a title object within a chart.
+ *
+ * Serves as the basis for more specific title themes - such as the main title theme and the
+ * legend theme.
+ *
  */
-public interface iPlusTitleTheme extends AbstractiPlusChartTheme {
+public interface TitleTheme extends ChartThemeBasis {
     BlockBorder getTitleFrame();
 
     void setTitleFrame(BlockBorder titleFrame);

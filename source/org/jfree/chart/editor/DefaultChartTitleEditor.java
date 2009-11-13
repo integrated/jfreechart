@@ -53,14 +53,14 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.ui.HorizontalAlignment;
 import org.jfree.chart.editor.components.*;
-import org.jfree.chart.editor.themes.iPlusChartTitleTheme;
+import org.jfree.chart.editor.themes.ChartTitleTheme;
 
 /**
  * A panel for editing the properties of a chart title.
  */
 public class DefaultChartTitleEditor extends DefaultTitleEditor implements ActionListener {
 
-    private iPlusChartTitleTheme theme;
+    private ChartTitleTheme theme;
 
     /** The checkbox to indicate whether or not to display the title. */
     private JCheckBox showTitleCheckBox;
@@ -92,7 +92,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
      * @param chart The chart that is being edited.
      * @param immediateUpdate Whether changes should be applied immediately.
      */
-    public DefaultChartTitleEditor(iPlusChartTitleTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultChartTitleEditor(ChartTitleTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(theme, chart, immediateUpdate);
 
         this.theme = theme;

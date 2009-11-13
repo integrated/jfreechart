@@ -1,8 +1,8 @@
 package org.jfree.chart.editor;
 
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.editor.themes.iPlusAxisTheme;
-import org.jfree.chart.editor.themes.iPlusThemeUtil;
+import org.jfree.chart.editor.themes.AxisTheme;
+import org.jfree.chart.editor.themes.ThemeUtil;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
@@ -23,7 +23,7 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
 
     private JSpinner catLabelLines;
 
-    public DefaultCategoryAxisEditor(iPlusAxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultCategoryAxisEditor(AxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(theme, chart, immediateUpdate);
     }
 
@@ -66,7 +66,7 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
                 CategoryAxis c = (CategoryAxis) axes[i];
 
                 if(labelPositions == null) {
-                    labelPositions = iPlusThemeUtil.getCategoryLabelPositions(angle);
+                    labelPositions = ThemeUtil.getCategoryLabelPositions(angle);
                 }
                 c.setCategoryLabelPositions(labelPositions);
                 c.setMaximumCategoryLabelLines(lines);

@@ -12,9 +12,11 @@ import org.jfree.util.Rotation;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 14:22:17
- * To change this template use File | Settings | File Templates.
+ * Information that a ChartEditor GUI can change about the plot within a chart.
+ *
+ * Also holds references to the axis theme and drawing supplier information.
  */
-public interface iPlusPlotTheme extends AbstractiPlusChartTheme, EditableBorder {
+public interface PlotTheme extends ChartThemeBasis, EditableBorder {
 
     static final BasicStroke DEFAULT_GRIDLINE_STROKE = new BasicStroke(0.5f,
         BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f, new float[]
@@ -94,17 +96,17 @@ public interface iPlusPlotTheme extends AbstractiPlusChartTheme, EditableBorder 
 
     void setRangeGridlinesVisible(boolean rangeGridlinesVisible);
 
-    iPlusDrawingSupplier getDrawingSupplier();
+    ExtendedDrawingSupplier getDrawingSupplier();
 
-    void setDrawingSupplier(iPlusDrawingSupplier supplier);
+    void setDrawingSupplier(ExtendedDrawingSupplier supplier);
 
-    iPlusAxisTheme getDomainAxisTheme();
+    AxisTheme getDomainAxisTheme();
 
-    void setDomainAxisTheme(iPlusAxisTheme domainAxisTheme);
+    void setDomainAxisTheme(AxisTheme domainAxisTheme);
 
-    iPlusAxisTheme getRangeAxisTheme();
+    AxisTheme getRangeAxisTheme();
 
-    void setRangeAxisTheme(iPlusAxisTheme rangeAxisTheme);
+    void setRangeAxisTheme(AxisTheme rangeAxisTheme);
 
     RectangleInsets getInsets();
 

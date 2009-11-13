@@ -10,9 +10,9 @@ import java.util.Locale;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 12:02:58
- * To change this template use File | Settings | File Templates.
+ * Basic methods that all theme implementations should support.
  */
-public interface AbstractiPlusChartTheme extends ChartTheme, Cloneable {
+interface ChartThemeBasis extends ChartTheme, Cloneable {
     String getName();
 
     void setName(String n);

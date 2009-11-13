@@ -60,7 +60,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.editor.themes.iPlusAxisTheme;
+import org.jfree.chart.editor.themes.AxisTheme;
 
 /**
  * A panel for editing the properties of a value axis.
@@ -103,7 +103,7 @@ public class DefaultNumberAxisEditor extends DefaultAxisEditor
      * @param chart The chart the axis belongs to.
      * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
      */
-    public DefaultNumberAxisEditor(iPlusAxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultNumberAxisEditor(AxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(theme, chart, immediateUpdate);
 
         this.autoRange = theme.isAutoRange();

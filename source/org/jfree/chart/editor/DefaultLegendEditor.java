@@ -8,7 +8,7 @@ import org.jfree.chart.editor.components.PaintControl;
 import org.jfree.chart.editor.components.FontControl;
 import org.jfree.chart.editor.components.InsetPanel;
 import org.jfree.chart.editor.components.PositionComboBox;
-import org.jfree.chart.editor.themes.iPlusLegendTheme;
+import org.jfree.chart.editor.themes.LegendTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +26,7 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
 
     private EventHandler handler = new EventHandler();
 
-    private iPlusLegendTheme theme;
+    private LegendTheme theme;
 
     private JCheckBox visible;
     private PaintControl backgroundPaint, itemPaint;
@@ -37,7 +37,7 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
 
     private PositionComboBox graphicEdge;
 
-    public DefaultLegendEditor(iPlusLegendTheme theme, JFreeChart chart, boolean immediateUpdate) {
+    public DefaultLegendEditor(LegendTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(theme, chart, immediateUpdate);
         this.theme = theme;
 

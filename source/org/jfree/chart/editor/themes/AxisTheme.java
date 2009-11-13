@@ -9,9 +9,9 @@ import java.awt.*;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 12:24:02
- * To change this template use File | Settings | File Templates.
+ * Information that a ChartEditor GUI can change about an axis within a chart.
  */
-public interface iPlusAxisTheme extends AbstractiPlusChartTheme {
+public interface AxisTheme extends ChartThemeBasis {
     int RANGE_AXIS = 11;
     int DOMAIN_AXIS = 22;
 

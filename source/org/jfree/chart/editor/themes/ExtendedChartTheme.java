@@ -11,9 +11,11 @@ import org.jfree.chart.JFreeChart;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 12:05:44
- * To change this template use File | Settings | File Templates.
+ * Information that a ChartEditor GUI can change about a chart. Implementations of this
+ * interface deal with the chart-level style settings, but also hold references to more detailed
+ * themes - such as the plot/title/legend/axis themes.
  */
-public interface iPlusChartTheme extends AbstractiPlusChartTheme, EditableBorder {
+public interface ExtendedChartTheme extends ChartThemeBasis, EditableBorder {
     String THEME_NAME = "Custom Chart Theme";
     Font DEFAULT_LARGE_FONT = new Font("Tahoma", Font.BOLD, 14);
     Color DEFAULT_TEXT_PAINT = Color.BLACK;
@@ -37,17 +39,17 @@ public interface iPlusChartTheme extends AbstractiPlusChartTheme, EditableBorder
 
     String getPreferredChartTemplate();
 
-    iPlusChartTitleTheme getTitleTheme();
+    ChartTitleTheme getTitleTheme();
 
-    void setTitleTheme(iPlusChartTitleTheme titleTheme);
+    void setTitleTheme(ChartTitleTheme titleTheme);
 
-    iPlusPlotTheme getPlotTheme();
+    PlotTheme getPlotTheme();
 
-    void setPlotTheme(iPlusPlotTheme plotTheme);
+    void setPlotTheme(PlotTheme plotTheme);
 
-    iPlusLegendTheme getLegendTheme();
+    LegendTheme getLegendTheme();
 
-    void setLegendTheme(iPlusLegendTheme legendTheme);
+    void setLegendTheme(LegendTheme legendTheme);
 
     RectangleInsets getPadding();
 

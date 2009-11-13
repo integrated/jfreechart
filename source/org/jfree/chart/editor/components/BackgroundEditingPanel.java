@@ -1,8 +1,7 @@
 package org.jfree.chart.editor.components;
 
-import org.jfree.chart.EditableBackground;
-import org.jfree.chart.editor.themes.iPlusPlotTheme;
-import org.jfree.chart.editor.themes.iPlusChartTheme;
+import org.jfree.chart.editor.themes.PlotTheme;
+import org.jfree.chart.editor.themes.ExtendedChartTheme;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -24,11 +23,11 @@ public class BackgroundEditingPanel extends EditPanel {
     private final EventHandler updateHandler = new EventHandler();
 
 
-    public BackgroundEditingPanel(iPlusPlotTheme theme) {
+    public BackgroundEditingPanel(PlotTheme theme) {
         this(theme.getPlotBackgroundPaint());
     }
 
-    public BackgroundEditingPanel(iPlusChartTheme theme) {
+    public BackgroundEditingPanel(ExtendedChartTheme theme) {
         this(theme.getChartBackgroundPaint());
     }
 

@@ -1,7 +1,7 @@
 package org.jfree.chart.editor.components;
 
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.editor.themes.iPlusChartTheme;
+import org.jfree.chart.editor.themes.ExtendedChartTheme;
 import org.jfree.chart.editor.themes.ChartBorder;
 
 import javax.swing.*;
@@ -79,7 +79,7 @@ public class BorderPanel extends EditPanel {
         return paintControl.getChosenPaint();
     }
 
-    public void apply(JFreeChart chart, iPlusChartTheme theme) {
+    public void apply(JFreeChart chart, ExtendedChartTheme theme) {
         if(chart != null) {
             chart.setBorderVisible(isBorderVisible());
             chart.setBorderStroke(getBorderStroke());

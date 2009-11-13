@@ -10,9 +10,9 @@ import java.awt.*;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 15:03:56
- * To change this template use File | Settings | File Templates.
+ * Information that a ChartEditor GUI can change about the legend within a chart.
  */
-public interface iPlusLegendTheme extends iPlusTitleTheme {
+public interface LegendTheme extends TitleTheme {
     Paint getLegendBackgroundPaint();
 
     void setLegendBackgroundPaint(Paint paint);

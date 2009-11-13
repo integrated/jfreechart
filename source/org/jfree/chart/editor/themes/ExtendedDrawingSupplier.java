@@ -11,9 +11,10 @@ import java.awt.*;
  * User: Dan
  * Date: 29-Apr-2009
  * Time: 15:10:34
- * To change this template use File | Settings | File Templates.
+ * Additions to the DrawingSupplier interface that make it more versatile and also allow
+ * support for the implementation to generate a gradient of paints between a start and end point.
  */
-public interface iPlusDrawingSupplier extends Cloneable, PublicCloneable, DrawingSupplier {
+public interface ExtendedDrawingSupplier extends Cloneable, PublicCloneable, DrawingSupplier {
     /** The default fill paint sequence. */
     Paint[] DEFAULT_PAINT_SEQUENCE
             = ChartColor.createDefaultPaintArray();
@@ -33,7 +34,7 @@ public interface iPlusDrawingSupplier extends Cloneable, PublicCloneable, Drawin
                     BasicStroke.JOIN_BEVEL)};
     /** The default shape sequence. */
     Shape[] DEFAULT_SHAPE_SEQUENCE
-            = iPlusThemeUtil.createStandardSeriesShapes();
+            = ThemeUtil.createStandardSeriesShapes();
 
     String getName();
 

@@ -13,7 +13,7 @@ import java.awt.geom.Ellipse2D;
  * Time: 12:25:55
  * To change this template use File | Settings | File Templates.
  */
-public class iPlusThemeUtil {
+public class ThemeUtil {
     public static CategoryLabelPositions getCategoryLabelPositions(double angleInDegs) {
         if (angleInDegs == 0) {
             return CategoryLabelPositions.STANDARD;

@@ -71,9 +71,9 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.Rotation;
 import org.jfree.chart.editor.components.*;
-import org.jfree.chart.editor.themes.iPlusPlotTheme;
+import org.jfree.chart.editor.themes.PlotTheme;
 import org.jfree.chart.editor.themes.ChartBorder;
-import org.jfree.chart.editor.themes.iPlusAxisTheme;
+import org.jfree.chart.editor.themes.AxisTheme;
 
 /**
  * A panel for editing the properties of a {@link Plot}.
@@ -87,7 +87,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private final static int ORIENTATION_VERTICAL = 0;
     private final static int ORIENTATION_HORIZONTAL = 1;
 
-    protected iPlusPlotTheme theme;
+    protected PlotTheme theme;
 
     /** The panel to adjust the properties of the plot's background */
     private BackgroundEditingPanel backgroundPanel;
@@ -160,7 +160,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
      * @param plot  the plot, which should be changed.
      * @param immediateUpdate Whether changes to GUI controls should immediately be applied.
      */
-    public DefaultPlotEditor(iPlusPlotTheme theme, JFreeChart chart, Plot plot, boolean immediateUpdate) {
+    public DefaultPlotEditor(PlotTheme theme, JFreeChart chart, Plot plot, boolean immediateUpdate) {
         super(chart, immediateUpdate);
 
         this.theme = theme;
@@ -268,8 +268,8 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         else if (plot instanceof XYPlot) {
             domainAxis = ((XYPlot) plot).getDomainAxis();
         }
-        iPlusAxisTheme dAxisTheme = theme.getDomainAxisTheme();
-        iPlusAxisTheme rAxisTheme = theme.getRangeAxisTheme();
+        AxisTheme dAxisTheme = theme.getDomainAxisTheme();
+        AxisTheme rAxisTheme = theme.getRangeAxisTheme();
         this.domainAxisPropertyPanel
             = DefaultAxisEditor.getInstance(dAxisTheme, chart, domainAxis, immediateUpdate);
         if (this.domainAxisPropertyPanel != null) {
