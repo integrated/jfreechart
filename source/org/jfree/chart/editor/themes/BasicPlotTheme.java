@@ -35,15 +35,15 @@ import java.util.Iterator;
  */
 public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme {
     static final ExtendedDrawingSupplier DEFAULT_DRAWING_SUPPLIER = new BasicDrawingSupplier(null);
-    private static final String CUSTOM_PLOT_THEME = "Custom Plot Theme";
+    static final String CUSTOM_PLOT_THEME = "Custom Plot Theme";
 
-    private static final ChartBorder DEFAULT_PLOT_BORDER =
-                new BasicChartBorder(true, DEFAULT_BORDER_STROKE, DEFAULT_BORDER_PAINT);
+    static final ChartBorder DEFAULT_PLOT_BORDER =
+        new BasicChartBorder(true, DEFAULT_BORDER_STROKE, DEFAULT_BORDER_PAINT);
 
-    private static final RectangleInsets DEFAULT_AXIS_OFFSET = RectangleInsets.ZERO_INSETS;
-    private static final Paint DEFAULT_GRIDLINE_PAINT = Color.DARK_GRAY;
+    static final RectangleInsets DEFAULT_AXIS_OFFSET = RectangleInsets.ZERO_INSETS;
+    static final Paint DEFAULT_GRIDLINE_PAINT = Color.DARK_GRAY;
 
-    private static final Paint DEFAULT_BACKGROUND_PAINT = ExtendedChartTheme.DEFAULT_BACKGROUND_PAINT;
+    static final Paint DEFAULT_BACKGROUND_PAINT = ExtendedChartTheme.DEFAULT_BACKGROUND_PAINT;
 
     static final String DEFAULT_NUMBER_FORMAT;
     static final String DEFAULT_PERCENT_FORMAT;

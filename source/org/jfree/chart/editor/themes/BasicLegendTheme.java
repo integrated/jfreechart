@@ -16,12 +16,12 @@ import java.awt.*;
  * Implementation of the iPlusLegendTheme interface.
  */
 public class BasicLegendTheme extends BasicAbstractTitleTheme implements LegendTheme {
-    private static final String CUSTOM_LEGEND_THEME = "Custom Legend Theme";
-    private static final boolean DEFAULT_LEGEND_VISIBILITY = true;
-    private static final RectangleInsets DEFAULT_ITEM_PADDING = new RectangleInsets(2,2,2,2);
-    private static final RectangleInsets DEFAULT_GRAPHIC_PADDING = DEFAULT_ITEM_PADDING;
-    private static final RectangleEdge DEFAULT_GRAPHIC_EDGE = RectangleEdge.LEFT;
-    private static final Font DEFAULT_ITEM_FONT = new Font("SansSerif", Font.PLAIN, 12);
+    static final String CUSTOM_LEGEND_THEME = "Custom Legend Theme";
+    static final boolean DEFAULT_LEGEND_VISIBILITY = true;
+    static final RectangleInsets DEFAULT_ITEM_PADDING = new RectangleInsets(2,2,2,2);
+    static final RectangleInsets DEFAULT_GRAPHIC_PADDING = DEFAULT_ITEM_PADDING;
+    static final RectangleEdge DEFAULT_GRAPHIC_EDGE = RectangleEdge.LEFT;
+    static final Font DEFAULT_ITEM_FONT = new Font("SansSerif", Font.PLAIN, 12);
 
     /** The legend background paint. */
     private Paint legendBackgroundPaint;

@@ -17,12 +17,12 @@ import org.jfree.ui.VerticalAlignment;
  */
 public abstract class BasicAbstractTitleTheme extends BasicAbstractChartTheme implements TitleTheme {
 
-    protected static final BlockBorder DEFAULT_TITLE_BORDER = BlockBorder.NONE;
-    protected static final RectangleInsets DEFAULT_PADDING = RectangleInsets.ZERO_INSETS;
-    protected static final RectangleInsets DEFAULT_MARGIN = RectangleInsets.ZERO_INSETS;
-    protected static final RectangleEdge DEFAULT_POSITION = RectangleEdge.TOP;
-    protected static final HorizontalAlignment DEFAULT_HORIZONTAL_ALIGNMENT = HorizontalAlignment.CENTER;
-    protected static final VerticalAlignment DEFAULT_VERTICAL_ALIGNMENT = VerticalAlignment.CENTER;
+    public static final BlockBorder DEFAULT_TITLE_BORDER = BlockBorder.NONE;
+    public static final RectangleInsets DEFAULT_PADDING = RectangleInsets.ZERO_INSETS;
+    public static final RectangleInsets DEFAULT_MARGIN = RectangleInsets.ZERO_INSETS;
+    public static final RectangleEdge DEFAULT_POSITION = RectangleEdge.TOP;
+    public static final HorizontalAlignment DEFAULT_HORIZONTAL_ALIGNMENT = HorizontalAlignment.CENTER;
+    public static final VerticalAlignment DEFAULT_VERTICAL_ALIGNMENT = VerticalAlignment.CENTER;
 
     /** The coloured border around the title */
     private BlockBorder titleFrame;

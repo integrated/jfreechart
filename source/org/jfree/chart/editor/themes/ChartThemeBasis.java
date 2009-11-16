@@ -12,7 +12,7 @@ import java.util.Locale;
  * Time: 12:02:58
  * Basic methods that all theme implementations should support.
  */
-interface ChartThemeBasis extends ChartTheme, Cloneable {
+public interface ChartThemeBasis extends ChartTheme, Cloneable {
     String getName();
 
     void setName(String n);

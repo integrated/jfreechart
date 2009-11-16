@@ -16,14 +16,14 @@ import java.awt.*;
  */
 public class BasicChartTitleTheme extends BasicAbstractTitleTheme implements ChartTitleTheme {
 
-    private static final String DEFAULT_THEME_NAME = "Custom Title Theme";
+    static final String DEFAULT_THEME_NAME = "Custom Title Theme";
 
-    private static final Font DEFAULT_TITLE_FONT = new Font("Tahoma", Font.BOLD, 20);
-    private static final Color DEFAULT_TEXT_PAINT = Color.BLACK;
-    private static final Paint DEFAULT_BACKGROUND_PAINT = null;
-    private static final boolean DEFAULT_TITLE_VISIBILITY = true;
-    private static final boolean DEFAULT_TITLE_EXPAND = false;
-    private static final String DEFAULT_CHART_TITLE = "Title";
+    static final Font DEFAULT_TITLE_FONT = new Font("Tahoma", Font.BOLD, 20);
+    static final Color DEFAULT_TEXT_PAINT = Color.BLACK;
+    static final Paint DEFAULT_BACKGROUND_PAINT = null;
+    static final boolean DEFAULT_TITLE_VISIBILITY = true;
+    static final boolean DEFAULT_TITLE_EXPAND = false;
+    static final String DEFAULT_CHART_TITLE = "Title";
 
 
     private Font titleFont;

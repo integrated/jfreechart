@@ -18,22 +18,22 @@ import java.awt.*;
  * Implementation of the iPlusAxisTheme interface.
  */
 public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme {
-    private static final String CUSTOM_AXIS_THEME = "Custom Axis Theme";
+    static final String CUSTOM_AXIS_THEME = "Custom Axis Theme";
 
-    private static final Font DEFAULT_LARGE_FONT = ExtendedChartTheme.DEFAULT_LARGE_FONT;
-    private static final Font DEFAULT_REGULAR_FONT = PlotTheme.DEFAULT_REGULAR_FONT;
-    private static final Paint DEFAULT_LABEL_PAINT = ExtendedChartTheme.DEFAULT_LABEL_PAINT;
-    private static final String DEFAULT_DOMAIN_AXIS_LABEL = "Domain";
-    private static final String DEFAULT_RANGE_AXIS_LABEL = "Range";
-    private static final boolean DEFAULT_TICK_LABEL_VIS = true;
-    private static final boolean DEFAULT_TICK_MARK_VIS = true;
-    private static final boolean DEFAULT_AUTO_RANGE = true;
-    private static final double DEFAULT_LABEL_ANGLE = 0.0;
-    private static final double DEFAULT_CATEGORY_LABEL_ANGLE = 0.0;
-    private static final int DEFAULT_CATEGORY_MAX_LINES = 1;
-    private static final boolean DEFAULT_AXIS_LINE_VIS = true;
-    private static final Paint DEFAULT_AXIS_LINE_PAINT = Color.BLACK;
-    private static final BasicStroke DEFAULT_AXIS_LINE_STROKE = new BasicStroke(1.0f);
+    static final Font DEFAULT_LARGE_FONT = ExtendedChartTheme.DEFAULT_LARGE_FONT;
+    static final Font DEFAULT_REGULAR_FONT = PlotTheme.DEFAULT_REGULAR_FONT;
+    static final Paint DEFAULT_LABEL_PAINT = ExtendedChartTheme.DEFAULT_LABEL_PAINT;
+    static final String DEFAULT_DOMAIN_AXIS_LABEL = "Domain";
+    static final String DEFAULT_RANGE_AXIS_LABEL = "Range";
+    static final boolean DEFAULT_TICK_LABEL_VIS = true;
+    static final boolean DEFAULT_TICK_MARK_VIS = true;
+    static final boolean DEFAULT_AUTO_RANGE = true;
+    static final double DEFAULT_LABEL_ANGLE = 0.0;
+    static final double DEFAULT_CATEGORY_LABEL_ANGLE = 0.0;
+    static final int DEFAULT_CATEGORY_MAX_LINES = 1;
+    static final boolean DEFAULT_AXIS_LINE_VIS = true;
+    static final Paint DEFAULT_AXIS_LINE_PAINT = Color.BLACK;
+    static final BasicStroke DEFAULT_AXIS_LINE_STROKE = new BasicStroke(1.0f);
 
     /**
      * A large font.  Used for the axis labels.
