@@ -402,4 +402,13 @@
         <delete dir="${basedir}/distribution" />    
     </target>
 
+    <!-- ALL - used on TeamCity to speed it up -->
+    <target name="all-no-docs"
+            depends="compile,compile-experimental,zip,targz,maven-bundle"
+            description="Compiles JFreeChart, builds the jar files, generates the Javadoc HTML pages and creates distribution files (.zip and .tar.gz).">
+
+        <!-- delete the temporary distribution directory -->
+        <delete dir="${basedir}/distribution" />
+    </target>
+
 </project>
