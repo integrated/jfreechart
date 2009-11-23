@@ -80,4 +80,8 @@ public interface ExtendedChartTheme extends ChartThemeBasis, EditableBorder {
     void setSeriesInColumns(boolean seriesInColumns);
 
     void applyCustomChartProperties(JFreeChart chart);
+
+    ChartTitleTheme constructChartTitleTheme(String name);
+    PlotTheme constructPlotTheme(String name);
+    LegendTheme constructLegendTheme(String name);
 }

@@ -4,6 +4,8 @@ import java.awt.*;
 
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PieLabelLinkStyle;
+import org.jfree.chart.plot.DrawingSupplier;
+import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.Rotation;
 
@@ -175,4 +177,10 @@ public interface PlotTheme extends ChartThemeBasis, EditableBorder {
     String getNumberFormatString();
 
     void setNumberFormatString(String numberFormatString);
+
+    AxisTheme constructAxisTheme(String name, int type);
+
+    ExtendedDrawingSupplier constructDrawingSupplier(String name, DrawingSupplier nested);
+
+    boolean isSupplierCorrectImplementation(DrawingSupplier supplier);
 }

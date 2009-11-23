@@ -63,9 +63,12 @@ public class BasicChartTheme extends BasicAbstractChartTheme implements Editable
         } catch (CloneNotSupportedException e) {
             System.err.println("Someone has created an implementation of ChartBorder that will not clone itself!");
         }
-        this.titleTheme = new BasicChartTitleTheme(getName());
-        this.plotTheme = new BasicPlotTheme(getName());
-        this.legendTheme = new BasicLegendTheme(getName());
+        
+        String name = getName();
+        this.titleTheme = constructChartTitleTheme(name);
+        this.plotTheme = constructPlotTheme(name);
+        this.legendTheme = constructLegendTheme(name);
+
         this.padding = DEFAULT_PADDING;
         this.chartTemplate = "BarChart";
         this.seriesInColumns = DEFAULT_DATA_ORIENTATION_IN_COLS;
@@ -143,9 +146,9 @@ public class BasicChartTheme extends BasicAbstractChartTheme implements Editable
 
         border = new BasicChartBorder(chart.isBorderVisible(), (BasicStroke) chart.getBorderStroke(), chart.getBorderPaint());
 
-        this.titleTheme = new BasicChartTitleTheme(chart, getName());
-        this.plotTheme = new BasicPlotTheme(chart, getName());
-        this.legendTheme = new BasicLegendTheme(chart, getName());
+        this.titleTheme.readSettingsFromChart(chart);
+        this.plotTheme.readSettingsFromChart(chart);
+        this.legendTheme.readSettingsFromChart(chart);
     }
 
     public void setLocaleForCurrentThread(Locale l) {
@@ -292,5 +295,17 @@ public class BasicChartTheme extends BasicAbstractChartTheme implements Editable
 
     public ChartBorder getBorder() {
         return border;
+    }
+
+    public ChartTitleTheme constructChartTitleTheme(String name) {
+        return new BasicChartTitleTheme(name);
+    }
+
+    public PlotTheme constructPlotTheme(String name) {
+        return new BasicPlotTheme(name);
+    }
+
+    public LegendTheme constructLegendTheme(String name) {
+        return new BasicLegendTheme(name);
     }
 }

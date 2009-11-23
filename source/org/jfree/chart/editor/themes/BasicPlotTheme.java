@@ -135,7 +135,7 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
     }
 
     protected void initDefaults() {
-        this.drawingSupplier = DEFAULT_DRAWING_SUPPLIER;
+        this.drawingSupplier = constructDrawingSupplier(getName(), DEFAULT_DRAWING_SUPPLIER);
         this.plotBackgroundPaint = DEFAULT_BACKGROUND_PAINT;
         try {
             this.plotOutline = (ChartBorder) DEFAULT_PLOT_BORDER.clone();
@@ -143,8 +143,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
             System.err.println("Someone has created an extension of ChartBorder that will not clone itself!");
         }
         this.orientation = DEFAULT_PLOT_ORIENTATION;
-        this.domainAxisTheme = new BasicAxisTheme(getName(), AxisTheme.DOMAIN_AXIS);
-        this.rangeAxisTheme = new BasicAxisTheme(getName(), AxisTheme.RANGE_AXIS);
+        this.domainAxisTheme = constructAxisTheme(getName(), AxisTheme.DOMAIN_AXIS);
+        this.rangeAxisTheme = constructAxisTheme(getName(), AxisTheme.RANGE_AXIS);
         this.shadowsVisible = DEFAULT_SHADOWS_VISIBLE;
         this.axisOffset = DEFAULT_AXIS_OFFSET;
         this.domainGridlinePaint = DEFAULT_GRIDLINE_PAINT;
@@ -278,8 +278,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         }
         this.plotBackgroundPaint = plot.getBackgroundPaint();
         DrawingSupplier plotSupplier = plot.getDrawingSupplier();
-        if (!(plotSupplier instanceof BasicDrawingSupplier)) {
-            this.drawingSupplier = new BasicDrawingSupplier(getName(), plotSupplier);
+        if (!isSupplierCorrectImplementation(plotSupplier)) {
+            this.drawingSupplier = constructDrawingSupplier(getName(), plotSupplier);
         } else {
             this.drawingSupplier = (ExtendedDrawingSupplier) plotSupplier;
         }
@@ -288,8 +288,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
 
         this.plotOutline = new BasicChartBorder(plot.isOutlineVisible(), (BasicStroke) plot.getOutlineStroke(), plot.getOutlinePaint());
 
-        this.domainAxisTheme = new BasicAxisTheme(chart, getName(), AxisTheme.DOMAIN_AXIS);
-        this.rangeAxisTheme = new BasicAxisTheme(chart, getName(), AxisTheme.RANGE_AXIS);
+        this.domainAxisTheme.readSettingsFromChart(chart);
+        this.rangeAxisTheme.readSettingsFromChart(chart);
     }
 
     public Paint getPlotBackgroundPaint() {
@@ -888,5 +888,15 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         }
     }
 
+    public AxisTheme constructAxisTheme(String name, int type) {
+        return new BasicAxisTheme(name, type);
+    }
 
+    public ExtendedDrawingSupplier constructDrawingSupplier(String name, DrawingSupplier nested) {
+        return new BasicDrawingSupplier(name, nested);
+    }
+
+    public boolean isSupplierCorrectImplementation(DrawingSupplier supplier) {
+        return supplier instanceof BasicDrawingSupplier;
+    }
 }
