@@ -334,4 +334,12 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         plotEditor.setLiveUpdates(val);
         legendEditor.setLiveUpdates(val);
     }
+
+    public void setChart(JFreeChart chart) {
+        super.setChart(chart);
+
+        legendEditor.setChart(chart);
+        plotEditor.setChart(chart);
+        titleEditor.setChart(chart);
+    }
 }

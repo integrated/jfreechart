@@ -927,6 +927,12 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
     }
 
+    public void setChart(JFreeChart chart) {
+        super.setChart(chart);
+        domainAxisPropertyPanel.setChart(chart);
+        rangeAxisPropertyPanel.setChart(chart);
+    }
+
 
     private class DocHandler implements DocumentListener, FocusListener {
         String lastGoodFormat = labelFormat.getText();

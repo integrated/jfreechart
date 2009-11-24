@@ -77,6 +77,12 @@ public abstract class BaseEditor extends JPanel implements ChartEditor {
 
     }
 
+    public void setChart(JFreeChart chart) {
+        if(chart != null) {
+            this.chart = chart;
+        }
+    }
+
     protected class UpdateHandler implements ActionListener, DocumentListener, ChangeListener,
             ListDataListener {
         private void chartPropertyChanged() {
