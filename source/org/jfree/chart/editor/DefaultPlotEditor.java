@@ -929,8 +929,12 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
     public void setChart(JFreeChart chart) {
         super.setChart(chart);
-        domainAxisPropertyPanel.setChart(chart);
-        rangeAxisPropertyPanel.setChart(chart);
+        if(domainAxisPropertyPanel != null) {
+            domainAxisPropertyPanel.setChart(chart);
+        }
+        if(rangeAxisPropertyPanel != null) {
+            rangeAxisPropertyPanel.setChart(chart);
+        }
     }
 
 
