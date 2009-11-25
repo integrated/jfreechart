@@ -259,7 +259,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         JTabbedPane tabs = new JTabbedPane();
         tabs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        tabs.add(localizationResources.getString("Appearance"), appearance);
+        tabs.add(localizationResources.getString("Appearance"), new JScrollPane(appearance));
 
         Axis domainAxis = null;
         if (plot instanceof CategoryPlot) {
@@ -278,7 +278,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             );
             tabs.add(
                 localizationResources.getString("Domain_Axis"),
-                this.domainAxisPropertyPanel
+                new JScrollPane(this.domainAxisPropertyPanel)
             );
         }
 
@@ -300,18 +300,18 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             );
             tabs.add(
                 localizationResources.getString("Range_Axis"),
-                this.rangeAxisPropertyPanel
+                new JScrollPane(this.rangeAxisPropertyPanel)
             );
         }
 
         if (plot instanceof CategoryPlot || plot instanceof XYPlot) {
-            tabs.add(localizationResources.getString("Grid_Lines"), getGridlinesPanel());
+            tabs.add(localizationResources.getString("Grid_Lines"), new JScrollPane(getGridlinesPanel()));
         }
 
         addCustomTabs(tabs);
 
         if(labelPanel != null) {
-            tabs.add(localizationResources.getString("Labels"), labelPanel);
+            tabs.add(localizationResources.getString("Labels"), new JScrollPane(labelPanel));
         }
 
         panel.add(tabs);

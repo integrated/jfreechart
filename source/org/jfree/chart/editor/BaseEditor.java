@@ -33,7 +33,7 @@ public abstract class BaseEditor extends JPanel implements ChartEditor {
     }
 
     public static GridBagConstraints getNewConstraints() {
-        return new GridBagConstraints(0,0,1,1,0,0,GridBagConstraints.CENTER,GridBagConstraints.HORIZONTAL,
+        return new GridBagConstraints(0,0,1,1,0,0,GridBagConstraints.CENTER,GridBagConstraints.BOTH,
                 new Insets(2,3,2,3), 0,0);
     }
 
@@ -43,7 +43,7 @@ public abstract class BaseEditor extends JPanel implements ChartEditor {
         c.weightx = 0;
         c.gridwidth = 1;
         c.anchor = GridBagConstraints.CENTER;
-        c.fill = GridBagConstraints.HORIZONTAL;
+        c.fill = GridBagConstraints.BOTH;
     }
 
     public void setLiveUpdates(boolean val) {

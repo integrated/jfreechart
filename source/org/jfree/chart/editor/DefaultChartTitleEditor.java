@@ -129,9 +129,9 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
         JPanel positionTab = buildPositionTab();
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab(localizationResources.getString("Text"), textTab);
-        tabs.addTab(localizationResources.getString("Box"), boxTab);
-        tabs.addTab(localizationResources.getString("Position"), positionTab);
+        tabs.addTab(localizationResources.getString("Text"), new JScrollPane(textTab));
+        tabs.addTab(localizationResources.getString("Box"), new JScrollPane(boxTab));
+        tabs.addTab(localizationResources.getString("Position"), new JScrollPane(positionTab));
         c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
         interior.add(tabs, c);
 

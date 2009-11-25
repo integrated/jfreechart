@@ -59,9 +59,9 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
         c.weighty =1; c.fill = GridBagConstraints.BOTH;
         JTabbedPane tabs = new JTabbedPane();
         add(tabs, c);
-        tabs.addTab(localizationResources.getString("Items"), items);
-        tabs.addTab(localizationResources.getString("Box"), box);
-        tabs.addTab(localizationResources.getString("Position"), position);
+        tabs.addTab(localizationResources.getString("Items"), new JScrollPane(items));
+        tabs.addTab(localizationResources.getString("Box"), new JScrollPane(box));
+        tabs.addTab(localizationResources.getString("Position"), new JScrollPane(position));
         addCustomTabs(tabs);
     }
 

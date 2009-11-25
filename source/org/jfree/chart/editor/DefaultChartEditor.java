@@ -185,29 +185,26 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
         general.add(interior, BorderLayout.CENTER);
 
-        JPanel parts = new JPanel(new BorderLayout());
-
         Plot plot = chart.getPlot();
 
         tabs = new JTabbedPane();
 
-        tabs.addTab(localizationResources.getString("Chart"), general);
+        tabs.addTab(localizationResources.getString("Chart"), new JScrollPane(general));
         this.titleEditor = initTitleEditor();
         this.titleEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        tabs.addTab(localizationResources.getString("Title"), this.titleEditor);
+        tabs.addTab(localizationResources.getString("Title"), new JScrollPane(this.titleEditor));
 
         this.plotEditor = initPlotEditor(plot);
         this.plotEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        tabs.addTab(localizationResources.getString("Plot"), this.plotEditor);
+        tabs.addTab(localizationResources.getString("Plot"), new JScrollPane(this.plotEditor));
 
         this.legendEditor = initLegendEditor();
         this.legendEditor.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        tabs.addTab(localizationResources.getString("Legend"), this.legendEditor);
+        tabs.addTab(localizationResources.getString("Legend"), new JScrollPane(this.legendEditor));
 
         addCustomTabs(tabs);
 
-        parts.add(tabs, BorderLayout.CENTER);
-        add(parts);
+        add(tabs);
 
         theme.apply(chart);
     }
@@ -225,6 +222,9 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
     }
 
     public void addTab(String title, Icon icon, Component component, String tip) {
+        if(!(component instanceof JScrollPane)) {
+            component = new JScrollPane(component);
+        }
         tabs.addTab(title, icon, component, tip);
     }
 
