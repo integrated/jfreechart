@@ -83,6 +83,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
 
     /** Select the text alignment for the title */
     private HorizontalAlignmentComboBox textAlign = new HorizontalAlignmentComboBox();
+    private static final String SHOW_TITLE_COMMAND = "ShowTitle";
 
     /**
      * Standard constructor: builds a panel for displaying/editing the
@@ -111,7 +112,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
         c.anchor = GridBagConstraints.WEST;
         this.showTitleCheckBox = new JCheckBox(localizationResources.getString("Show_Title"));
         this.showTitleCheckBox.setSelected(theme.isTitleVisible());
-        this.showTitleCheckBox.setActionCommand("ShowTitle");
+        this.showTitleCheckBox.setActionCommand(SHOW_TITLE_COMMAND);
         this.showTitleCheckBox.addActionListener(updateHandler);
         this.showTitleCheckBox.addActionListener(this);
         interior.add(this.showTitleCheckBox,c);
@@ -244,7 +245,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
 
         String command = event.getActionCommand();
 
-        if (command.equals("ShowTitle")) {
+        if (command.equals(SHOW_TITLE_COMMAND)) {
             enableOrDisableControls(showTitleCheckBox.isSelected(), showTitleCheckBox);
         }
     }

@@ -60,21 +60,35 @@ public abstract class DefaultTitleEditor extends BaseEditor {
         recursivelySetEnabled(getComponents(), enabled, 0, toSkip);
     }
 
-    private final static int MAX_DEPTH = 5;
+    private final static int MAX_DEPTH = 10;
     private void recursivelySetEnabled(Component[] comps, boolean enabled, int depth, Component toSkip) {
         if(comps == null || depth >= MAX_DEPTH) {
             return;
         }
 
         for(int i = 0; i < comps.length; i++) {
-            if(comps[i] == toSkip) {
-                continue;
-            }
+            processComponent(comps[i], enabled, depth, toSkip);
+        }
+    }
 
-            comps[i].setEnabled(enabled);
-            if(comps[i] instanceof Container) {
-                recursivelySetEnabled(((Container)comps[i]).getComponents(), enabled, depth + 1, toSkip);
+    private void processComponent(Component c, boolean enabled, int depth, Component toSkip) {
+        if(c == toSkip) {
+            return;
+        }
+
+        c.setEnabled(enabled);
+
+        if(c instanceof JTabbedPane) {
+            JTabbedPane tabPane = (JTabbedPane) c;
+            for(int j = 0; j < tabPane.getTabCount(); j++) {
+                Component tab = tabPane.getComponentAt(j);
+                tab.setEnabled(enabled);
+                processComponent(tab, enabled, depth+1, toSkip);
             }
+        }
+
+        if(c instanceof Container) {
+            recursivelySetEnabled(((Container)c).getComponents(), enabled, depth + 1, toSkip);
         }
     }
 
