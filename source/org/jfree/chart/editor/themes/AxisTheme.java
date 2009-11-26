@@ -81,5 +81,17 @@ public interface AxisTheme extends ChartThemeBasis {
 
     void setLineStroke(BasicStroke lineStroke);
 
+    double getLowerMargin();
+
+    void setLowerMargin(double d);
+
+    double getUpperMargin();
+
+    void setUpperMargin(double d);
+
+    double getCategoryMargin();
+
+    void setCategoryMargin(double d);
+
     void apply(Axis axis);
 }

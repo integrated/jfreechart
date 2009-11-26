@@ -78,6 +78,8 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
 
     private int catLabelMaxLines;
 
+    private double upperMargin, lowerMargin, categoryMargin;
+
 
     public BasicAxisTheme(String name, int type) {
         super(name, CUSTOM_AXIS_THEME, false);
@@ -128,6 +130,10 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         this.linePaint = DEFAULT_AXIS_LINE_PAINT;
         this.lineStroke = DEFAULT_AXIS_LINE_STROKE;
         this.tickLabelPaint = DEFAULT_LABEL_PAINT;
+
+        this.upperMargin = CategoryAxis.DEFAULT_AXIS_MARGIN;
+        this.lowerMargin = CategoryAxis.DEFAULT_AXIS_MARGIN;
+        this.categoryMargin = CategoryAxis.DEFAULT_CATEGORY_MARGIN;
     }
 
     public void readSettingsFromChart(JFreeChart chart) {
@@ -177,6 +183,9 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
                 this.catLabelAngleDegs = Math.toDegrees(cAxis.getCategoryLabelPositions().
                         getLabelPosition(RectangleEdge.BOTTOM).getAngle());
                 this.catLabelMaxLines = cAxis.getMaximumCategoryLabelLines();
+                this.upperMargin = cAxis.getUpperMargin();
+                this.lowerMargin = cAxis.getLowerMargin();
+                this.categoryMargin = cAxis.getCategoryMargin();
             }
         }
     }
@@ -314,6 +323,36 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         this.lineStroke = lineStroke;
     }
 
+    public void setCategoryMargin(double d) {
+        if(d>=0 && d<=1) {
+            this.categoryMargin = d;
+        }
+    }
+
+    public double getCategoryMargin() {
+        return this.categoryMargin;
+    }
+
+    public double getLowerMargin() {
+        return this.lowerMargin;
+    }
+
+    public void setLowerMargin(double d) {
+        if(d>=0 && d<=1) {
+            this.lowerMargin = d;
+        }
+    }
+
+    public double getUpperMargin() {
+        return upperMargin;
+    }
+
+    public void setUpperMargin(double d) {
+        if(d>=0 && d<=1) {
+            this.upperMargin = d;
+        }
+    }
+
     public void apply(JFreeChart chart) {
         // do nothing.
     }
@@ -345,6 +384,10 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         axis.setMaximumCategoryLabelLines(catLabelMaxLines);
 
         axis.setCategoryLabelPositions(ThemeUtil.getCategoryLabelPositions(catLabelAngleDegs));
+
+        axis.setLowerMargin(0);
+        axis.setUpperMargin(0);
+        axis.setCategoryMargin(0);
 
         if (axis instanceof SubCategoryAxis) {
             SubCategoryAxis sca = (SubCategoryAxis) axis;
