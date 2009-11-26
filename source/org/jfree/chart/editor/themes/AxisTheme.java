@@ -93,5 +93,9 @@ public interface AxisTheme extends ChartThemeBasis {
 
     void setCategoryMargin(double d);
 
+    double getItemMargin();
+
+    void setItemMargin(double d);
+
     void apply(Axis axis);
 }

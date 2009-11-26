@@ -1,6 +1,7 @@
 package org.jfree.chart.editor.themes;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.CategoryPlot;
@@ -78,7 +79,7 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
 
     private int catLabelMaxLines;
 
-    private double upperMargin, lowerMargin, categoryMargin;
+    private double upperMargin, lowerMargin, categoryMargin, itemMargin;
 
 
     public BasicAxisTheme(String name, int type) {
@@ -134,6 +135,7 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         this.upperMargin = CategoryAxis.DEFAULT_AXIS_MARGIN;
         this.lowerMargin = CategoryAxis.DEFAULT_AXIS_MARGIN;
         this.categoryMargin = CategoryAxis.DEFAULT_CATEGORY_MARGIN;
+        this.itemMargin = BarRenderer.DEFAULT_ITEM_MARGIN;
     }
 
     public void readSettingsFromChart(JFreeChart chart) {
@@ -147,6 +149,9 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
                     axis = cPlot.getRangeAxis(); break;
                 case DOMAIN_AXIS:
                     axis = cPlot.getDomainAxis(); break;
+            }
+            if(cPlot.getRenderer() instanceof BarRenderer) {
+                this.itemMargin = ((BarRenderer)cPlot.getRenderer()).getItemMargin();
             }
         } else if (plot instanceof XYPlot) {
             XYPlot xyPlot = (XYPlot) plot;
@@ -353,11 +358,22 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         }
     }
 
+    public double getItemMargin() {
+        return itemMargin;
+    }
+
+    public void setItemMargin(double d) {
+        if(d>=0 && d<=1) {
+            this.itemMargin = d;
+        }
+    }
+
     public void apply(JFreeChart chart) {
         // do nothing.
     }
 
     public void apply(Axis axis) {
+
         axis.setLabelFont(this.axisLabelFont);
         axis.setLabelPaint(this.axisLabelPaint);
         axis.setTickLabelFont(this.tickLabelFont);
@@ -381,13 +397,20 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
     }
 
     protected void applyToCategoryAxis(CategoryAxis axis) {
+        Plot p = axis.getPlot();
+        if(p instanceof CategoryPlot && type == DOMAIN_AXIS) {
+            CategoryPlot cp = (CategoryPlot) p;
+            if(cp.getRenderer() instanceof BarRenderer) {
+                ((BarRenderer)cp.getRenderer()).setItemMargin(this.itemMargin);
+            }
+        }
         axis.setMaximumCategoryLabelLines(catLabelMaxLines);
 
         axis.setCategoryLabelPositions(ThemeUtil.getCategoryLabelPositions(catLabelAngleDegs));
 
-        axis.setLowerMargin(0);
-        axis.setUpperMargin(0);
-        axis.setCategoryMargin(0);
+        axis.setLowerMargin(getLowerMargin());
+        axis.setUpperMargin(getUpperMargin());
+        axis.setCategoryMargin(getCategoryMargin());
 
         if (axis instanceof SubCategoryAxis) {
             SubCategoryAxis sca = (SubCategoryAxis) axis;

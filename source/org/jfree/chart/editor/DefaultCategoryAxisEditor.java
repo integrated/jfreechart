@@ -1,6 +1,9 @@
 package org.jfree.chart.editor;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.editor.themes.AxisTheme;
 import org.jfree.chart.editor.themes.ThemeUtil;
 import org.jfree.chart.axis.Axis;
@@ -23,10 +26,20 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
 
     private JSpinner catLabelLines;
 
-    private JSpinner upperMargin, lowerMargin, categoryMargin;
+    private JSpinner upperMargin, lowerMargin, categoryMargin, itemMargin;
+    private JLabel itemMarginLabel;
+    private final boolean showItemMargin;
 
     public DefaultCategoryAxisEditor(AxisTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(theme, chart, immediateUpdate);
+        Plot p = chart.getPlot();
+        if(p instanceof CategoryPlot) {
+            CategoryPlot cp = (CategoryPlot) p;
+            showItemMargin = cp.getRenderer() instanceof BarRenderer;
+        } else {
+            showItemMargin = false;
+        }
+        itemMarginLabel.setVisible(showItemMargin);
     }
 
     protected void addAxisTypeSpecificTickControls(JPanel ticks, GridBagConstraints c) {
@@ -74,6 +87,15 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
         c.weightx = 1;
         margins.add(categoryMargin, c);
 
+            startNewRow(c);
+
+        itemMargin = configureMarginSpinner(theme.getItemMargin());
+        itemMarginLabel = new JLabel(localizationResources.getString("Item_Margin"));
+        margins.add(itemMarginLabel, c);
+        c.gridx++; c.gridwidth = 2; c.fill= GridBagConstraints.HORIZONTAL; c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+        margins.add(itemMargin, c);
+
         tabs.addTab(localizationResources.getString("Margin"), margins);
     }
 
@@ -104,6 +126,14 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
         return ((Number)categoryMargin.getValue()).doubleValue();
     }
 
+    public double getItemMargin() {
+        if(showItemMargin) {
+            return ((Number)itemMargin.getValue()).doubleValue();
+        } else {
+            return BarRenderer.DEFAULT_ITEM_MARGIN;
+        }
+    }
+
     protected void applyToAxes(Axis[] axes) {
         super.applyToAxes(axes);
 
@@ -121,6 +151,9 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
         double categoryMargin = getCategoryMargin();
         theme.setCategoryMargin(categoryMargin);
 
+        double itemMargin = getItemMargin();
+        theme.setItemMargin(itemMargin);
+
         CategoryLabelPositions labelPositions = null;
         for(int i = 0; i < axes.length; i++) {
             if(axes[i] instanceof CategoryAxis) {
@@ -134,6 +167,13 @@ public class DefaultCategoryAxisEditor extends DefaultAxisEditor {
                 c.setUpperMargin(upperMargin);
                 c.setLowerMargin(lowerMargin);
                 c.setCategoryMargin(categoryMargin);
+
+                if(c.getPlot() instanceof CategoryPlot) {
+                    CategoryPlot cp = (CategoryPlot) c.getPlot();
+                    if(cp.getRenderer() instanceof BarRenderer) {
+                        ((BarRenderer)cp.getRenderer()).setItemMargin(itemMargin);
+                    }
+                }
             }
         }
     }
