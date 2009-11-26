@@ -87,7 +87,12 @@ public abstract class BaseEditor extends JPanel implements ChartEditor {
             ListDataListener {
         private void chartPropertyChanged() {
             if(immediateUpdate) {
-                updateChart(chart);
+                try {
+                    chart.setNotify(false);
+                    updateChart(chart);
+                } finally {
+                    chart.setNotify(true);
+                }
             }
         }
 
