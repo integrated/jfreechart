@@ -115,14 +115,16 @@ public abstract class DefaultTitleEditor extends BaseEditor {
         this.paddingPanel.addChangeListener(updateHandler);
         interior.add(this.paddingPanel, c);
 
+        startNewRow(c);
+        c.gridwidth = 3; c.weightx = 1;
+        interior.add(buildPositionPanel(), c);
+
         wrapper.add(interior, BorderLayout.NORTH);
         return wrapper;
     }
 
-    protected JPanel buildPositionTab() {
-        JPanel wrapper = new JPanel(new BorderLayout());
-        JPanel interior = new JPanel(new GridBagLayout());
-        interior.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    protected JPanel buildPositionPanel() {
+        JPanel interior = createBorderedLabelPanel(localizationResources.getString("Position"));
         GridBagConstraints c = getNewConstraints();
 
         interior.add(new JLabel(localizationResources.getString("Edge")), c);
@@ -148,8 +150,7 @@ public abstract class DefaultTitleEditor extends BaseEditor {
         verticalAlign.addActionListener(updateHandler);
         interior.add(verticalAlign, c);
 
-        wrapper.add(interior, BorderLayout.NORTH);
-        return wrapper;
+        return interior;
     }
 
     public abstract void updateChart(JFreeChart chart);

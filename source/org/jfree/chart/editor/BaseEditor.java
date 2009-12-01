@@ -46,6 +46,12 @@ public abstract class BaseEditor extends JPanel implements ChartEditor {
         c.fill = GridBagConstraints.BOTH;
     }
 
+    protected static JPanel createBorderedLabelPanel(String title) {
+        JPanel retVal = new JPanel(new GridBagLayout());
+        retVal.setBorder(BorderFactory.createTitledBorder(title));
+        return retVal;
+    }
+
     public void setLiveUpdates(boolean val) {
         this.immediateUpdate = val;
         setCustomEditorLiveUpdates(val);

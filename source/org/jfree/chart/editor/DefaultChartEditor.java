@@ -153,19 +153,9 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        this.antialias = new JCheckBox(localizationResources.getString(
-                "Draw_anti-aliased"));
-        this.antialias.setSelected(theme.isAntiAliased());
-        antialias.addActionListener(updateHandler);
+        JPanel antiAliasPanel = createAntiAliasPanel();
         c.weightx = 1;
-        interior.add(this.antialias,c);
-
-        startNewRow(c);
-        this.textAntialias = new JCheckBox(localizationResources.getString("Draw_anti-aliased_text"),
-                theme.isAntiAliasedText());
-        this.textAntialias.addActionListener(updateHandler);
-        c.weightx = 1;
-        interior.add(this.textAntialias, c);
+        interior.add(antiAliasPanel, c);
 
         startNewRow(c);
         c.weightx = 1;
@@ -207,6 +197,28 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         add(tabs);
 
         theme.apply(chart);
+    }
+
+    private JPanel createAntiAliasPanel() {
+        JPanel retVal = new JPanel(new GridBagLayout());
+        retVal.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Anti-Aliasing")));
+        GridBagConstraints c = getNewConstraints();
+
+        this.antialias = new JCheckBox(localizationResources.getString(
+                "Draw_anti-aliased"));
+        this.antialias.setSelected(theme.isAntiAliased());
+        antialias.addActionListener(updateHandler);
+        c.weightx = 1;
+        retVal.add(this.antialias,c);
+
+        startNewRow(c);
+        this.textAntialias = new JCheckBox(localizationResources.getString("Draw_anti-aliased_text"),
+                theme.isAntiAliasedText());
+        this.textAntialias.addActionListener(updateHandler);
+        c.weightx = 1;
+        retVal.add(this.textAntialias, c);
+
+        return retVal;
     }
 
     protected DefaultChartTitleEditor initTitleEditor() {

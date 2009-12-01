@@ -41,19 +41,13 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
         super(theme, chart, immediateUpdate);
         this.theme = theme;
 
-        visible = new JCheckBox(localizationResources.getString("Visible"), theme.isVisible());
-        visible.addActionListener(updateHandler);
-        visible.addActionListener(handler);
-
-
         JPanel box = buildBoxTab();
         JPanel items = getItemsTab();
-        JPanel position = buildPositionTab();
 
         setLayout(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
         c.anchor = GridBagConstraints.WEST; c.fill = GridBagConstraints.HORIZONTAL; c.weightx = 1;
-        add(visible, c);
+        add(createVisiblePanel(), c);
 
         startNewRow(c);
         c.weighty =1; c.fill = GridBagConstraints.BOTH;
@@ -61,8 +55,20 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
         add(tabs, c);
         tabs.addTab(localizationResources.getString("Items"), new JScrollPane(items));
         tabs.addTab(localizationResources.getString("Box"), new JScrollPane(box));
-        tabs.addTab(localizationResources.getString("Position"), new JScrollPane(position));
         addCustomTabs(tabs);
+    }
+
+    private JPanel createVisiblePanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Visibility"));
+        GridBagConstraints c = getNewConstraints();
+
+        visible = new JCheckBox(localizationResources.getString("Visible"), theme.isVisible());
+        visible.addActionListener(updateHandler);
+        visible.addActionListener(handler);
+        c.anchor = GridBagConstraints.WEST; c.fill = GridBagConstraints.HORIZONTAL; c.weightx = 1;
+        retVal.add(visible, c);
+
+        return retVal;
     }
 
     private JPanel getItemsTab() {
@@ -112,17 +118,23 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
         c.gridwidth = 2; c.weightx =1;
         graphicsPanel.add(graphicPadding, c);
 
-
-
-        JPanel retVal = new JPanel(new GridBagLayout());
+        JPanel backgroundPanel = createBorderedLabelPanel(localizationResources.getString("Background"));
         c = getNewConstraints();
 
         backgroundPaint = new PaintControl(theme.getLegendBackgroundPaint(), true);
         backgroundPaint.addChangeListener(updateHandler);
 
-        retVal.add(new JLabel(localizationResources.getString("Background_paint")),c);
+
+        backgroundPanel.add(new JLabel(localizationResources.getString("Background_paint")),c);
         c.gridx++; c.weightx =1;
-        retVal.add(backgroundPaint,c);
+        backgroundPanel.add(backgroundPaint,c);
+
+        JPanel retVal = new JPanel(new GridBagLayout());
+
+        c=getNewConstraints();
+        
+        c.gridwidth = 2; c.weightx = 1;
+        retVal.add(backgroundPanel, c);
 
         startNewRow(c);
 

@@ -68,6 +68,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.ItemRenderer;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.Rotation;
 import org.jfree.chart.editor.components.*;
@@ -188,23 +189,11 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        if (plot instanceof CategoryPlot || plot instanceof XYPlot) {
+        if (plot instanceof DomainRangePlot) {
             startNewRow(c);
-            boolean isVertical
-                = this.plotOrientation.equals(PlotOrientation.VERTICAL);
-            int index
-                = isVertical ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL;
-            interior.add(
-                new JLabel(localizationResources.getString("Orientation")), c
-            );
-            c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
-            c.fill = GridBagConstraints.NONE;
-            this.orientationCombo = new JComboBox(ORIENTATION_NAMES);
-            this.orientationCombo.setSelectedIndex(index);
-            this.orientationCombo.setActionCommand("Orientation");
-            this.orientationCombo.addActionListener(updateHandler);
-            this.orientationCombo.addActionListener(this);
-            interior.add(this.orientationCombo,c);
+            JPanel layoutPanel = createLayoutPanel();
+            c.gridwidth = 3; c.weightx=1;
+            interior.add(layoutPanel, c);
 
             startNewRow(c);
             RectangleInsets offsets = theme.getAxisOffset();
@@ -319,6 +308,30 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         add(panel);
     }
 
+    private JPanel createLayoutPanel() {
+        JPanel retVal = new JPanel(new GridBagLayout());
+        retVal.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Layout")));
+        GridBagConstraints c = getNewConstraints();
+
+        boolean isVertical
+            = this.plotOrientation.equals(PlotOrientation.VERTICAL);
+        int index
+            = isVertical ? ORIENTATION_VERTICAL : ORIENTATION_HORIZONTAL;
+        retVal.add(
+            new JLabel(localizationResources.getString("Orientation")), c
+        );
+        c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.NONE; c.weightx = 1;
+        this.orientationCombo = new JComboBox(ORIENTATION_NAMES);
+        this.orientationCombo.setSelectedIndex(index);
+        this.orientationCombo.setActionCommand("Orientation");
+        this.orientationCombo.addActionListener(updateHandler);
+        this.orientationCombo.addActionListener(this);
+        retVal.add(this.orientationCombo,c);
+
+        return retVal;
+    }
+
     protected JPanel getLabelPanel(int plotType) {
         JPanel retVal = new JPanel(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
@@ -381,10 +394,99 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         labelLinkStyle.setSelectedObject(theme.getLabelLinkStyle());
         labelLinkStyle.addActionListener(updateHandler);
 
-        c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
-        retVal.add(labelsVisible, c);
+        c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+        retVal.add(createLabelVisibilityPanel(), c);
 
         startNewRow(c);
+        c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+        retVal.add(createLabelFormatPanel(),c);
+
+        startNewRow(c);
+        c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+        retVal.add(createLabelTextPanel(),c);
+
+        if (plotType == PIE) {
+            startNewRow(c);
+            c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+            retVal.add(createPieLabelPanel(),c);
+        }
+
+        startNewRow(c);
+        c.fill = GridBagConstraints.VERTICAL; c.weighty = 1;
+        retVal.add(new JPanel(), c);
+
+
+        return retVal;
+    }
+
+    private JPanel createPieLabelPanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Pie_Labels"));
+        GridBagConstraints c = getNewConstraints();
+
+        retVal.add(new JLabel(localizationResources.getString("Background_paint")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelBackgroundPaint, c);
+
+        startNewRow(c);
+        retVal.add(new JLabel(localizationResources.getString("Shadow_paint")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelShadowPaint, c);
+
+        startNewRow(c);
+        retVal.add(new JLabel(localizationResources.getString("Outline_Paint")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelOutlinePaint, c);
+
+        startNewRow(c);
+        retVal.add(new JLabel(localizationResources.getString("Outline_stroke")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelOutlineStroke, c);
+
+        startNewRow(c);
+        c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+        retVal.add(labelLinkVisible, c);
+
+        startNewRow(c);
+        retVal.add(new JLabel(localizationResources.getString("Link_Style")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelLinkStyle, c);
+
+        startNewRow(c);
+        c.gridwidth = 2; c.weightx = 1;
+        retVal.add(labelPadding, c);
+
+        return retVal;
+    }
+
+    private JPanel createLabelTextPanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Text"));
+        GridBagConstraints c = getNewConstraints();
+
+        retVal.add(new JLabel(localizationResources.getString("Font")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelFont, c);
+
+        startNewRow(c);
+        retVal.add(new JLabel(localizationResources.getString("Paint")), c);
+        c.gridx++; c.weightx = 1;
+        retVal.add(labelPaint, c);
+
+        return retVal;
+    }
+
+    private JPanel createLabelVisibilityPanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Visibility"));
+        GridBagConstraints c = getNewConstraints();
+        c.weightx = 1; c.anchor = GridBagConstraints.WEST;
+        retVal.add(labelsVisible, c);
+
+        return retVal;
+    }
+
+    private JPanel createLabelFormatPanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Label_Format"));
+        GridBagConstraints c = getNewConstraints();
+
         retVal.add(new JLabel(localizationResources.getString("Format")), c);
         c.gridx++; c.weightx = 1;
         retVal.add(labelFormat, c);
@@ -398,56 +500,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         retVal.add(new JLabel(localizationResources.getString("Percent_Format")), c);
         c.gridx++; c.weightx = 1;
         retVal.add(percentFormatDisplay, c);
-
-        startNewRow(c);
-        retVal.add(new JLabel(localizationResources.getString("Font")), c);
-        c.gridx++; c.weightx = 1;
-        retVal.add(labelFont, c);
-
-        startNewRow(c);
-        retVal.add(new JLabel(localizationResources.getString("Paint")), c);
-        c.gridx++; c.weightx = 1;
-        retVal.add(labelPaint, c);
-
-        if (plotType == PIE) {
-            startNewRow(c);
-            retVal.add(new JLabel(localizationResources.getString("Background_paint")), c);
-            c.gridx++; c.weightx = 1;
-            retVal.add(labelBackgroundPaint, c);
-
-            startNewRow(c);
-            retVal.add(new JLabel(localizationResources.getString("Shadow_paint")), c);
-            c.gridx++; c.weightx = 1;
-            retVal.add(labelShadowPaint, c);
-
-            startNewRow(c);
-            retVal.add(new JLabel(localizationResources.getString("Outline_Paint")), c);
-            c.gridx++; c.weightx = 1;
-            retVal.add(labelOutlinePaint, c);
-
-            startNewRow(c);
-            retVal.add(new JLabel(localizationResources.getString("Outline_stroke")), c);
-            c.gridx++; c.weightx = 1;
-            retVal.add(labelOutlineStroke, c);
-
-            startNewRow(c);
-            c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
-            retVal.add(labelLinkVisible, c);
-
-            startNewRow(c);
-            retVal.add(new JLabel(localizationResources.getString("Link_Style")), c);
-            c.gridx++; c.weightx = 1;
-            retVal.add(labelLinkStyle, c);
-
-            startNewRow(c);
-            c.gridwidth = 2; c.weightx = 1;
-            retVal.add(labelPadding, c);
-        }
-
-        startNewRow(c);
-        c.fill = GridBagConstraints.VERTICAL; c.weighty = 1;
-        retVal.add(new JPanel(), c);
-
 
         return retVal;
     }
@@ -525,13 +577,20 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
     private void insertShadowsCheckBox(JPanel interior, GridBagConstraints c, boolean shadowVisible) {
         startNewRow(c);
-        c.gridwidth = 2;
+        c.gridwidth = 3;
         c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+
+        JPanel shadowPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints shadowC = getNewConstraints();
+        shadowC.weightx = 1;
+        shadowPanel.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Shadows")));
 
         shadowsVisible = new JCheckBox(localizationResources.getString("Shadows_Visible"));
         shadowsVisible.setSelected(shadowVisible);
         shadowsVisible.addActionListener(updateHandler);
-        interior.add(shadowsVisible, c);
+        shadowPanel.add(shadowsVisible, shadowC);
+        interior.add(shadowPanel, c);
     }
 
     /**
@@ -584,9 +643,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         String command = event.getActionCommand();
         if (command.equals("Orientation")) {
             attemptOrientationSelection();
-        } else if (event.getSource() == labelsVisible) {
+        } else if (event.getSource() == labelsVisible || event.getSource() == labelLinkVisible) {
             enableDisableLabelControls();
-        }
+        } 
     }
 
     private void enableDisableLabelControls() {
@@ -648,12 +707,30 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         plot.setBackgroundPaint(backgroundPanel.getBackgroundPaint());
         theme.setPlotBackgroundPaint(backgroundPanel.getBackgroundPaint());
+        if(plot instanceof DomainRangePlot) {
+            DomainRangePlot dPlot = (DomainRangePlot) plot;
+            RectangleInsets offset = axisOffset.getSelectedInsets();
+            dPlot.setAxisOffset(offset);
+            theme.setAxisOffset(offset);
+
+            ItemRenderer renderer = dPlot.getBasicRenderer();
+
+            boolean labelsVis = labelsVisible.isSelected();
+            renderer.setBaseItemLabelsVisible(labelsVis);
+            theme.setLabelsVisible(labelsVis);
+
+            Font labelFont = this.labelFont.getChosenFont();
+            renderer.setBaseItemLabelFont(labelFont);
+            theme.setLabelFont(labelFont);
+
+
+            Paint labelPaint = this.labelPaint.getChosenPaint();
+            renderer.setBaseItemLabelPaint(labelPaint);
+            theme.setLabelPaint(labelPaint);
+        }
 
         if(plot instanceof CategoryPlot) {
             CategoryPlot cPlot = (CategoryPlot) plot;
-            RectangleInsets offset = axisOffset.getSelectedInsets();
-            cPlot.setAxisOffset(offset);
-            theme.setAxisOffset(offset);
 
             boolean domVis = domainPanel.isLineVisible();
             cPlot.setDomainGridlinesVisible(domVis);
@@ -679,18 +756,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
             CategoryItemRenderer renderer = cPlot.getRenderer();
 
-            boolean labelsVis = labelsVisible.isSelected();
-            renderer.setBaseItemLabelsVisible(labelsVis);
-            theme.setLabelsVisible(labelsVis);
-
-            Font labelFont = this.labelFont.getChosenFont();
-            renderer.setBaseItemLabelFont(labelFont);
-            theme.setLabelFont(labelFont);
-
-            Paint labelPaint = this.labelPaint.getChosenPaint();
-            renderer.setBaseItemLabelPaint(labelPaint);
-            theme.setLabelPaint(labelPaint);
-
             String formatText = labelFormat.getText();
             theme.setLabelFormat(formatText);
             String numFormatString = numberFormatDisplay.getFormatString();
@@ -708,9 +773,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         } else if (plot instanceof XYPlot) {
             XYPlot xyPlot = (XYPlot) plot;
-            RectangleInsets offset = axisOffset.getSelectedInsets();
-            xyPlot.setAxisOffset(offset);
-            theme.setAxisOffset(offset);
 
             boolean domVis = domainPanel.isLineVisible();
             xyPlot.setDomainGridlinesVisible(domVis);
@@ -735,18 +797,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             theme.setRangeGridlineStroke(ranStroke);
 
             XYItemRenderer renderer = xyPlot.getRenderer();
-
-            boolean labelsVis = labelsVisible.isSelected();
-            renderer.setBaseItemLabelsVisible(labelsVis);
-            theme.setLabelsVisible(labelsVis);
-
-            Font labelFont = this.labelFont.getChosenFont();
-            renderer.setBaseItemLabelFont(labelFont);
-            theme.setLabelFont(labelFont);
-
-            Paint labelPaint = this.labelPaint.getChosenPaint();
-            renderer.setBaseItemLabelPaint(labelPaint);
-            theme.setLabelPaint(labelPaint);
 
             String formatText = labelFormat.getText();
             theme.setLabelFormat(formatText);
@@ -847,18 +897,15 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
                 Paint shadow = shadowsVisible ? Color.LIGHT_GRAY : null;
                 pPlot.setShadowPaint(shadow);
-            } else if (plot instanceof CategoryPlot) {
-                CategoryPlot cPlot = (CategoryPlot) plot;
-                for(int i = 0; i < cPlot.getRendererCount(); i++) {
-                    if(cPlot.getRenderer(i) instanceof BarRenderer) {
-                        ((BarRenderer)cPlot.getRenderer(i)).setShadowVisible(shadowsVisible);
-                    }
-                }
-            } else if (plot instanceof XYPlot) {
-                XYPlot xyPlot = (XYPlot) plot;
-                for(int i = 0; i < xyPlot.getRendererCount(); i++) {
-                    if(xyPlot.getRenderer(i) instanceof XYBarRenderer) {
-                        ((XYBarRenderer)xyPlot.getRenderer(i)).setShadowVisible(shadowsVisible);
+            } else if (plot instanceof DomainRangePlot) {
+                DomainRangePlot dPlot = (DomainRangePlot) plot;
+                for(int i = 0; i < dPlot.getRendererCount(); i++) {
+                    ItemRenderer r = dPlot.getBasicRenderer(i);
+                    // TODO: Refactor so there is a common interface that lets us avoid this cludge.
+                    if(r instanceof BarRenderer) {
+                        ((BarRenderer)r).setShadowVisible(shadowsVisible);
+                    } else if (r instanceof XYBarRenderer) {
+                        ((XYBarRenderer)r).setShadowVisible(shadowsVisible);
                     }
                 }
             }
@@ -867,13 +914,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         // then the axis properties...
         if (this.domainAxisPropertyPanel != null) {
             Axis domainAxis = null;
-            if (plot instanceof CategoryPlot) {
-                CategoryPlot p = (CategoryPlot) plot;
-                domainAxis = p.getDomainAxis();
-            }
-            else if (plot instanceof XYPlot) {
-                XYPlot p = (XYPlot) plot;
-                domainAxis = p.getDomainAxis();
+            if (plot instanceof DomainRangePlot) {
+                DomainRangePlot p = (DomainRangePlot) plot;
+                domainAxis = p.getBasicDomainAxis();
             }
             if (domainAxis != null) {
                 this.domainAxisPropertyPanel.updateChart(chart);
@@ -882,12 +925,8 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         if (this.rangeAxisPropertyPanel != null) {
             Axis rangeAxis = null;
-            if (plot instanceof CategoryPlot) {
-                CategoryPlot p = (CategoryPlot) plot;
-                rangeAxis = p.getRangeAxis();
-            }
-            else if (plot instanceof XYPlot) {
-                XYPlot p = (XYPlot) plot;
+            if (plot instanceof DomainRangePlot) {
+                DomainRangePlot p = (DomainRangePlot) plot;
                 rangeAxis = p.getRangeAxis();
             }
             if (rangeAxis != null) {
@@ -896,12 +935,8 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
 
         if (this.plotOrientation != null) {
-            if (plot instanceof CategoryPlot) {
-                CategoryPlot p = (CategoryPlot) plot;
-                p.setOrientation(this.plotOrientation);
-            }
-            else if (plot instanceof XYPlot) {
-                XYPlot p = (XYPlot) plot;
+            if (plot instanceof DomainRangePlot) {
+                DomainRangePlot p = (DomainRangePlot) plot;
                 p.setOrientation(this.plotOrientation);
             }
             theme.setOrientation(this.plotOrientation);

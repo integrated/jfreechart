@@ -109,30 +109,17 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
         GridBagConstraints c = getNewConstraints();
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        c.anchor = GridBagConstraints.WEST;
-        this.showTitleCheckBox = new JCheckBox(localizationResources.getString("Show_Title"));
-        this.showTitleCheckBox.setSelected(theme.isTitleVisible());
-        this.showTitleCheckBox.setActionCommand(SHOW_TITLE_COMMAND);
-        this.showTitleCheckBox.addActionListener(updateHandler);
-        this.showTitleCheckBox.addActionListener(this);
-        interior.add(this.showTitleCheckBox,c);
-
-        startNewRow(c);
-        c.anchor = GridBagConstraints.WEST;
-        this.titleExpands = new JCheckBox(localizationResources.getString("Expand_to_fit"));
-        this.titleExpands.setSelected(theme.isExpandTitle());
-        this.titleExpands.addActionListener(updateHandler);
-        interior.add(this.titleExpands, c);
+        JPanel visibility = createVisibilityPanel();
+        c.weightx = 1;
+        interior.add(visibility, c);
 
         startNewRow(c);
         JPanel textTab = buildTextTab();
         JPanel boxTab = buildBoxTab();
-        JPanel positionTab = buildPositionTab();
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab(localizationResources.getString("Text"), new JScrollPane(textTab));
         tabs.addTab(localizationResources.getString("Box"), new JScrollPane(boxTab));
-        tabs.addTab(localizationResources.getString("Position"), new JScrollPane(positionTab));
         c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
         interior.add(tabs, c);
 
@@ -144,59 +131,101 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
         add(general, BorderLayout.CENTER);
     }
 
+    private JPanel createVisibilityPanel() {
+        JPanel visPanel = createBorderedLabelPanel(localizationResources.getString("Visibility"));
+        GridBagConstraints c = getNewConstraints();
+
+        c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+        this.showTitleCheckBox = new JCheckBox(localizationResources.getString("Show_Title"));
+        this.showTitleCheckBox.setSelected(theme.isTitleVisible());
+        this.showTitleCheckBox.setActionCommand(SHOW_TITLE_COMMAND);
+        this.showTitleCheckBox.addActionListener(updateHandler);
+        this.showTitleCheckBox.addActionListener(this);
+        visPanel.add(this.showTitleCheckBox,c);
+
+        startNewRow(c);
+        c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+        this.titleExpands = new JCheckBox(localizationResources.getString("Expand_to_fit"));
+        this.titleExpands.setSelected(theme.isExpandTitle());
+        this.titleExpands.addActionListener(updateHandler);
+        visPanel.add(this.titleExpands, c);
+
+        return visPanel;
+    }
+
     private JPanel buildTextTab() {
         JPanel wrapper = new JPanel(new BorderLayout());
         JPanel interior = new JPanel(new GridBagLayout());
         interior.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         GridBagConstraints c = getNewConstraints();
 
-        JLabel titleLabel = new JLabel(localizationResources.getString("Text"));
-        interior.add(titleLabel,c);
-        c.gridx++; c.weightx = 1; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
-        interior.add(this.titleField,c);
-        this.titleField.addActionListener(updateHandler);
-        this.titleField.getDocument().addDocumentListener(updateHandler);
+        JPanel textPanel = createTitleTextPanel();
+        c.weightx = 1;
+        interior.add(textPanel, c);
 
         startNewRow(c);
-        interior.add(new JLabel(localizationResources.getString("Text_Align")), c);
-        c.weightx = 1; c.gridx++;
-        textAlign = new HorizontalAlignmentComboBox();
-        textAlign.setSelectedObject(theme.getTextAlignment());
-        textAlign.addActionListener(updateHandler);
-        interior.add(textAlign, c);
-
-        startNewRow(c);
-        JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
-        this.fontControl = new FontControl(theme.getTitleFont());
-        this.fontControl.addChangeListener(updateHandler);
-        interior.add(fontLabel,c);
-        c.gridx++; c.weightx = 1; c.gridwidth = 2;
-        interior.add(this.fontControl,c);
-
-        startNewRow(c);
-        JLabel colorLabel = new JLabel(
-            localizationResources.getString("Color")
-        );
-        this.fontPaintControl.addChangeListener(updateHandler);
-        interior.add(colorLabel,c);
-        c.gridx++; c.weightx = 1; c.gridwidth = 2;
-        interior.add(this.fontPaintControl,c);
-
-        startNewRow(c);
-        JLabel backPaintLabel = new JLabel(
-                localizationResources.getString("Background_paint")
-        );
-        this.backgroundPaintControl = new PaintControl(theme.getTitleBackground(), true);
-        this.backgroundPaintControl.addChangeListener(updateHandler);
-        interior.add(backPaintLabel, c);
-        c.gridx++; c.weightx = 1; c.gridwidth = 2;
-        interior.add(this.backgroundPaintControl, c);
+        c.weightx = 1;
+        interior.add(createTitleBackgroundPanel(), c);
 
         wrapper.add(interior, BorderLayout.NORTH);
 
         return wrapper;
     }
 
+    private JPanel createTitleBackgroundPanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Background"));
+        GridBagConstraints c = getNewConstraints();
+        JLabel backPaintLabel = new JLabel(
+                localizationResources.getString("Background_paint")
+        );
+        this.backgroundPaintControl = new PaintControl(theme.getTitleBackground(), true);
+        this.backgroundPaintControl.addChangeListener(updateHandler);
+        retVal.add(backPaintLabel, c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        retVal.add(this.backgroundPaintControl, c);
+
+        return retVal;
+    }
+
+
+    private JPanel createTitleTextPanel() {
+        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Title_text"));
+        GridBagConstraints c = getNewConstraints();
+
+        JLabel titleLabel = new JLabel(localizationResources.getString("Text"));
+        retVal.add(titleLabel,c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
+        retVal.add(this.titleField,c);
+        this.titleField.addActionListener(updateHandler);
+        this.titleField.getDocument().addDocumentListener(updateHandler);
+
+        startNewRow(c);
+        retVal.add(new JLabel(localizationResources.getString("Text_Align")), c);
+        c.weightx = 1; c.gridx++;
+        textAlign = new HorizontalAlignmentComboBox();
+        textAlign.setSelectedObject(theme.getTextAlignment());
+        textAlign.addActionListener(updateHandler);
+        retVal.add(textAlign, c);
+
+        startNewRow(c);
+        JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
+        this.fontControl = new FontControl(theme.getTitleFont());
+        this.fontControl.addChangeListener(updateHandler);
+        retVal.add(fontLabel,c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        retVal.add(this.fontControl,c);
+
+        startNewRow(c);
+        JLabel colorLabel = new JLabel(
+            localizationResources.getString("Color")
+        );
+        this.fontPaintControl.addChangeListener(updateHandler);
+        retVal.add(colorLabel,c);
+        c.gridx++; c.weightx = 1; c.gridwidth = 2;
+        retVal.add(this.fontPaintControl,c);
+
+        return retVal;
+    }
 
 
     /**
