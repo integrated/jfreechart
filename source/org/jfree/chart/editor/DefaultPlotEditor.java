@@ -713,6 +713,28 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             dPlot.setAxisOffset(offset);
             theme.setAxisOffset(offset);
 
+            boolean domVis = domainPanel.isLineVisible();
+            dPlot.setDomainGridlinesVisible(domVis);
+            theme.setDomainGridlineVisible(domVis);
+
+            boolean ranVis = rangePanel.isLineVisible();
+            dPlot.setRangeGridlinesVisible(ranVis);
+            theme.setRangeGridlinesVisible(ranVis);
+
+            Paint domPaint = domainPanel.getLinePaint();
+            BasicStroke domStroke = domainPanel.getLineStroke();
+            dPlot.setDomainGridlinePaint(domPaint);
+            theme.setDomainGridlinePaint(domPaint);
+            dPlot.setDomainGridlineStroke(domStroke);
+            theme.setDomainGridlineStroke(domStroke);
+
+            Paint ranPaint = rangePanel.getLinePaint();
+            BasicStroke ranStroke = rangePanel.getLineStroke();
+            dPlot.setRangeGridlinePaint(ranPaint);
+            theme.setRangeGridlinePaint(ranPaint);
+            dPlot.setRangeGridlineStroke(ranStroke);
+            theme.setRangeGridlineStroke(ranStroke);
+
             ItemRenderer renderer = dPlot.getBasicRenderer();
 
             boolean labelsVis = labelsVisible.isSelected();
@@ -723,7 +745,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             renderer.setBaseItemLabelFont(labelFont);
             theme.setLabelFont(labelFont);
 
-
             Paint labelPaint = this.labelPaint.getChosenPaint();
             renderer.setBaseItemLabelPaint(labelPaint);
             theme.setLabelPaint(labelPaint);
@@ -731,28 +752,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         if(plot instanceof CategoryPlot) {
             CategoryPlot cPlot = (CategoryPlot) plot;
-
-            boolean domVis = domainPanel.isLineVisible();
-            cPlot.setDomainGridlinesVisible(domVis);
-            theme.setDomainGridlineVisible(domVis);
-
-            boolean ranVis = rangePanel.isLineVisible();
-            cPlot.setRangeGridlinesVisible(ranVis);
-            theme.setRangeGridlinesVisible(ranVis);
-
-            Paint domPaint = domainPanel.getLinePaint();
-            BasicStroke domStroke = domainPanel.getLineStroke();
-            cPlot.setDomainGridlinePaint(domPaint);
-            theme.setDomainGridlinePaint(domPaint);
-            cPlot.setDomainGridlineStroke(domStroke);
-            theme.setDomainGridlineStroke(domStroke);
-
-            Paint ranPaint = rangePanel.getLinePaint();
-            BasicStroke ranStroke = rangePanel.getLineStroke();
-            cPlot.setRangeGridlinePaint(ranPaint);
-            theme.setRangeGridlinePaint(ranPaint);
-            cPlot.setRangeGridlineStroke(ranStroke);
-            theme.setRangeGridlineStroke(ranStroke);
 
             CategoryItemRenderer renderer = cPlot.getRenderer();
 
@@ -773,28 +772,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         } else if (plot instanceof XYPlot) {
             XYPlot xyPlot = (XYPlot) plot;
-
-            boolean domVis = domainPanel.isLineVisible();
-            xyPlot.setDomainGridlinesVisible(domVis);
-            theme.setDomainGridlineVisible(domVis);
-
-            boolean ranVis = rangePanel.isLineVisible();
-            xyPlot.setRangeGridlinesVisible(ranVis);
-            theme.setRangeGridlinesVisible(ranVis);
-
-            Paint domPaint = domainPanel.getLinePaint();
-            BasicStroke domStroke = domainPanel.getLineStroke();
-            xyPlot.setDomainGridlinePaint(domPaint);
-            theme.setDomainGridlinePaint(domPaint);
-            xyPlot.setDomainGridlineStroke(domStroke);
-            theme.setDomainGridlineStroke(domStroke);
-
-            Paint ranPaint = rangePanel.getLinePaint();
-            BasicStroke ranStroke = rangePanel.getLineStroke();
-            xyPlot.setRangeGridlinePaint(ranPaint);
-            theme.setRangeGridlinePaint(ranPaint);
-            xyPlot.setRangeGridlineStroke(ranStroke);
-            theme.setRangeGridlineStroke(ranStroke);
 
             XYItemRenderer renderer = xyPlot.getRenderer();
 

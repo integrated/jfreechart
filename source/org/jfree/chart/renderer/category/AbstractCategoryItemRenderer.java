@@ -770,13 +770,13 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
 
         Paint paint = plot.getDomainGridlinePaint();
         if (paint == null) {
-            paint = CategoryPlot.DEFAULT_GRIDLINE_PAINT;
+            paint = AbstractDomainRangePlot.DEFAULT_GRIDLINE_PAINT;
         }
         g2.setPaint(paint);
 
         Stroke stroke = plot.getDomainGridlineStroke();
         if (stroke == null) {
-            stroke = CategoryPlot.DEFAULT_GRIDLINE_STROKE;
+            stroke = AbstractDomainRangePlot.DEFAULT_GRIDLINE_STROKE;
         }
         g2.setStroke(stroke);
 
@@ -822,13 +822,13 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
 
         Paint paint = plot.getRangeGridlinePaint();
         if (paint == null) {
-            paint = CategoryPlot.DEFAULT_GRIDLINE_PAINT;
+            paint = AbstractDomainRangePlot.DEFAULT_GRIDLINE_PAINT;
         }
         g2.setPaint(paint);
 
         Stroke stroke = plot.getRangeGridlineStroke();
         if (stroke == null) {
-            stroke = CategoryPlot.DEFAULT_GRIDLINE_STROKE;
+            stroke = AbstractDomainRangePlot.DEFAULT_GRIDLINE_STROKE;
         }
         g2.setStroke(stroke);
 

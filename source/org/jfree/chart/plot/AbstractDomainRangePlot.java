@@ -5,14 +5,15 @@ import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.annotations.Annotation;
 import org.jfree.chart.renderer.ItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.util.ObjectUtilities;
 import org.jfree.util.ObjectList;
 import org.jfree.util.PublicCloneable;
+import org.jfree.util.PaintUtilities;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.Dataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.jfree.io.SerialUtilities;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.TreeMap;
 import java.util.HashSet;
 import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.awt.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,6 +32,42 @@ import java.io.IOException;
  * Functionality that is common to XYPlot and CategoryPlot.
  */
 public abstract class AbstractDomainRangePlot extends Plot implements DomainRangePlot {
+    /**
+     * The default visibility of the grid lines plotted against the domain
+     * axis.
+     */
+    public static final boolean DEFAULT_DOMAIN_GRIDLINES_VISIBLE = false;
+    /**
+     * The default visibility of the grid lines plotted against the range
+     * axis.
+     */
+    public static final boolean DEFAULT_RANGE_GRIDLINES_VISIBLE = true;
+    /** The default grid line stroke. */
+    public static final Stroke DEFAULT_GRIDLINE_STROKE = new BasicStroke(0.5f,
+            BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f, new float[]
+            {2.0f, 2.0f}, 0.0f);
+    /** The default grid line paint. */
+    public static final Paint DEFAULT_GRIDLINE_PAINT = Color.lightGray;
+
+    /**
+     * The default crosshair visibility.
+     *
+     * @since 1.0.5
+     */
+    public static final boolean DEFAULT_CROSSHAIR_VISIBLE = false;
+    /**
+     * The default crosshair stroke.
+     *
+     * @since 1.0.5
+     */
+    public static final Stroke DEFAULT_CROSSHAIR_STROKE
+            = DEFAULT_GRIDLINE_STROKE;
+    /**
+     * The default crosshair paint.
+     *
+     * @since 1.0.5
+     */
+    public static final Paint DEFAULT_CROSSHAIR_PAINT = Color.blue;
     /**
      * A (possibly empty) list of annotations for the plot.  The list should
      * be initialised in the constructor and never allowed to be
@@ -65,12 +104,65 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
     /** The range axis location. */
     private ObjectList rangeAxisLocations;
 
-
     /** Storage for keys that map datasets to domain axes. */
     private TreeMap datasetToDomainAxesMap;
 
     /** Storage for keys that map datasets to range axes. */
     private TreeMap datasetToRangeAxesMap;
+
+    /**
+     * A flag that controls whether the grid-lines for the domain axis are
+     * visible.
+     */
+    private boolean domainGridlinesVisible;
+
+    /** The stroke used to draw the domain grid-lines. */
+    private transient Stroke domainGridlineStroke;
+
+    /** The paint used to draw the domain  grid-lines. */
+    private transient Paint domainGridlinePaint;
+
+    /**
+     * A flag that controls whether the grid-lines for the range axis are
+     * visible.
+     */
+    private boolean rangeGridlinesVisible;
+
+    /** The stroke used to draw the range axis grid-lines. */
+    private transient Stroke rangeGridlineStroke;
+
+    /** The paint used to draw the range axis grid-lines. */
+    private transient Paint rangeGridlinePaint;
+
+    /**
+     * A flag that controls the visibility of the domain crosshair.
+     *
+     * @since 1.0.11
+     */
+    private boolean domainCrosshairVisible;
+
+    /**
+     * The stroke used to draw the domain crosshair if it is visible.
+     *
+     * @since 1.0.11
+     */
+    private transient Stroke domainCrosshairStroke;
+
+    /**
+     * The paint used to draw the domain crosshair if it is visible.
+     *
+     * @since 1.0.11
+     */
+    private transient Paint domainCrosshairPaint;
+
+    /** A flag that controls whether or not a range crosshair is drawn. */
+    private boolean rangeCrosshairVisible;
+
+    /** The pen/brush used to draw the crosshair (if any). */
+    private transient Stroke rangeCrosshairStroke;
+
+    /** The color used to draw the crosshair (if any). */
+    private transient Paint rangeCrosshairPaint;
 
     public AbstractDomainRangePlot() {
         this(null, null, null, null);
@@ -131,6 +223,22 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
 
         configureDomainAxes();
         configureRangeAxes();
+
+        this.domainCrosshairVisible = DEFAULT_CROSSHAIR_VISIBLE;
+        this.domainCrosshairStroke = DEFAULT_CROSSHAIR_STROKE;
+        this.domainCrosshairPaint = DEFAULT_CROSSHAIR_PAINT;
+
+        this.rangeCrosshairVisible = DEFAULT_CROSSHAIR_VISIBLE;
+        this.rangeCrosshairStroke = DEFAULT_CROSSHAIR_STROKE;
+        this.rangeCrosshairPaint = DEFAULT_CROSSHAIR_PAINT;
+
+        this.domainGridlinesVisible = DEFAULT_DOMAIN_GRIDLINES_VISIBLE;
+        this.domainGridlineStroke = DEFAULT_GRIDLINE_STROKE;
+        this.domainGridlinePaint = DEFAULT_GRIDLINE_PAINT;
+
+        this.rangeGridlinesVisible = DEFAULT_RANGE_GRIDLINES_VISIBLE;
+        this.rangeGridlineStroke = DEFAULT_GRIDLINE_STROKE;
+        this.rangeGridlinePaint = DEFAULT_GRIDLINE_PAINT;
     }
 
     /**
@@ -1188,6 +1296,185 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
     }
 
     /**
+     * Returns the flag that controls whether or not the domain crosshair is
+     * displayed by the plot.
+     *
+     * @return A boolean.
+     *
+     * @since 1.0.11
+     *
+     * @see #setDomainCrosshairVisible(boolean)
+     */
+    public boolean isDomainCrosshairVisible() {
+        return this.domainCrosshairVisible;
+    }
+    /**
+     * Returns the paint used to draw the domain crosshair.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @since 1.0.11
+     *
+     * @see #setDomainCrosshairPaint(Paint)
+     * @see #getDomainCrosshairStroke()
+     */
+    public Paint getDomainCrosshairPaint() {
+        return this.domainCrosshairPaint;
+    }
+
+    /**
+     * Sets the paint used to draw the domain crosshair.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @since 1.0.11
+     *
+     * @see #getDomainCrosshairPaint()
+     */
+    public void setDomainCrosshairPaint(Paint paint) {
+        if (paint == null) {
+            throw new IllegalArgumentException("Null 'paint' argument.");
+        }
+        this.domainCrosshairPaint = paint;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the stroke used to draw the domain crosshair.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @since 1.0.11
+     *
+     * @see #setDomainCrosshairStroke(Stroke)
+     * @see #getDomainCrosshairPaint()
+     */
+    public Stroke getDomainCrosshairStroke() {
+        return this.domainCrosshairStroke;
+    }
+
+    /**
+     * Sets the stroke used to draw the domain crosshair, and sends a
+     * {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @since 1.0.11
+     *
+     * @see #getDomainCrosshairStroke()
+     */
+    public void setDomainCrosshairStroke(Stroke stroke) {
+        if (stroke == null) {
+            throw new IllegalArgumentException("Null 'stroke' argument.");
+        }
+        this.domainCrosshairStroke = stroke;
+    }
+
+    /**
+     * Sets the flag that controls whether or not the domain crosshair is
+     * displayed by the plot, and sends a {@link org.jfree.chart.event.PlotChangeEvent} to all
+     * registered listeners.
+     *
+     * @param flag  the new flag value.
+     *
+     * @since 1.0.11
+     *
+     * @see #isDomainCrosshairVisible()
+     * @see #setRangeCrosshairVisible(boolean)
+     */
+    public void setDomainCrosshairVisible(boolean flag) {
+        if (this.domainCrosshairVisible != flag) {
+            this.domainCrosshairVisible = flag;
+            fireChangeEvent();
+        }
+    }
+
+    /**
+     * Returns a flag indicating whether or not the range crosshair is visible.
+     *
+     * @return The flag.
+     *
+     * @see #setRangeCrosshairVisible(boolean)
+     */
+    public boolean isRangeCrosshairVisible() {
+        return this.rangeCrosshairVisible;
+    }
+
+    /**
+     * Sets the flag indicating whether or not the range crosshair is visible.
+     *
+     * @param flag  the new value of the flag.
+     *
+     * @see #isRangeCrosshairVisible()
+     */
+    public void setRangeCrosshairVisible(boolean flag) {
+        if (this.rangeCrosshairVisible != flag) {
+            this.rangeCrosshairVisible = flag;
+            fireChangeEvent();
+        }
+    }
+
+    /**
+     * Returns the pen-style (<code>Stroke</code>) used to draw the crosshair
+     * (if visible).
+     *
+     * @return The crosshair stroke (never <code>null</code>).
+     *
+     * @see #setRangeCrosshairStroke(Stroke)
+     * @see #isRangeCrosshairVisible()
+     * @see #getRangeCrosshairPaint()
+     */
+    public Stroke getRangeCrosshairStroke() {
+        return this.rangeCrosshairStroke;
+    }
+
+    /**
+     * Sets the pen-style (<code>Stroke</code>) used to draw the range
+     * crosshair (if visible), and sends a {@link org.jfree.chart.event.PlotChangeEvent} to all
+     * registered listeners.
+     *
+     * @param stroke  the new crosshair stroke (<code>null</code> not
+     *         permitted).
+     *
+     * @see #getRangeCrosshairStroke()
+     */
+    public void setRangeCrosshairStroke(Stroke stroke) {
+        if (stroke == null) {
+            throw new IllegalArgumentException("Null 'stroke' argument.");
+        }
+        this.rangeCrosshairStroke = stroke;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the paint used to draw the range crosshair.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setRangeCrosshairPaint(Paint)
+     * @see #isRangeCrosshairVisible()
+     * @see #getRangeCrosshairStroke()
+     */
+    public Paint getRangeCrosshairPaint() {
+        return this.rangeCrosshairPaint;
+    }
+
+    /**
+     * Sets the paint used to draw the range crosshair (if visible) and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getRangeCrosshairPaint()
+     */
+    public void setRangeCrosshairPaint(Paint paint) {
+        if (paint == null) {
+            throw new IllegalArgumentException("Null 'paint' argument.");
+        }
+        this.rangeCrosshairPaint = paint;
+        fireChangeEvent();
+    }
+    /**
      * Returns the axis offset.
      *
      * @return The axis offset (never <code>null</code>).
@@ -1211,6 +1498,170 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
             throw new IllegalArgumentException("Null 'offset' argument.");
         }
         this.axisOffset = offset;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the flag that controls whether the domain grid-lines are visible.
+     *
+     * @return The <code>true</code> or <code>false</code>.
+     *
+     * @see #setDomainGridlinesVisible(boolean)
+     */
+    public boolean isDomainGridlinesVisible() {
+        return this.domainGridlinesVisible;
+    }
+
+    /**
+     * Sets the flag that controls whether or not grid-lines are drawn against
+     * the domain axis.
+     * <p>
+     * If the flag value changes, a {@link org.jfree.chart.event.PlotChangeEvent} is sent to all
+     * registered listeners.
+     *
+     * @param visible  the new value of the flag.
+     *
+     * @see #isDomainGridlinesVisible()
+     */
+    public void setDomainGridlinesVisible(boolean visible) {
+        if (this.domainGridlinesVisible != visible) {
+            this.domainGridlinesVisible = visible;
+            fireChangeEvent();
+        }
+    }
+
+    /**
+     * Returns the stroke used to draw grid-lines against the domain axis.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @see #setDomainGridlineStroke(Stroke)
+     */
+    public Stroke getDomainGridlineStroke() {
+        return this.domainGridlineStroke;
+    }
+
+    /**
+     * Sets the stroke used to draw grid-lines against the domain axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @see #getDomainGridlineStroke()
+     */
+    public void setDomainGridlineStroke(Stroke stroke) {
+        if (stroke == null) {
+            throw new IllegalArgumentException("Null 'stroke' not permitted.");
+        }
+        this.domainGridlineStroke = stroke;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the paint used to draw grid-lines against the domain axis.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setDomainGridlinePaint(Paint)
+     */
+    public Paint getDomainGridlinePaint() {
+        return this.domainGridlinePaint;
+    }
+
+    /**
+     * Sets the paint used to draw the grid-lines (if any) against the domain
+     * axis and sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getDomainGridlinePaint()
+     */
+    public void setDomainGridlinePaint(Paint paint) {
+        if (paint == null) {
+            throw new IllegalArgumentException("Null 'paint' argument.");
+        }
+        this.domainGridlinePaint = paint;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the flag that controls whether the range grid-lines are visible.
+     *
+     * @return The flag.
+     *
+     * @see #setRangeGridlinesVisible(boolean)
+     */
+    public boolean isRangeGridlinesVisible() {
+        return this.rangeGridlinesVisible;
+    }
+
+    /**
+     * Sets the flag that controls whether or not grid-lines are drawn against
+     * the range axis.  If the flag changes value, a {@link org.jfree.chart.event.PlotChangeEvent} is
+     * sent to all registered listeners.
+     *
+     * @param visible  the new value of the flag.
+     *
+     * @see #isRangeGridlinesVisible()
+     */
+    public void setRangeGridlinesVisible(boolean visible) {
+        if (this.rangeGridlinesVisible != visible) {
+            this.rangeGridlinesVisible = visible;
+            fireChangeEvent();
+        }
+    }
+
+    /**
+     * Returns the stroke used to draw the grid-lines against the range axis.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @see #setRangeGridlineStroke(Stroke)
+     */
+    public Stroke getRangeGridlineStroke() {
+        return this.rangeGridlineStroke;
+    }
+
+    /**
+     * Sets the stroke used to draw the grid-lines against the range axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @see #getRangeGridlineStroke()
+     */
+    public void setRangeGridlineStroke(Stroke stroke) {
+        if (stroke == null) {
+            throw new IllegalArgumentException("Null 'stroke' argument.");
+        }
+        this.rangeGridlineStroke = stroke;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the paint used to draw the grid-lines against the range axis.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setRangeGridlinePaint(Paint)
+     */
+    public Paint getRangeGridlinePaint() {
+        return this.rangeGridlinePaint;
+    }
+
+    /**
+     * Sets the paint used to draw the grid lines against the range axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getRangeGridlinePaint()
+     */
+    public void setRangeGridlinePaint(Paint paint) {
+        if (paint == null) {
+            throw new IllegalArgumentException("Null 'paint' argument.");
+        }
+        this.rangeGridlinePaint = paint;
         fireChangeEvent();
     }
 
@@ -1256,6 +1707,50 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
             return false;
         }
         if (!ObjectUtilities.equal(this.renderers, that.renderers)) {
+            return false;
+        }
+        if (this.domainCrosshairVisible != that.domainCrosshairVisible) {
+            return false;
+        }
+        if (!PaintUtilities.equal(this.domainCrosshairPaint,
+                that.domainCrosshairPaint)) {
+            return false;
+        }
+        if (!ObjectUtilities.equal(this.domainCrosshairStroke,
+                that.domainCrosshairStroke)) {
+            return false;
+        }
+        if (this.rangeCrosshairVisible != that.rangeCrosshairVisible) {
+            return false;
+        }
+        if (!ObjectUtilities.equal(this.rangeCrosshairStroke,
+                that.rangeCrosshairStroke)) {
+            return false;
+        }
+        if (!PaintUtilities.equal(this.rangeCrosshairPaint,
+                that.rangeCrosshairPaint)) {
+            return false;
+        }
+        if (this.domainGridlinesVisible != that.domainGridlinesVisible) {
+            return false;
+        }
+        if (!ObjectUtilities.equal(this.domainGridlineStroke,
+                that.domainGridlineStroke)) {
+            return false;
+        }
+        if (!PaintUtilities.equal(this.domainGridlinePaint,
+                that.domainGridlinePaint)) {
+            return false;
+        }
+        if (this.rangeGridlinesVisible != that.rangeGridlinesVisible) {
+            return false;
+        }
+        if (!ObjectUtilities.equal(this.rangeGridlineStroke,
+                that.rangeGridlineStroke)) {
+            return false;
+        }
+        if (!PaintUtilities.equal(this.rangeGridlinePaint,
+                that.rangeGridlinePaint)) {
             return false;
         }
         return super.equals(obj);
@@ -1364,5 +1859,32 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
                 renderer.addChangeListener(this);
             }
         }
+        this.domainGridlineStroke = SerialUtilities.readStroke(stream);
+        this.domainGridlinePaint = SerialUtilities.readPaint(stream);
+        this.rangeGridlineStroke = SerialUtilities.readStroke(stream);
+        this.rangeGridlinePaint = SerialUtilities.readPaint(stream);
+        this.rangeCrosshairStroke = SerialUtilities.readStroke(stream);
+        this.rangeCrosshairPaint = SerialUtilities.readPaint(stream);
+        this.domainCrosshairStroke = SerialUtilities.readStroke(stream);
+        this.domainCrosshairPaint = SerialUtilities.readPaint(stream);
+    }
+
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the output stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     */
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.defaultWriteObject();
+        SerialUtilities.writeStroke(this.domainGridlineStroke, stream);
+        SerialUtilities.writePaint(this.domainGridlinePaint, stream);
+        SerialUtilities.writeStroke(this.rangeGridlineStroke, stream);
+        SerialUtilities.writePaint(this.rangeGridlinePaint, stream);
+        SerialUtilities.writeStroke(this.rangeCrosshairStroke, stream);
+        SerialUtilities.writePaint(this.rangeCrosshairPaint, stream);
+        SerialUtilities.writeStroke(this.domainCrosshairStroke, stream);
+        SerialUtilities.writePaint(this.domainCrosshairPaint, stream);
     }
 }

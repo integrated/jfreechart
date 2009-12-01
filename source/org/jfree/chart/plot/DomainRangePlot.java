@@ -11,7 +11,7 @@ import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.RendererChangeListener;
 import org.jfree.chart.renderer.ItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.LegendItemCollection;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
@@ -893,6 +893,268 @@ public interface DomainRangePlot extends Cloneable, RendererChangeListener {
      *
      * @see #setOrientation(PlotOrientation)
      */
-    public PlotOrientation getOrientation();    
+    public PlotOrientation getOrientation();
+
+    /**
+     * Returns the legend items for the plot.  By default, this method creates
+     * a legend item for each series in each of the datasets.  You can change
+     * this behaviour by overriding this method.
+     *
+     * @return The legend items.
+     */
+    public LegendItemCollection getLegendItems();
+
+    /**
+     * Returns a flag indicating whether or not the domain crosshair is visible.
+     *
+     * @return The flag.
+     *
+     * @see #setDomainCrosshairVisible(boolean)
+     */
+    public boolean isDomainCrosshairVisible();
+
+    /**
+     * Sets the flag indicating whether or not the domain crosshair is visible
+     * and, if the flag changes, sends a {@link org.jfree.chart.event.PlotChangeEvent} to all
+     * registered listeners.
+     *
+     * @param flag  the new value of the flag.
+     *
+     * @see #isDomainCrosshairVisible()
+     */
+    public void setDomainCrosshairVisible(boolean flag);
+
+    /**
+     * Returns the paint used to draw the domain crosshair.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @since 1.0.11
+     *
+     * @see #setDomainCrosshairPaint(Paint)
+     * @see #getDomainCrosshairStroke()
+     */
+    public Paint getDomainCrosshairPaint();
+
+    /**
+     * Sets the paint used to draw the domain crosshair.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @since 1.0.11
+     *
+     * @see #getDomainCrosshairPaint()
+     */
+    public void setDomainCrosshairPaint(Paint paint);
+    /**
+     * Returns the stroke used to draw the domain crosshair.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @since 1.0.11
+     *
+     * @see #setDomainCrosshairStroke(Stroke)
+     * @see #getDomainCrosshairPaint()
+     */
+    public Stroke getDomainCrosshairStroke();
+
+    /**
+     * Sets the stroke used to draw the domain crosshair, and sends a
+     * {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @since 1.0.11
+     *
+     * @see #getDomainCrosshairStroke()
+     */
+    public void setDomainCrosshairStroke(Stroke stroke);
+
+    /**
+     * Returns a flag indicating whether or not the range crosshair is visible.
+     *
+     * @return The flag.
+     *
+     * @see #setRangeCrosshairVisible(boolean)
+     */
+    public boolean isRangeCrosshairVisible();
+
+    /**
+     * Sets the flag indicating whether or not the range crosshair is visible
+     * and, if the flag changes, sends a {@link org.jfree.chart.event.PlotChangeEvent} to all
+     * registered listeners.
+     *
+     * @param flag  the new value of the flag.
+     *
+     * @see #isRangeCrosshairVisible()
+     */
+    public void setRangeCrosshairVisible(boolean flag);
+
+    /**
+     * Returns the paint used to draw the range crosshair.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @since 1.0.11
+     *
+     * @see #setRangeCrosshairPaint(Paint)
+     * @see #getRangeCrosshairStroke()
+     */
+    public Paint getRangeCrosshairPaint();
+
+    /**
+     * Sets the paint used to draw the range crosshair.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @since 1.0.11
+     *
+     * @see #getRangeCrosshairPaint()
+     */
+    public void setRangeCrosshairPaint(Paint paint);
+
+    /**
+     * Returns the stroke used to draw the range crosshair.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @since 1.0.11
+     *
+     * @see #setRangeCrosshairStroke(Stroke)
+     * @see #getRangeCrosshairPaint()
+     */
+    public Stroke getRangeCrosshairStroke();
+
+    /**
+     * Sets the stroke used to draw the range crosshair, and sends a
+     * {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @since 1.0.11
+     *
+     * @see #getRangeCrosshairStroke()
+     */
+    public void setRangeCrosshairStroke(Stroke stroke);
+
+    /**
+     * Returns the flag that controls whether the domain grid-lines are visible.
+     *
+     * @return The <code>true</code> or <code>false</code>.
+     *
+     * @see #setDomainGridlinesVisible(boolean)
+     */
+    public boolean isDomainGridlinesVisible();
+
+    /**
+     * Sets the flag that controls whether or not grid-lines are drawn against
+     * the domain axis.
+     * <p>
+     * If the flag value changes, a {@link org.jfree.chart.event.PlotChangeEvent} is sent to all
+     * registered listeners.
+     *
+     * @param visible  the new value of the flag.
+     *
+     * @see #isDomainGridlinesVisible()
+     */
+    public void setDomainGridlinesVisible(boolean visible);
+
+    /**
+     * Returns the stroke used to draw grid-lines against the domain axis.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @see #setDomainGridlineStroke(Stroke)
+     */
+    public Stroke getDomainGridlineStroke();
+
+    /**
+     * Sets the stroke used to draw grid-lines against the domain axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @see #getDomainGridlineStroke()
+     */
+    public void setDomainGridlineStroke(Stroke stroke);
+
+    /**
+     * Returns the paint used to draw grid-lines against the domain axis.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setDomainGridlinePaint(Paint)
+     */
+    public Paint getDomainGridlinePaint();
+
+    /**
+     * Sets the paint used to draw the grid-lines (if any) against the domain
+     * axis and sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getDomainGridlinePaint()
+     */
+    public void setDomainGridlinePaint(Paint paint);
+
+    /**
+     * Returns the flag that controls whether the range grid-lines are visible.
+     *
+     * @return The flag.
+     *
+     * @see #setRangeGridlinesVisible(boolean)
+     */
+    public boolean isRangeGridlinesVisible();
+
+    /**
+     * Sets the flag that controls whether or not grid-lines are drawn against
+     * the range axis.  If the flag changes value, a {@link org.jfree.chart.event.PlotChangeEvent} is
+     * sent to all registered listeners.
+     *
+     * @param visible  the new value of the flag.
+     *
+     * @see #isRangeGridlinesVisible()
+     */
+    public void setRangeGridlinesVisible(boolean visible);
+
+    /**
+     * Returns the stroke used to draw the grid-lines against the range axis.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @see #setRangeGridlineStroke(Stroke)
+     */
+    public Stroke getRangeGridlineStroke();
+
+    /**
+     * Sets the stroke used to draw the grid-lines against the range axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @see #getRangeGridlineStroke()
+     */
+    public void setRangeGridlineStroke(Stroke stroke);
+
+    /**
+     * Returns the paint used to draw the grid-lines against the range axis.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setRangeGridlinePaint(Paint)
+     */
+    public Paint getRangeGridlinePaint();
+
+    /**
+     * Sets the paint used to draw the grid lines against the range axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getRangeGridlinePaint()
+     */
+    public void setRangeGridlinePaint(Paint paint);
+
+
 
 }

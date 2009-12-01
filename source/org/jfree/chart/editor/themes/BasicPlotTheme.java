@@ -3,10 +3,8 @@ package org.jfree.chart.editor.themes;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYAnnotation;
-import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.axis.Axis;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.labels.StandardXYItemLabelGenerator;
 import org.jfree.chart.labels.PieSectionLabelGenerator;
@@ -16,6 +14,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.AbstractRenderer;
+import org.jfree.chart.renderer.ItemRenderer;
 import org.jfree.util.Rotation;
 import org.jfree.util.PublicCloneable;
 
@@ -605,10 +604,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
             applyToPiePlot((PiePlot) plot);
         } else if (plot instanceof MultiplePiePlot) {
             applyToMultiplePiePlot((MultiplePiePlot) plot);
-        } else if (plot instanceof CategoryPlot) {
-            applyToCategoryPlot((CategoryPlot) plot);
-        } else if (plot instanceof XYPlot) {
-            applyToXYPlot((XYPlot) plot);
+        } else if (plot instanceof DomainRangePlot) {
+            applyToDomainRangePlot((DomainRangePlot) plot);
         }
     }
 
@@ -658,7 +655,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         apply(plot.getPieChart());
     }
 
-    protected void applyToCategoryPlot(CategoryPlot plot) {
+    protected void applyToDomainRangePlot(DomainRangePlot plot) {
+
         plot.setDomainGridlinePaint(this.domainGridlinePaint);
         plot.setDomainGridlineStroke(this.domainGridlineStroke);
         plot.setRangeGridlinePaint(this.rangeGridlinePaint);
@@ -671,7 +669,7 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         // process all domain axes
         int domainAxisCount = plot.getDomainAxisCount();
         for (int i = 0; i < domainAxisCount; i++) {
-            CategoryAxis axis = plot.getDomainAxis(i);
+            Axis axis = plot.getBasicDomainAxis(i);
             if (axis != null) {
                 domainAxisTheme.apply(axis);
             }
@@ -689,11 +687,20 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         // process all renderers
         int rendererCount = plot.getRendererCount();
         for (int i = 0; i < rendererCount; i++) {
-            CategoryItemRenderer r = plot.getRenderer(i);
+            ItemRenderer r = plot.getBasicRenderer(i);
             if (r != null) {
-                applyToCategoryItemRenderer(r);
+                applyToItemRenderer(r);
             }
         }
+
+        if(plot instanceof CategoryPlot) {
+            applyToCategoryPlot((CategoryPlot)plot);
+        } else if (plot instanceof XYPlot) {
+            applyToXYPlot((XYPlot)plot);
+        }
+    }
+
+    protected void applyToCategoryPlot(CategoryPlot plot) {
 
         if (plot instanceof CombinedDomainCategoryPlot) {
             CombinedDomainCategoryPlot cp = (CombinedDomainCategoryPlot) plot;
@@ -718,53 +725,6 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
     }
 
     protected void applyToXYPlot(XYPlot plot) {
-        // no way to edit in GUI
-//        plot.setDomainCrosshairPaint(this.crosshairPaint);
-//        plot.setRangeCrosshairPaint(this.crosshairPaint);
-
-        plot.setDomainGridlinePaint(this.domainGridlinePaint);
-        plot.setDomainGridlineStroke(this.domainGridlineStroke);
-        plot.setRangeGridlinePaint(this.rangeGridlinePaint);
-        plot.setRangeGridlineStroke(this.rangeGridlineStroke);
-        plot.setDomainGridlinesVisible(this.domainGridlineVisible);
-        plot.setRangeGridlinesVisible(this.rangeGridlinesVisible);
-
-        plot.setOrientation(orientation);
-        plot.setAxisOffset(this.axisOffset);
-        // process all domain axes
-        int domainAxisCount = plot.getDomainAxisCount();
-        for (int i = 0; i < domainAxisCount; i++) {
-            ValueAxis axis = plot.getDomainAxis(i);
-            if (axis != null) {
-                domainAxisTheme.apply(axis);
-            }
-        }
-
-        // process all range axes
-        int rangeAxisCount = plot.getRangeAxisCount();
-        for (int i = 0; i < rangeAxisCount; i++) {
-            ValueAxis axis = plot.getRangeAxis(i);
-            if (axis != null) {
-                rangeAxisTheme.apply(axis);
-            }
-        }
-
-        // process all renderers
-        int rendererCount = plot.getRendererCount();
-        for (int i = 0; i < rendererCount; i++) {
-            XYItemRenderer r = plot.getRenderer(i);
-            if (r != null) {
-                applyToXYItemRenderer(r);
-            }
-        }
-
-        // process all annotations
-        Iterator iter = plot.getAnnotations().iterator();
-        while (iter.hasNext()) {
-            XYAnnotation a = (XYAnnotation) iter.next();
-            applyToXYAnnotation(a);
-        }
-
         if (plot instanceof CombinedDomainXYPlot) {
             CombinedDomainXYPlot cp = (CombinedDomainXYPlot) plot;
             Iterator iterator = cp.getSubplots().iterator();
@@ -831,7 +791,7 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         }
     }
 
-    protected void applyToCategoryItemRenderer(CategoryItemRenderer renderer) {
+    protected void applyToItemRenderer(ItemRenderer renderer) {
         if (renderer == null) {
             throw new IllegalArgumentException("Null 'renderer' argument.");
         }
@@ -843,6 +803,18 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         renderer.setBaseItemLabelsVisible(labelsVisible);
         renderer.setBaseItemLabelFont(labelFont);
         renderer.setBaseItemLabelPaint(labelPaint);
+
+        if(renderer instanceof CategoryItemRenderer) {
+            applyToCategoryItemRenderer((CategoryItemRenderer) renderer);
+        } else if (renderer instanceof XYItemRenderer) {
+            applyToXYItemRenderer((XYItemRenderer) renderer);
+        }
+    }
+
+    protected void applyToCategoryItemRenderer(CategoryItemRenderer renderer) {
+        if (renderer == null) {
+            throw new IllegalArgumentException("Null 'renderer' argument.");
+        }
         renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator(labelFormat,
                         new DecimalFormat(numberFormatString, new DecimalFormatSymbols(getLocaleForCurrentThread())),
                         new DecimalFormat(percentFormatString, new DecimalFormatSymbols(getLocaleForCurrentThread()))));
@@ -859,12 +831,6 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         if (renderer == null) {
             throw new IllegalArgumentException("Null 'renderer' argument.");
         }
-        if (renderer instanceof AbstractRenderer) {
-            applyToAbstractRenderer((AbstractRenderer) renderer);
-        }
-        renderer.setBaseItemLabelsVisible(labelsVisible);
-        renderer.setBaseItemLabelFont(labelFont);
-        renderer.setBaseItemLabelPaint(labelPaint);
         // use the same number format on both axes - but create 2 copies for thread safety since DecimalFormat is not
         // thread safe.
         renderer.setBaseItemLabelGenerator(new StandardXYItemLabelGenerator(labelFormat,
@@ -874,17 +840,6 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         if (renderer instanceof XYBarRenderer) {
             XYBarRenderer br = (XYBarRenderer) renderer;
             br.setShadowVisible(shadowsVisible);
-        }
-    }
-
-    protected void applyToXYAnnotation(XYAnnotation annotation) {
-        if (annotation == null) {
-            throw new IllegalArgumentException("Null 'annotation' argument.");
-        }
-        if (annotation instanceof XYTextAnnotation) {
-            //XYTextAnnotation xyta = (XYTextAnnotation) annotation;
-            // no way to edit in GUI
-//            xyta.setPaint(this.itemLabelPaint);
         }
     }
 
