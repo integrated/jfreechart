@@ -126,15 +126,7 @@ import org.jfree.chart.labels.CategorySeriesLabelGenerator;
 import org.jfree.chart.labels.CategoryToolTipGenerator;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategorySeriesLabelGenerator;
-import org.jfree.chart.plot.CategoryCrosshairState;
-import org.jfree.chart.plot.CategoryMarker;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.DrawingSupplier;
-import org.jfree.chart.plot.IntervalMarker;
-import org.jfree.chart.plot.Marker;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.urls.CategoryURLGenerator;
 import org.jfree.data.Range;
@@ -256,10 +248,19 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      *
      * @return The plot (possibly <code>null</code>).
      *
-     * @see #setPlot(CategoryPlot)
+     * @see #setPlot(DomainRangePlot)
      */
-    public CategoryPlot getPlot() {
+    public DomainRangePlot getPlot() {
         return this.plot;
+    }
+
+    /**
+     * Convenience method that wraps getPlot() and automatically casts the plot object to CategoryPlot
+     * since it must be a CategoryPlot object in this case.
+     * @return The plot object that this renderer is used with.
+     */
+    public CategoryPlot getCategoryPlot() {
+        return (CategoryPlot) getPlot();
     }
 
     /**
@@ -271,11 +272,11 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      *
      * @see #getPlot()
      */
-    public void setPlot(CategoryPlot plot) {
+    public void setPlot(DomainRangePlot plot) {
         if (plot == null) {
             throw new IllegalArgumentException("Null 'plot' argument.");
         }
-        this.plot = plot;
+        this.plot = (CategoryPlot) plot;
     }
 
     // ITEM LABEL GENERATOR
@@ -1172,7 +1173,7 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        CategoryPlot p = getPlot();
+        CategoryPlot p = (CategoryPlot) getPlot();
         if (p == null) {
             return null;
         }
@@ -1300,7 +1301,7 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      */
     public DrawingSupplier getDrawingSupplier() {
         DrawingSupplier result = null;
-        CategoryPlot cp = getPlot();
+        DomainRangePlot cp = getPlot();
         if (cp != null) {
             result = cp.getDrawingSupplier();
         }

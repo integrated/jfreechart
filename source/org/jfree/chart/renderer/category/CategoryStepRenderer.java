@@ -167,7 +167,7 @@ public class CategoryStepRenderer extends AbstractCategoryItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        CategoryPlot p = getPlot();
+        CategoryPlot p = getCategoryPlot();
         if (p == null) {
             return null;
         }
@@ -180,7 +180,6 @@ public class CategoryStepRenderer extends AbstractCategoryItemRenderer
         CategoryDataset dataset = p.getDataset(datasetIndex);
         String label = getLegendItemLabelGenerator().generateLabel(dataset,
                 series);
-        String description = label;
         String toolTipText = null;
         if (getLegendItemToolTipGenerator() != null) {
             toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -194,7 +193,7 @@ public class CategoryStepRenderer extends AbstractCategoryItemRenderer
         Shape shape = lookupLegendShape(series);
         Paint paint = lookupSeriesPaint(series);
 
-        LegendItem item = new LegendItem(label, description, toolTipText,
+        LegendItem item = new LegendItem(label, label, toolTipText,
                 urlText, shape, paint);
         item.setLabelFont(lookupLegendTextFont(series));
         Paint labelPaint = lookupLegendTextPaint(series);

@@ -1118,14 +1118,13 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
         LegendItem result = null;
-        XYPlot p = getPlot();
+        XYPlot p = getXYPlot();
         if (p != null) {
             XYDataset dataset = p.getDataset(datasetIndex);
             if (dataset != null) {
                 if (getItemVisible(series, 0)) {
                     String label = getLegendItemLabelGenerator().generateLabel(
                             dataset, series);
-                    String description = label;
                     String toolTipText = null;
                     if (getLegendItemToolTipGenerator() != null) {
                         toolTipText
@@ -1140,7 +1139,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
                     Paint paint = lookupSeriesPaint(series);
                     Stroke stroke = lookupSeriesStroke(series);
                     Shape line = getLegendLine();
-                    result = new LegendItem(label, description,
+                    result = new LegendItem(label, label,
                             toolTipText, urlText, line, stroke, paint);
                     result.setLabelFont(lookupLegendTextFont(series));
                     Paint labelPaint = lookupLegendTextPaint(series);

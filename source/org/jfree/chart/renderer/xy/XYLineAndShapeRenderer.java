@@ -1218,7 +1218,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        XYPlot plot = getPlot();
+        XYPlot plot = getXYPlot();
         if (plot == null) {
             return null;
         }
@@ -1229,7 +1229,6 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
             if (getItemVisible(series, 0)) {
                 String label = getLegendItemLabelGenerator().generateLabel(
                         dataset, series);
-                String description = label;
                 String toolTipText = null;
                 if (getLegendItemToolTipGenerator() != null) {
                     toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -1254,7 +1253,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
                 boolean lineVisible = getItemLineVisible(series, 0);
                 Stroke lineStroke = lookupSeriesStroke(series);
                 Paint linePaint = lookupSeriesPaint(series);
-                result = new LegendItem(label, description, toolTipText,
+                result = new LegendItem(label, label, toolTipText,
                         urlText, shapeIsVisible, shape, shapeIsFilled,
                         fillPaint, shapeOutlineVisible, outlinePaint,
                         outlineStroke, lineVisible, this.legendLine,

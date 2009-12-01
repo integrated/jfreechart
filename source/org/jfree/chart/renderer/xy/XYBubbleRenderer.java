@@ -284,7 +284,7 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
         LegendItem result = null;
-        XYPlot plot = getPlot();
+        XYPlot plot = getXYPlot();
         if (plot == null) {
             return null;
         }
@@ -294,7 +294,6 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
             if (getItemVisible(series, 0)) {
                 String label = getLegendItemLabelGenerator().generateLabel(
                         dataset, series);
-                String description = label;
                 String toolTipText = null;
                 if (getLegendItemToolTipGenerator() != null) {
                     toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -309,7 +308,7 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
                 Paint paint = lookupSeriesPaint(series);
                 Paint outlinePaint = lookupSeriesOutlinePaint(series);
                 Stroke outlineStroke = lookupSeriesOutlineStroke(series);
-                result = new LegendItem(label, description, toolTipText,
+                result = new LegendItem(label, label, toolTipText,
                         urlText, shape, paint, outlineStroke, outlinePaint);
                 result.setLabelFont(lookupLegendTextFont(series));
                 Paint labelPaint = lookupLegendTextPaint(series);

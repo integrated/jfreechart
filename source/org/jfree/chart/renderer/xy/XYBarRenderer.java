@@ -666,7 +666,7 @@ public class XYBarRenderer extends AbstractXYItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
         LegendItem result = null;
-        XYPlot xyplot = getPlot();
+        XYPlot xyplot = (XYPlot) getPlot();
         if (xyplot != null) {
             XYDataset dataset = xyplot.getDataset(datasetIndex);
             if (dataset != null) {

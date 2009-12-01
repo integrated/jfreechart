@@ -138,15 +138,7 @@ import org.jfree.chart.labels.StandardXYSeriesLabelGenerator;
 import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.labels.XYSeriesLabelGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
-import org.jfree.chart.plot.CrosshairState;
-import org.jfree.chart.plot.DrawingSupplier;
-import org.jfree.chart.plot.IntervalMarker;
-import org.jfree.chart.plot.Marker;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.data.Range;
@@ -260,11 +252,21 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
     }
 
     /**
+     * Convenience method that wraps getPlot() and automatically casts the plot object to XYPlot
+     * since it must be a XYPlot object in this case.
+     * @return The plot object that this renderer is used with.
+     */
+    public XYPlot getXYPlot() {
+        return (XYPlot) getPlot();
+    }
+
+
+    /**
      * Returns the plot that the renderer is assigned to.
      *
      * @return The plot (possibly <code>null</code>).
      */
-    public XYPlot getPlot() {
+    public DomainRangePlot getPlot() {
         return this.plot;
     }
 
@@ -273,8 +275,8 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
      *
      * @param plot  the plot (<code>null</code> permitted).
      */
-    public void setPlot(XYPlot plot) {
-        this.plot = plot;
+    public void setPlot(DomainRangePlot plot) {
+        this.plot = (XYPlot) plot;
     }
 
     /**
@@ -784,7 +786,7 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
         LegendItem result = null;
-        XYPlot xyplot = getPlot();
+        XYPlot xyplot = (XYPlot) getPlot();
         if (xyplot != null) {
             XYDataset dataset = xyplot.getDataset(datasetIndex);
             if (dataset != null) {
@@ -1558,7 +1560,7 @@ public abstract class AbstractXYItemRenderer extends AbstractRenderer
      */
     public DrawingSupplier getDrawingSupplier() {
         DrawingSupplier result = null;
-        XYPlot p = getPlot();
+        DomainRangePlot p = getPlot();
         if (p != null) {
             result = p.getDrawingSupplier();
         }

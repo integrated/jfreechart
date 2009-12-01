@@ -57,7 +57,7 @@ import org.jfree.chart.plot.XYPlot;
  * The interface that must be supported by annotations that are to be added to
  * an {@link XYPlot}.
  */
-public interface XYAnnotation {
+public interface XYAnnotation extends Annotation {
 
     /**
      * Draws the annotation.

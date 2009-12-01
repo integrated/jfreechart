@@ -45,17 +45,19 @@ package org.jfree.chart.editor;
 
 import java.awt.*;
 import java.util.ResourceBundle;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
 
 import javax.swing.*;
 
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.plot.*;
 import org.jfree.chart.editor.components.FontControl;
 import org.jfree.chart.editor.components.PaintControl;
 import org.jfree.chart.editor.components.LineEditorPanel;
@@ -65,6 +67,54 @@ import org.jfree.chart.editor.themes.AxisTheme;
  * A panel for editing the properties of an axis.
  */
 public class DefaultAxisEditor extends BaseEditor {
+
+    protected static final AxisLocation[] DOMAIN_AXIS_POSITIONS = new AxisLocation[]{
+            AxisLocation.BOTTOM_OR_LEFT, AxisLocation.TOP_OR_RIGHT
+    };
+
+    protected static final AxisLocation[] RANGE_AXIS_POSITIONS = new AxisLocation[]{
+            AxisLocation.TOP_OR_LEFT, AxisLocation.BOTTOM_OR_RIGHT
+    };
+
+    protected static final Map/*<AxisLocation, Map<PlotOrientation, String>>*/ DOMAIN_AXIS_POSITION_LABELS;
+    static {
+        Map retVal = new HashMap();
+
+        Map bottomLeft = new HashMap();
+        bottomLeft.put(PlotOrientation.HORIZONTAL, "West");
+        bottomLeft.put(PlotOrientation.VERTICAL, "South");
+        bottomLeft = Collections.unmodifiableMap(bottomLeft);
+
+        Map topRight = new HashMap();
+        topRight.put(PlotOrientation.HORIZONTAL, "East");
+        topRight.put(PlotOrientation.VERTICAL, "North");
+        topRight = Collections.unmodifiableMap(topRight);
+
+        retVal.put(AxisLocation.BOTTOM_OR_LEFT, bottomLeft);
+        retVal.put(AxisLocation.TOP_OR_RIGHT, topRight);
+
+        DOMAIN_AXIS_POSITION_LABELS = Collections.unmodifiableMap(retVal);
+    }
+
+    protected static final Map/*<AxisLocation, Map<PlotOrientation, String>>*/ RANGE_AXIS_POSITION_LABELS;
+    static {
+        Map retVal = new HashMap();
+
+        Map topLeft = new HashMap();
+        topLeft.put(PlotOrientation.HORIZONTAL, "North");
+        topLeft.put(PlotOrientation.VERTICAL, "West");
+        topLeft = Collections.unmodifiableMap(topLeft);
+
+        Map bottomRight = new HashMap();
+        bottomRight.put(PlotOrientation.HORIZONTAL, "South");
+        bottomRight.put(PlotOrientation.VERTICAL, "East");
+        bottomRight = Collections.unmodifiableMap(bottomRight);
+
+        retVal.put(AxisLocation.TOP_OR_LEFT, topLeft);
+        retVal.put(AxisLocation.BOTTOM_OR_RIGHT, bottomRight);
+
+        RANGE_AXIS_POSITION_LABELS = Collections.unmodifiableMap(retVal);
+    }
 
     protected AxisTheme theme;
 
@@ -85,6 +135,11 @@ public class DefaultAxisEditor extends BaseEditor {
     private JSpinner labelAngle;
 
     private LineEditorPanel axisLine;
+
+    private JComboBox axisLocation;
+
+    // set from outside the class.
+    private PlotOrientation plotOrientation;
 
     /**
      * An empty sub-panel for extending the user interface to handle more
@@ -111,6 +166,7 @@ public class DefaultAxisEditor extends BaseEditor {
     protected static ResourceBundle localizationResources
             = ResourceBundleWrapper.getBundle(
                     "org.jfree.chart.editor.LocalizationBundle");
+    private static final String ERROR = "Error";
 
     /**
      * A static method that returns a panel that is appropriate for the axis
@@ -156,6 +212,13 @@ public class DefaultAxisEditor extends BaseEditor {
 
         setLayout(new GridBagLayout());
 
+        Plot p = chart.getPlot();
+        if(p instanceof DomainRangePlot) {
+            this.plotOrientation = ((DomainRangePlot)p).getOrientation();
+        }
+
+        JPanel positionPanel = getPositionPanel();
+
         JPanel labelPanel = getLabelPanel();
         axisLine = new LineEditorPanel(localizationResources.getString("Axis_Line"),
                 theme.isLineVisible(), theme.getLinePaint(), theme.getLineStroke());
@@ -185,6 +248,9 @@ public class DefaultAxisEditor extends BaseEditor {
 
         GridBagConstraints c = getNewConstraints();
         c.weightx = 1;
+        add(positionPanel, c);
+        startNewRow(c);
+        c.weightx = 1;
         add(labelPanel, c);
         startNewRow(c);
         c.weightx = 1;
@@ -193,6 +259,25 @@ public class DefaultAxisEditor extends BaseEditor {
         c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
         add(this.slot2, c);
 
+    }
+
+    private JPanel getPositionPanel() {
+        AxisLocation themeLocation = theme.getAxisLocation();
+        JPanel retVal = new JPanel(new GridBagLayout());
+        retVal.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Axis_Position")));
+
+        GridBagConstraints c = getNewConstraints();
+        retVal.add(new JLabel(localizationResources.getString("Edge")), c);
+        c.gridx++; c.weightx = 1;
+
+        Object[] comboContents = theme.getType() == AxisTheme.DOMAIN_AXIS ? DOMAIN_AXIS_POSITIONS : RANGE_AXIS_POSITIONS;
+        this.axisLocation = new JComboBox(comboContents);
+        this.axisLocation.setSelectedItem(themeLocation);
+        this.axisLocation.addActionListener(updateHandler);
+        this.axisLocation.setRenderer(new AxisLocationRenderer());
+        retVal.add(this.axisLocation, c);
+
+        return retVal;
     }
 
     private JPanel getLabelPanel() {
@@ -290,6 +375,31 @@ public class DefaultAxisEditor extends BaseEditor {
         // do nothing. Used in sub-classes.
     }
 
+    private String getAxisPositionLabel(Object value) {
+        Map toUse;
+        if(theme.getType() == AxisTheme.DOMAIN_AXIS) {
+            toUse = DOMAIN_AXIS_POSITION_LABELS;
+        } else {
+            toUse = RANGE_AXIS_POSITION_LABELS;
+        }
+
+        Map innerMap = (Map) toUse.get(value);
+        if(innerMap == null) {
+            return ERROR;
+        }
+
+        String retVal = (String) innerMap.get(plotOrientation);
+        if(retVal == null) {
+            retVal = ERROR;
+        }
+        return localizationResources.getString(retVal);
+    }
+    
+    void plotOrientationChanged(PlotOrientation plotOrientation) {
+        // this changes the labels that describe the edge of the plot along which the axis will be drawn.
+        this.plotOrientation = plotOrientation;
+    }
+
     /**
      * Returns the current axis label.
      *
@@ -363,6 +473,10 @@ public class DefaultAxisEditor extends BaseEditor {
         return this.otherTabs;
     }
 
+    public AxisLocation getAxisLocation() {
+        return (AxisLocation) axisLocation.getSelectedItem();
+    }
+
     public double getLabelAngleInDegs() {
         return ((Number)labelAngle.getModel().getValue()).doubleValue();
     }
@@ -399,6 +513,24 @@ public class DefaultAxisEditor extends BaseEditor {
         theme.setLinePaint(linePaint);
         BasicStroke lineStroke = axisLine.getLineStroke();
         theme.setLineStroke(lineStroke);
+
+        AxisLocation axisLocation = getAxisLocation();
+        if(axisLocation != null) {
+            theme.setAxisLocation(axisLocation);
+
+            if(axes.length > 0) {
+                Plot p = axes[0].getPlot();
+                boolean isDomain = theme.getType() == AxisTheme.DOMAIN_AXIS;
+                if(p instanceof DomainRangePlot) {
+                    DomainRangePlot drp = (DomainRangePlot) p;
+                    if(isDomain) {
+                        drp.setDomainAxisLocation(axisLocation);
+                    } else {
+                        drp.setRangeAxisLocation(axisLocation);
+                    }
+                }
+            }
+        }
 
         for(int i = 0; i < axes.length; i++) {
             axes[i].setLabel(getLabel());
@@ -445,4 +577,20 @@ public class DefaultAxisEditor extends BaseEditor {
         return axes;
     }
 
+    class AxisLocationRenderer extends JLabel implements ListCellRenderer {
+
+        AxisLocationRenderer() {
+            setOpaque(true);
+        }
+
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            String text = getAxisPositionLabel(value);
+            setText(text);
+            setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+            setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+
+            return this;
+        }
+
+    }
 }

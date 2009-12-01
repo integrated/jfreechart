@@ -5,7 +5,6 @@ import java.awt.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PieLabelLinkStyle;
 import org.jfree.chart.plot.DrawingSupplier;
-import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.Rotation;
 

@@ -645,7 +645,7 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
      * @return A legend item for the series.
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
-        XYPlot plot = getPlot();
+        XYPlot plot = getXYPlot();
         if (plot == null) {
             return null;
         }

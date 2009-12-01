@@ -1,6 +1,7 @@
 package org.jfree.chart.editor.themes;
 
 import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.AxisLocation;
 
 import java.awt.*;
 
@@ -98,4 +99,8 @@ public interface AxisTheme extends ChartThemeBasis {
     void setItemMargin(double d);
 
     void apply(Axis axis);
+
+    AxisLocation getAxisLocation();
+
+    void setAxisLocation(AxisLocation a);
 }

@@ -52,7 +52,7 @@ import org.jfree.chart.plot.CategoryPlot;
  * The interface that must be supported by annotations that are to be added to
  * a {@link org.jfree.chart.plot.CategoryPlot}.
  */
-public interface CategoryAnnotation {
+public interface CategoryAnnotation extends Annotation {
 
     /**
      * Draws the annotation.

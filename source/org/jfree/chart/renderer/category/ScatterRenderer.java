@@ -441,7 +441,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        CategoryPlot cp = getPlot();
+        CategoryPlot cp = getCategoryPlot();
         if (cp == null) {
             return null;
         }
@@ -450,7 +450,6 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
             CategoryDataset dataset = cp.getDataset(datasetIndex);
             String label = getLegendItemLabelGenerator().generateLabel(
                     dataset, series);
-            String description = label;
             String toolTipText = null;
             if (getLegendItemToolTipGenerator() != null) {
                 toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -469,7 +468,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
             Paint outlinePaint = (this.useOutlinePaint
                     ? getItemOutlinePaint(series, 0) : paint);
             Stroke outlineStroke = lookupSeriesOutlineStroke(series);
-            LegendItem result = new LegendItem(label, description, toolTipText,
+            LegendItem result = new LegendItem(label, label, toolTipText,
                     urlText, true, shape, getItemShapeFilled(series, 0),
                     fillPaint, shapeOutlineVisible, outlinePaint, outlineStroke,
                     false, new Line2D.Double(-7.0, 0.0, 7.0, 0.0),

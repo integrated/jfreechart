@@ -116,7 +116,7 @@ public class CombinedXYPlotDemo1 extends ApplicationFrame {
         IntervalXYDataset data2 = createDataset2();
         XYBarRenderer renderer2 = new XYBarRenderer() {
             public Paint getItemPaint(int series, int item) {
-                XYDataset dataset = getPlot().getDataset();
+                XYDataset dataset = getXYPlot().getDataset();
                 if (dataset.getYValue(series, item) >= 0.0) {
                     return Color.red;
                 }

@@ -272,7 +272,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        CategoryPlot cp = getPlot();
+        CategoryPlot cp = getCategoryPlot();
         if (cp == null) {
             return null;
         }
@@ -285,7 +285,6 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         CategoryDataset dataset = cp.getDataset(datasetIndex);
         String label = getLegendItemLabelGenerator().generateLabel(dataset,
                 series);
-        String description = label;
         String toolTipText = null;
         if (getLegendItemToolTipGenerator() != null) {
             toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -300,7 +299,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         Paint paint = lookupSeriesPaint(series);
         Paint outlinePaint = lookupSeriesOutlinePaint(series);
         Stroke outlineStroke = lookupSeriesOutlineStroke(series);
-        LegendItem result = new LegendItem(label, description, toolTipText,
+        LegendItem result = new LegendItem(label, label, toolTipText,
                 urlText, shape, paint, outlineStroke, outlinePaint);
         result.setLabelFont(lookupLegendTextFont(series));
         Paint labelPaint = lookupLegendTextPaint(series);
@@ -527,7 +526,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         }
 
         g2.setPaint(this.artifactPaint);
-        double aRadius = 0;                 // average radius
+        double aRadius;                 // average radius
 
         // draw mean - SPECIAL AIMS REQUIREMENT...
         Number xMean = bawDataset.getMeanValue(row, column);
@@ -621,7 +620,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
             xx = xx + offset;
         }
 
-        double yyAverage = 0.0;
+        double yyAverage;
         double yyOutlier;
 
         Paint itemPaint = getItemPaint(row, column);

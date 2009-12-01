@@ -157,7 +157,7 @@ public class AreaRenderer extends AbstractCategoryItemRenderer
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
         // if there is no plot, there is no dataset to access...
-        CategoryPlot cp = getPlot();
+        CategoryPlot cp = (CategoryPlot) getPlot();
         if (cp == null) {
             return null;
         }

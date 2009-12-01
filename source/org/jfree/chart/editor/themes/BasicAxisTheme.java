@@ -5,7 +5,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.plot.DomainRangePlot;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
 
@@ -35,6 +35,9 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
     static final boolean DEFAULT_AXIS_LINE_VIS = true;
     static final Paint DEFAULT_AXIS_LINE_PAINT = Color.BLACK;
     static final BasicStroke DEFAULT_AXIS_LINE_STROKE = new BasicStroke(1.0f);
+
+    static final AxisLocation DEFAULT_DOMAIN_AXIS_LOCATION = AxisLocation.BOTTOM_OR_LEFT;
+    static final AxisLocation DEFAULT_RANGE_AXIS_LOCATION = AxisLocation.TOP_OR_LEFT;
 
     /**
      * A large font.  Used for the axis labels.
@@ -80,6 +83,8 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
     private int catLabelMaxLines;
 
     private double upperMargin, lowerMargin, categoryMargin, itemMargin;
+
+    private AxisLocation axisLocation;
 
 
     public BasicAxisTheme(String name, int type) {
@@ -136,30 +141,28 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         this.lowerMargin = CategoryAxis.DEFAULT_AXIS_MARGIN;
         this.categoryMargin = CategoryAxis.DEFAULT_CATEGORY_MARGIN;
         this.itemMargin = BarRenderer.DEFAULT_ITEM_MARGIN;
+
+        this.axisLocation = type == DOMAIN_AXIS ? DEFAULT_DOMAIN_AXIS_LOCATION : DEFAULT_RANGE_AXIS_LOCATION;
     }
 
     public void readSettingsFromChart(JFreeChart chart) {
         Plot plot = chart.getPlot();
         Axis axis = null;
-        if (plot instanceof CategoryPlot) {
-            CategoryPlot cPlot = (CategoryPlot) plot;
-            axis = cPlot.getDomainAxis();
+        if (plot instanceof DomainRangePlot) {
+            DomainRangePlot cPlot = chart.getDomainRangePlot();
+            axis = cPlot.getBasicDomainAxis();
             switch (type) {
                 case RANGE_AXIS:
-                    axis = cPlot.getRangeAxis(); break;
+                    axis = cPlot.getRangeAxis();
+                    this.axisLocation = cPlot.getRangeAxisLocation();
+                    break;
                 case DOMAIN_AXIS:
-                    axis = cPlot.getDomainAxis(); break;
+                    axis = cPlot.getBasicDomainAxis();
+                    this.axisLocation = cPlot.getDomainAxisLocation();
+                    break;
             }
-            if(cPlot.getRenderer() instanceof BarRenderer) {
-                this.itemMargin = ((BarRenderer)cPlot.getRenderer()).getItemMargin();
-            }
-        } else if (plot instanceof XYPlot) {
-            XYPlot xyPlot = (XYPlot) plot;
-            switch (type) {
-                case RANGE_AXIS:
-                    axis = xyPlot.getRangeAxis(); break;
-                case DOMAIN_AXIS:
-                    axis = xyPlot.getDomainAxis(); break;
+            if(cPlot.getBasicRenderer() instanceof BarRenderer) {
+                this.itemMargin = ((BarRenderer)cPlot.getBasicRenderer()).getItemMargin();
             }
         }
         if (axis != null) {
@@ -368,11 +371,34 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         }
     }
 
+    public AxisLocation getAxisLocation() {
+        return axisLocation;
+    }
+
+    public void setAxisLocation(AxisLocation a) {
+        if(a == null) {
+            throw new IllegalArgumentException("Axis location cannot be null!");
+        }
+        this.axisLocation = a;
+    }
+
     public void apply(JFreeChart chart) {
         // do nothing.
     }
 
     public void apply(Axis axis) {
+
+        if(axis.getPlot() instanceof DomainRangePlot) {
+            DomainRangePlot plot = (DomainRangePlot) axis.getPlot();
+            switch(type) {
+                case DOMAIN_AXIS:
+                    plot.setDomainAxisLocation(this.axisLocation);
+                    break;
+                case RANGE_AXIS:
+                    plot.setRangeAxisLocation(this.axisLocation);
+                    break;
+            }
+        }
 
         axis.setLabelFont(this.axisLabelFont);
         axis.setLabelPaint(this.axisLabelPaint);

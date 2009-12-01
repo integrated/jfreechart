@@ -83,9 +83,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private final static int PIE = -1, CATEGORY = -2, XY = -3;
 
     /** Orientation constants. */
-    private final static String[] orientationNames = {"Vertical", "Horizontal"};
-    private final static int ORIENTATION_VERTICAL = 0;
-    private final static int ORIENTATION_HORIZONTAL = 1;
+    final static String[] ORIENTATION_NAMES = {"Vertical", "Horizontal"};
+    final static int ORIENTATION_VERTICAL = 0;
+    final static int ORIENTATION_HORIZONTAL = 1;
 
     protected PlotTheme theme;
 
@@ -199,7 +199,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             );
             c.gridx++; c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
             c.fill = GridBagConstraints.NONE;
-            this.orientationCombo = new JComboBox(orientationNames);
+            this.orientationCombo = new JComboBox(ORIENTATION_NAMES);
             this.orientationCombo.setSelectedIndex(index);
             this.orientationCombo.setActionCommand("Orientation");
             this.orientationCombo.addActionListener(updateHandler);
@@ -616,9 +616,14 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         if (index == ORIENTATION_VERTICAL) {
             this.plotOrientation = PlotOrientation.VERTICAL;
-        }
-        else {
+        } else {
             this.plotOrientation = PlotOrientation.HORIZONTAL;
+        }
+        if(domainAxisPropertyPanel != null) {
+            domainAxisPropertyPanel.plotOrientationChanged(this.plotOrientation);
+        }
+        if(rangeAxisPropertyPanel != null) {
+            rangeAxisPropertyPanel.plotOrientationChanged(this.plotOrientation);
         }
     }
 

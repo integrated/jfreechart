@@ -285,7 +285,7 @@ public class XYDotRenderer extends AbstractXYItemRenderer
 
         // if the renderer isn't assigned to a plot, then we don't have a
         // dataset...
-        XYPlot plot = getPlot();
+        XYPlot plot = getXYPlot();
         if (plot == null) {
             return null;
         }
@@ -299,7 +299,6 @@ public class XYDotRenderer extends AbstractXYItemRenderer
         if (getItemVisible(series, 0)) {
             String label = getLegendItemLabelGenerator().generateLabel(dataset,
                     series);
-            String description = label;
             String toolTipText = null;
             if (getLegendItemToolTipGenerator() != null) {
                 toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -311,7 +310,7 @@ public class XYDotRenderer extends AbstractXYItemRenderer
                         dataset, series);
             }
             Paint fillPaint = lookupSeriesPaint(series);
-            result = new LegendItem(label, description, toolTipText, urlText,
+            result = new LegendItem(label, label, toolTipText, urlText,
                     getLegendShape(), fillPaint);
             result.setLabelFont(lookupLegendTextFont(series));
             Paint labelPaint = lookupLegendTextPaint(series);

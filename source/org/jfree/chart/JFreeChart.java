@@ -194,10 +194,7 @@ import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.chart.event.TitleChangeListener;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.plot.*;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
@@ -815,6 +812,20 @@ public class JFreeChart implements Drawable,
      */
     public Plot getPlot() {
         return this.plot;
+    }
+
+    /**
+     * Returns the plot cast as a {@link DomainRangePlot}.
+     * <p>
+     * NOTE: if the plot is not an instance of {@link DomainRangePlot}, then a
+     * <code>ClassCastException</code> is thrown.
+     *
+     * @return The plot.
+     *
+     * @see #getPlot()
+     */
+    public DomainRangePlot getDomainRangePlot() {
+        return (DomainRangePlot) this.plot;
     }
 
     /**

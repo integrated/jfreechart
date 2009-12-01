@@ -359,13 +359,12 @@ public class XYAreaRenderer extends AbstractXYItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
         LegendItem result = null;
-        XYPlot xyplot = getPlot();
+        XYPlot xyplot = getXYPlot();
         if (xyplot != null) {
             XYDataset dataset = xyplot.getDataset(datasetIndex);
             if (dataset != null) {
                 XYSeriesLabelGenerator lg = getLegendItemLabelGenerator();
                 String label = lg.generateLabel(dataset, series);
-                String description = label;
                 String toolTipText = null;
                 if (getLegendItemToolTipGenerator() != null) {
                     toolTipText = getLegendItemToolTipGenerator().generateLabel(
@@ -377,7 +376,7 @@ public class XYAreaRenderer extends AbstractXYItemRenderer
                             dataset, series);
                 }
                 Paint paint = lookupSeriesPaint(series);
-                result = new LegendItem(label, description, toolTipText,
+                result = new LegendItem(label, label, toolTipText,
                         urlText, this.legendArea, paint);
                 result.setLabelFont(lookupLegendTextFont(series));
                 Paint labelPaint = lookupLegendTextPaint(series);

@@ -886,7 +886,7 @@ public class BarRenderer extends AbstractCategoryItemRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        CategoryPlot cp = getPlot();
+        CategoryPlot cp = (CategoryPlot) getPlot();
         if (cp == null) {
             return null;
         }
