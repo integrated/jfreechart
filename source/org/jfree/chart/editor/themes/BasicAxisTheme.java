@@ -36,8 +36,8 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
     static final Paint DEFAULT_AXIS_LINE_PAINT = Color.BLACK;
     static final BasicStroke DEFAULT_AXIS_LINE_STROKE = new BasicStroke(1.0f);
 
-    static final AxisLocation DEFAULT_DOMAIN_AXIS_LOCATION = AxisLocation.BOTTOM_OR_LEFT;
-    static final AxisLocation DEFAULT_RANGE_AXIS_LOCATION = AxisLocation.TOP_OR_LEFT;
+    public static final AxisLocation DEFAULT_DOMAIN_AXIS_LOCATION = AxisLocation.BOTTOM_OR_LEFT;
+    public static final AxisLocation DEFAULT_RANGE_AXIS_LOCATION = AxisLocation.TOP_OR_LEFT;
 
     /**
      * A large font.  Used for the axis labels.
