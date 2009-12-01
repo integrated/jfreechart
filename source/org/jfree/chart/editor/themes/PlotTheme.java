@@ -51,6 +51,7 @@ public interface PlotTheme extends ChartThemeBasis, EditableBorder {
             0.5f);
     static final boolean DEFAULT_LABEL_OUTLINE_VISIBLE = true;
     static final RectangleInsets DEFAULT_LABEL_PADDING = new RectangleInsets(2, 2, 2, 2);
+    static final double DEFAULT_PIE_SECTION_DEPTH = 1.0;
 
 
     Paint getPlotBackgroundPaint();
@@ -182,4 +183,14 @@ public interface PlotTheme extends ChartThemeBasis, EditableBorder {
     ExtendedDrawingSupplier constructDrawingSupplier(String name, DrawingSupplier nested);
 
     boolean isSupplierCorrectImplementation(DrawingSupplier supplier);
+
+    double getPieSectionDepth();
+
+    /**
+     * Value between 0 and 1 - a percentage. Anything less than 1 will result in a hole in the middle of the pie,
+     * turning it into a doughnut chart.
+     * @param d The depth of the sections within the pie.
+     * @throws IllegalArgumentException If the value is outside the range [0..1].
+     */
+    void setPieSectionDepth(double d);
 }

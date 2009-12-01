@@ -125,6 +125,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
 
     private String numberFormatString, percentFormatString;
 
+    private double pieSectionDepth;
+
     public BasicPlotTheme(String name) {
         super(name, CUSTOM_PLOT_THEME);
     }
@@ -170,76 +172,70 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
 
         this.numberFormatString = DEFAULT_NUMBER_FORMAT;
         this.percentFormatString = DEFAULT_PERCENT_FORMAT;
+
+        this.pieSectionDepth = DEFAULT_PIE_SECTION_DEPTH;
     }
 
     public void readSettingsFromChart(JFreeChart chart) {
         Plot plot = chart.getPlot();
-        if (plot instanceof CategoryPlot) {
-            CategoryPlot cPlot = (CategoryPlot) plot;
-            this.axisOffset = cPlot.getAxisOffset();
-            this.orientation = cPlot.getOrientation();
+        if(plot instanceof DomainRangePlot) {
+            DomainRangePlot dPlot = (DomainRangePlot) plot;
+            this.axisOffset = dPlot.getAxisOffset();
+            this.orientation = dPlot.getOrientation();
 
-            this.domainGridlinePaint = cPlot.getDomainGridlinePaint();
-            this.rangeGridlinePaint = cPlot.getRangeGridlinePaint();
-            this.domainGridlineStroke = (BasicStroke) cPlot.getDomainGridlineStroke();
-            this.rangeGridlineStroke = (BasicStroke) cPlot.getRangeGridlineStroke();
-            this.domainGridlineVisible = cPlot.isDomainGridlinesVisible();
-            this.rangeGridlinesVisible = cPlot.isRangeGridlinesVisible();
+            this.domainGridlinePaint = dPlot.getDomainGridlinePaint();
+            this.rangeGridlinePaint = dPlot.getRangeGridlinePaint();
+            this.domainGridlineStroke = (BasicStroke) dPlot.getDomainGridlineStroke();
+            this.rangeGridlineStroke = (BasicStroke) dPlot.getRangeGridlineStroke();
+            this.domainGridlineVisible = dPlot.isDomainGridlinesVisible();
+            this.rangeGridlinesVisible = dPlot.isRangeGridlinesVisible();
 
-            CategoryItemRenderer itemRenderer = cPlot.getRenderer();
-            if (itemRenderer instanceof BarRenderer) {
-                BarRenderer barRenderer = (BarRenderer) cPlot.getRenderer();
-                this.shadowsVisible = barRenderer.getShadowsVisible();
+            ItemRenderer renderer = dPlot.getBasicRenderer();
+            if(renderer instanceof BarRenderer) {
+                this.shadowsVisible = ((BarRenderer) renderer).getShadowsVisible();
+            } else if (renderer instanceof XYBarRenderer) {
+                this.shadowsVisible = ((XYBarRenderer) renderer).getShadowsVisible();
             }
-            Boolean Bool = itemRenderer.getBaseItemLabelsVisible();
-            this.labelsVisible = Bool != null && Bool.booleanValue();
-            this.labelFont = itemRenderer.getBaseItemLabelFont();
-            this.labelPaint = itemRenderer.getBaseItemLabelPaint();
 
-            StandardCategoryItemLabelGenerator sLabelGen =
-                    (StandardCategoryItemLabelGenerator) itemRenderer.getBaseItemLabelGenerator();
-            if(sLabelGen != null) {
-                this.labelFormat = sLabelGen.getLabelFormat();
-                NumberFormat nf = sLabelGen.getNumberFormat();
-                NumberFormat pf = sLabelGen.getPercentFormat();
-                if(nf instanceof DecimalFormat) {
-                    numberFormatString = ((DecimalFormat) nf).toPattern();
+            Boolean Bool = renderer.getBaseItemLabelsVisible();
+            this.labelsVisible = Bool != null && Bool.booleanValue();
+            this.labelFont = renderer.getBaseItemLabelFont();
+            this.labelPaint = renderer.getBaseItemLabelPaint();
+
+            // TODO: Still plenty of room for refactoring common interfaces and code with label generators I think.
+            if (dPlot instanceof CategoryPlot) {
+                CategoryPlot cPlot = (CategoryPlot) plot;
+
+                CategoryItemRenderer itemRenderer = cPlot.getRenderer();
+
+                StandardCategoryItemLabelGenerator sLabelGen =
+                        (StandardCategoryItemLabelGenerator) itemRenderer.getBaseItemLabelGenerator();
+                if(sLabelGen != null) {
+                    this.labelFormat = sLabelGen.getLabelFormat();
+                    NumberFormat nf = sLabelGen.getNumberFormat();
+                    NumberFormat pf = sLabelGen.getPercentFormat();
+                    if(nf instanceof DecimalFormat) {
+                        numberFormatString = ((DecimalFormat) nf).toPattern();
+                    }
+
+                    if(pf instanceof DecimalFormat) {
+                        percentFormatString = ((DecimalFormat) pf).toPattern();
+                    }
                 }
 
-                if(pf instanceof DecimalFormat) {
-                    percentFormatString = ((DecimalFormat) pf).toPattern();
-                }
-            }
+            } else if (dPlot instanceof XYPlot) {
+                XYPlot xyPlot = (XYPlot) plot;
 
-        } else if (plot instanceof XYPlot) {
-            XYPlot xyPlot = (XYPlot) plot;
-            this.orientation = xyPlot.getOrientation();
-            this.axisOffset = xyPlot.getAxisOffset();
+                XYItemRenderer itemRenderer = xyPlot.getRenderer();
 
-            this.domainGridlinePaint = xyPlot.getDomainGridlinePaint();
-            this.rangeGridlinePaint = xyPlot.getRangeGridlinePaint();
-            this.domainGridlineStroke = (BasicStroke) xyPlot.getDomainGridlineStroke();
-            this.rangeGridlineStroke = (BasicStroke) xyPlot.getRangeGridlineStroke();
-            this.domainGridlineVisible = xyPlot.isDomainGridlinesVisible();
-            this.rangeGridlinesVisible = xyPlot.isRangeGridlinesVisible();
-
-            XYItemRenderer itemRenderer = xyPlot.getRenderer();
-            if (itemRenderer instanceof XYBarRenderer) {
-                this.shadowsVisible = ((XYBarRenderer) xyPlot.getRenderer()).getShadowsVisible();
-            }
-
-            Boolean Bool = itemRenderer.getBaseItemLabelsVisible();
-            this.labelsVisible = Bool != null && Bool.booleanValue();
-            this.labelFont = itemRenderer.getBaseItemLabelFont();
-            this.labelPaint = itemRenderer.getBaseItemLabelPaint();
-
-            StandardXYItemLabelGenerator sLabelGen =
-                    (StandardXYItemLabelGenerator) itemRenderer.getBaseItemLabelGenerator();
-            if(sLabelGen != null) {
-                this.labelFormat = sLabelGen.getFormatString();
-                NumberFormat nf = sLabelGen.getXFormat();
-                if(nf instanceof DecimalFormat) {
-                    numberFormatString = ((DecimalFormat) nf).toPattern();
+                StandardXYItemLabelGenerator sLabelGen =
+                        (StandardXYItemLabelGenerator) itemRenderer.getBaseItemLabelGenerator();
+                if(sLabelGen != null) {
+                    this.labelFormat = sLabelGen.getFormatString();
+                    NumberFormat nf = sLabelGen.getXFormat();
+                    if(nf instanceof DecimalFormat) {
+                        numberFormatString = ((DecimalFormat) nf).toPattern();
+                    }
                 }
             }
         } else if (plot instanceof PiePlot) {
@@ -274,7 +270,12 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
             this.labelShadowPaint = piePlot.getLabelShadowPaint();
             this.labelLinkStyle = piePlot.getLabelLinkStyle();
             this.labelLinksVisible = piePlot.getLabelLinksVisible();
+
+            if(piePlot instanceof RingPlot) {
+                this.pieSectionDepth = ((RingPlot)piePlot).getSectionDepth();
+            }
         }
+
         this.plotBackgroundPaint = plot.getBackgroundPaint();
         DrawingSupplier plotSupplier = plot.getDrawingSupplier();
         if (!isSupplierCorrectImplementation(plotSupplier)) {
@@ -578,6 +579,17 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         this.numberFormatString = numberFormatString;
     }
 
+    public double getPieSectionDepth() {
+        return pieSectionDepth;
+    }
+
+    public void setPieSectionDepth(double d) {
+        if(d < 0 || d > 1) {
+            throw new IllegalArgumentException("Pie section depth must be in the range [0..1]");
+        }
+        this.pieSectionDepth = d;
+    }
+
     public void apply(JFreeChart chart) {
         Plot plot = chart.getPlot();
         if (plot == null) {
@@ -649,6 +661,14 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         if (plot.getAutoPopulateSectionOutlineStroke()) {
             plot.clearSectionOutlineStrokes(false);
         }
+
+        if(plot instanceof RingPlot) {
+            applyToRingPlot((RingPlot)plot);
+        }
+    }
+
+    protected void applyToRingPlot(RingPlot plot) {
+        plot.setSectionDepth(pieSectionDepth);
     }
 
     protected void applyToMultiplePiePlot(MultiplePiePlot plot) {

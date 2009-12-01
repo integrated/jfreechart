@@ -128,6 +128,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private JSpinner startAngle;
     private JCheckBox circularPlot;
     private RotationComboBox pieDirection;
+    private JSpinner sectionDepth;
 
     // label controls
     private JPanel labelPanel = null;
@@ -230,7 +231,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         interior.add(backgroundPanel,c);
 
         if(plot instanceof PiePlot) {
-            JPanel piePanel = getPiePanel();
+            JPanel piePanel = getPiePanel(plot instanceof RingPlot);
             startNewRow(c);
             c.gridwidth = 3; c.weightx = 1;
             interior.add(piePanel, c);
@@ -525,7 +526,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         return retVal;
     }
 
-    private JPanel getPiePanel() {
+    private JPanel getPiePanel(boolean isRingPlot) {
         JPanel retVal = new JPanel(new GridBagLayout());
         retVal.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Pie")));
         GridBagConstraints c = getNewConstraints();
@@ -540,6 +541,12 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         startAngle = new JSpinner(new SpinnerNumberModel(theme.getStartAngle(), 0, 360, 1));
         startAngle.addChangeListener(updateHandler);
 
+        // easier to show to users as 'size of the hole' than 'depth of sections as % of radius'.
+        sectionDepth = new JSpinner(new SpinnerNumberModel(1.0-theme.getPieSectionDepth(), 0.0, 1.0, 0.01));
+        // display as percentage.
+        sectionDepth.setEditor(new JSpinner.NumberEditor(sectionDepth, "#.#%"));
+        sectionDepth.addChangeListener(updateHandler);
+
         c.gridwidth = 2; c.anchor = GridBagConstraints.WEST;
         retVal.add(circularPlot, c);
         startNewRow(c);
@@ -551,23 +558,24 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         c.gridx++; c.weightx = 1;
         retVal.add(startAngle, c);
 
+        if(isRingPlot) {
+            startNewRow(c);
+            retVal.add(new JLabel(localizationResources.getString("Doughnut_Size")), c);
+            c.gridx++; c.weightx = 1;
+            retVal.add(sectionDepth, c);
+        }
+
         return retVal;
     }
 
     private boolean hasPossibleShadows(Plot plot) {
         if(plot instanceof PiePlot) {
             return true;
-        } else if (plot instanceof CategoryPlot) {
-            CategoryPlot cPlot = (CategoryPlot) plot;
-            for(int i=0; i < cPlot.getRendererCount(); i++) {
-                if(cPlot.getRenderer(i) instanceof BarRenderer) {
-                    return true;
-                }
-            }
-        } else if (plot instanceof XYPlot) {
-            XYPlot xyPlot = (XYPlot) plot;
-            for(int i=0; i < xyPlot.getRendererCount(); i++) {
-                if(xyPlot.getRenderer(i) instanceof XYBarRenderer) {
+        } else if (plot instanceof DomainRangePlot) {
+            DomainRangePlot dPlot = (DomainRangePlot) plot;
+            for(int i=0; i < dPlot.getRendererCount(); i++) {
+                ItemRenderer r = dPlot.getBasicRenderer(i);
+                if(r instanceof BarRenderer || r instanceof XYBarRenderer) {
                     return true;
                 }
             }
@@ -804,6 +812,12 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             Rotation direction = (Rotation)pieDirection.getSelectedObject();
             theme.setPieDirection(direction);
             piePlot.setDirection(direction);
+
+            if(piePlot instanceof RingPlot) {
+                double depth = 1.0 - ((Number)sectionDepth.getValue()).doubleValue();
+                theme.setPieSectionDepth(depth);
+                ((RingPlot)piePlot).setSectionDepth(depth);
+            }
 
             boolean visible = labelsVisible.isSelected();
             theme.setLabelsVisible(visible);
