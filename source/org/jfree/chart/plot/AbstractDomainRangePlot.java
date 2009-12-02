@@ -5,6 +5,7 @@ import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.annotations.Annotation;
 import org.jfree.chart.renderer.ItemRenderer;
+import org.jfree.chart.LegendItemCollection;
 import org.jfree.util.ObjectUtilities;
 import org.jfree.util.ObjectList;
 import org.jfree.util.PublicCloneable;
@@ -163,6 +164,12 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
 
     /** The color used to draw the crosshair (if any). */
     private transient Paint rangeCrosshairPaint;
+
+    /**
+     * An optional collection of legend items that can be returned by the
+     * getLegendItems() method.
+     */
+    private LegendItemCollection fixedLegendItems;
 
     public AbstractDomainRangePlot() {
         this(null, null, null, null);
@@ -1665,6 +1672,31 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
         fireChangeEvent();
     }
 
+    /**
+     * Returns the fixed legend items, if any.
+     *
+     * @return The legend items (possibly <code>null</code>).
+     *
+     * @see #setFixedLegendItems(org.jfree.chart.LegendItemCollection)
+     */
+    public LegendItemCollection getFixedLegendItems() {
+        return this.fixedLegendItems;
+    }
+
+    /**
+     * Sets the fixed legend items for the plot.  Leave this set to
+     * <code>null</code> if you prefer the legend items to be created
+     * automatically.
+     *
+     * @param items  the legend items (<code>null</code> permitted).
+     *
+     * @see #getFixedLegendItems()
+     */
+    public void setFixedLegendItems(LegendItemCollection items) {
+        this.fixedLegendItems = items;
+        fireChangeEvent();
+    }
+
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -1753,6 +1785,10 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
                 that.rangeGridlinePaint)) {
             return false;
         }
+        if (!ObjectUtilities.equal(this.fixedLegendItems,
+                that.fixedLegendItems)) {
+            return false;
+        }
         return super.equals(obj);
     }
 
@@ -1808,6 +1844,11 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
             }
         }
         clone.rangeAxisLocations = (ObjectList) this.rangeAxisLocations.clone();
+        
+        if (this.fixedLegendItems != null) {
+            clone.fixedLegendItems
+                    = (LegendItemCollection) this.fixedLegendItems.clone();
+        }
 
         return clone;
     }

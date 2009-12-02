@@ -905,6 +905,26 @@ public interface DomainRangePlot extends Cloneable, RendererChangeListener {
     public LegendItemCollection getLegendItems();
 
     /**
+     * Returns the fixed legend items, if any.
+     *
+     * @return The legend items (possibly <code>null</code>).
+     *
+     * @see #setFixedLegendItems(LegendItemCollection)
+     */
+    public LegendItemCollection getFixedLegendItems();
+
+    /**
+     * Sets the fixed legend items for the plot.  Leave this set to
+     * <code>null</code> if you prefer the legend items to be created
+     * automatically.
+     *
+     * @param items  the legend items (<code>null</code> permitted).
+     *
+     * @see #getFixedLegendItems()
+     */
+    public void setFixedLegendItems(LegendItemCollection items);
+
+    /**
      * Returns a flag indicating whether or not the domain crosshair is visible.
      *
      * @return The flag.

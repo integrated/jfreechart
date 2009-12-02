@@ -337,12 +337,6 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
     private AxisSpace fixedRangeAxisSpace;
 
     /**
-     * An optional collection of legend items that can be returned by the
-     * getLegendItems() method.
-     */
-    private LegendItemCollection fixedLegendItems;
-
-    /**
      * Default constructor.
      */
     public CategoryPlot() {
@@ -809,31 +803,6 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
     }
 
     /**
-     * Returns the fixed legend items, if any.
-     *
-     * @return The legend items (possibly <code>null</code>).
-     *
-     * @see #setFixedLegendItems(LegendItemCollection)
-     */
-    public LegendItemCollection getFixedLegendItems() {
-        return this.fixedLegendItems;
-    }
-
-    /**
-     * Sets the fixed legend items for the plot.  Leave this set to
-     * <code>null</code> if you prefer the legend items to be created
-     * automatically.
-     *
-     * @param items  the legend items (<code>null</code> permitted).
-     *
-     * @see #getFixedLegendItems()
-     */
-    public void setFixedLegendItems(LegendItemCollection items) {
-        this.fixedLegendItems = items;
-        fireChangeEvent();
-    }
-
-    /**
      * Returns the legend items for the plot.  By default, this method creates
      * a legend item for each series in each of the datasets.  You can change
      * this behaviour by overriding this method.
@@ -841,7 +810,7 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
      * @return The legend items.
      */
     public LegendItemCollection getLegendItems() {
-        LegendItemCollection result = this.fixedLegendItems;
+        LegendItemCollection result = getFixedLegendItems();
         if (result == null) {
             result = new LegendItemCollection();
             // get the legend items for the datasets...
@@ -3063,10 +3032,6 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
                 that.fixedRangeAxisSpace)) {
             return false;
         }
-        if (!ObjectUtilities.equal(this.fixedLegendItems,
-                that.fixedLegendItems)) {
-            return false;
-        }
         if (this.crosshairDatasetIndex != that.crosshairDatasetIndex) {
             return false;
         }
@@ -3110,10 +3075,6 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
                 this.foregroundRangeMarkers);
         clone.backgroundRangeMarkers = cloneMarkerMap(
                 this.backgroundRangeMarkers);
-        if (this.fixedLegendItems != null) {
-            clone.fixedLegendItems
-                    = (LegendItemCollection) this.fixedLegendItems.clone();
-        }
         return clone;
 
     }
