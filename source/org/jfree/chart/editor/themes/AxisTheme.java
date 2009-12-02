@@ -82,6 +82,18 @@ public interface AxisTheme extends ChartThemeBasis {
 
     void setLineStroke(BasicStroke lineStroke);
 
+    boolean isZeroLineVisible();
+
+    void setZeroLineVisible(boolean lineVisible);
+
+    Paint getZeroLinePaint();
+
+    void setZeroLinePaint(Paint linePaint);
+
+    BasicStroke getZeroLineStroke();
+
+    void setZeroLineStroke(BasicStroke lineStroke);
+
     double getLowerMargin();
 
     void setLowerMargin(double d);

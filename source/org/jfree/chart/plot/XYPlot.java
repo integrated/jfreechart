@@ -382,18 +382,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
      */
     private transient Paint domainZeroBaselinePaint;
 
-    /**
-     * A flag that controls whether or not the zero baseline against the range
-     * axis is visible.
-     */
-    private boolean rangeZeroBaselineVisible;
-
-    /** The stroke used for the zero baseline against the range axis. */
-    private transient Stroke rangeZeroBaselineStroke;
-
-    /** The paint used for the zero baseline against the range axis. */
-    private transient Paint rangeZeroBaselinePaint;
-
     /** The domain crosshair value. */
     private double domainCrosshairValue;
 
@@ -500,10 +488,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
         this.rangeMinorGridlinesVisible = false;
         this.rangeMinorGridlineStroke = DEFAULT_GRIDLINE_STROKE;
         this.rangeMinorGridlinePaint = Color.white;
-
-        this.rangeZeroBaselineVisible = false;
-        this.rangeZeroBaselinePaint = Color.black;
-        this.rangeZeroBaselineStroke = new BasicStroke(0.5f);
 
         this.domainCrosshairValue = 0.0;
 
@@ -1093,86 +1077,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
         fireChangeEvent();
     }
 
-    /**
-     * Returns a flag that controls whether or not a zero baseline is
-     * displayed for the range axis.
-     *
-     * @return A boolean.
-     *
-     * @see #setRangeZeroBaselineVisible(boolean)
-     */
-    public boolean isRangeZeroBaselineVisible() {
-        return this.rangeZeroBaselineVisible;
-    }
-
-    /**
-     * Sets the flag that controls whether or not the zero baseline is
-     * displayed for the range axis, and sends a {@link PlotChangeEvent} to
-     * all registered listeners.
-     *
-     * @param visible  the flag.
-     *
-     * @see #isRangeZeroBaselineVisible()
-     */
-    public void setRangeZeroBaselineVisible(boolean visible) {
-        this.rangeZeroBaselineVisible = visible;
-        fireChangeEvent();
-    }
-
-    /**
-     * Returns the stroke used for the zero baseline against the range axis.
-     *
-     * @return The stroke (never <code>null</code>).
-     *
-     * @see #setRangeZeroBaselineStroke(Stroke)
-     */
-    public Stroke getRangeZeroBaselineStroke() {
-        return this.rangeZeroBaselineStroke;
-    }
-
-    /**
-     * Sets the stroke for the zero baseline for the range axis,
-     * and sends a {@link PlotChangeEvent} to all registered listeners.
-     *
-     * @param stroke  the stroke (<code>null</code> not permitted).
-     *
-     * @see #getRangeZeroBaselineStroke()
-     */
-    public void setRangeZeroBaselineStroke(Stroke stroke) {
-        if (stroke == null) {
-            throw new IllegalArgumentException("Null 'stroke' argument.");
-        }
-        this.rangeZeroBaselineStroke = stroke;
-        fireChangeEvent();
-    }
-
-    /**
-     * Returns the paint for the zero baseline (if any) plotted against the
-     * range axis.
-     *
-     * @return The paint (never <code>null</code>).
-     *
-     * @see #setRangeZeroBaselinePaint(Paint)
-     */
-    public Paint getRangeZeroBaselinePaint() {
-        return this.rangeZeroBaselinePaint;
-    }
-
-    /**
-     * Sets the paint for the zero baseline plotted against the range axis and
-     * sends a {@link PlotChangeEvent} to all registered listeners.
-     *
-     * @param paint  the paint (<code>null</code> not permitted).
-     *
-     * @see #getRangeZeroBaselinePaint()
-     */
-    public void setRangeZeroBaselinePaint(Paint paint) {
-        if (paint == null) {
-            throw new IllegalArgumentException("Null 'paint' argument.");
-        }
-        this.rangeZeroBaselinePaint = paint;
-        fireChangeEvent();
-    }
 
     /**
      * Returns the paint used for the domain tick bands.  If this is
@@ -2737,9 +2641,7 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
                         this.domainZeroBaselineStroke);
             }
         }
-    }
-
-    /**
+    }/**
      * Draws a base line across the chart at value zero on the range axis.
      *
      * @param g2  the graphics device.
@@ -2750,7 +2652,7 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
     protected void drawZeroRangeBaseline(Graphics2D g2, Rectangle2D area) {
         if (isRangeZeroBaselineVisible()) {
             getRenderer().drawRangeLine(g2, this, getRangeAxis(), area, 0.0,
-                    this.rangeZeroBaselinePaint, this.rangeZeroBaselineStroke);
+                    getRangeZeroBaselinePaint(), getRangeZeroBaselineStroke());
         }
     }
 
@@ -3644,9 +3546,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
         if (this.domainZeroBaselineVisible != that.domainZeroBaselineVisible) {
             return false;
         }
-        if (this.rangeZeroBaselineVisible != that.rangeZeroBaselineVisible) {
-            return false;
-        }
         if (this.domainCrosshairValue != that.domainCrosshairValue) {
             return false;
         }
@@ -3679,14 +3578,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
         }
         if (!ObjectUtilities.equal(this.domainZeroBaselineStroke,
                 that.domainZeroBaselineStroke)) {
-            return false;
-        }
-        if (!PaintUtilities.equal(this.rangeZeroBaselinePaint,
-                that.rangeZeroBaselinePaint)) {
-            return false;
-        }
-        if (!ObjectUtilities.equal(this.rangeZeroBaselineStroke,
-                that.rangeZeroBaselineStroke)) {
             return false;
         }
         if (!ObjectUtilities.equal(this.foregroundDomainMarkers,
@@ -3789,8 +3680,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
         SerialUtilities.writePaint(this.domainMinorGridlinePaint, stream);
         SerialUtilities.writeStroke(this.rangeMinorGridlineStroke, stream);
         SerialUtilities.writePaint(this.rangeMinorGridlinePaint, stream);
-        SerialUtilities.writeStroke(this.rangeZeroBaselineStroke, stream);
-        SerialUtilities.writePaint(this.rangeZeroBaselinePaint, stream);
         SerialUtilities.writePaint(this.domainTickBandPaint, stream);
         SerialUtilities.writePaint(this.rangeTickBandPaint, stream);
         SerialUtilities.writePoint2D(this.quadrantOrigin, stream);
@@ -3817,8 +3706,6 @@ public class XYPlot extends AbstractDomainRangePlot implements ValueAxisPlot, Zo
         this.domainMinorGridlinePaint = SerialUtilities.readPaint(stream);
         this.rangeMinorGridlineStroke = SerialUtilities.readStroke(stream);
         this.rangeMinorGridlinePaint = SerialUtilities.readPaint(stream);
-        this.rangeZeroBaselineStroke = SerialUtilities.readStroke(stream);
-        this.rangeZeroBaselinePaint = SerialUtilities.readPaint(stream);
         this.domainTickBandPaint = SerialUtilities.readPaint(stream);
         this.rangeTickBandPaint = SerialUtilities.readPaint(stream);
         this.quadrantOrigin = SerialUtilities.readPoint2D(stream);

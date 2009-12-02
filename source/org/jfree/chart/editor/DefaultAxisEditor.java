@@ -168,6 +168,13 @@ public class DefaultAxisEditor extends BaseEditor {
                     "org.jfree.chart.editor.LocalizationBundle");
     private static final String ERROR = "Error";
 
+
+    protected final boolean isRange;
+
+    protected final boolean isXYDescendent;
+
+    protected final boolean isDomainRangeImpl;
+
     /**
      * A static method that returns a panel that is appropriate for the axis
      * type.
@@ -210,10 +217,15 @@ public class DefaultAxisEditor extends BaseEditor {
         super(chart, immediateUpdate);
         this.theme = theme;
 
-        setLayout(new GridBagLayout());
-
         Plot p = chart.getPlot();
-        if(p instanceof DomainRangePlot) {
+
+        isRange = theme.getType() == AxisTheme.RANGE_AXIS;
+        isDomainRangeImpl = p instanceof DomainRangePlot;
+        isXYDescendent = p instanceof XYPlot;
+
+
+        setLayout(new GridBagLayout());
+        if(isDomainRangeImpl) {
             this.plotOrientation = ((DomainRangePlot)p).getOrientation();
         }
 
@@ -255,10 +267,15 @@ public class DefaultAxisEditor extends BaseEditor {
         startNewRow(c);
         c.weightx = 1;
         add(axisLine, c);
+        addSubclassAxisControls(c);
         startNewRow(c);
         c.weightx = 1; c.weighty = 1; c.fill = GridBagConstraints.BOTH;
         add(this.slot2, c);
 
+    }
+
+    protected void addSubclassAxisControls(GridBagConstraints c) {
+        // do nothing. This should be over-ridden by subclasses to add components below the axisLine LineEditorPanel
     }
 
     private JPanel getPositionPanel() {

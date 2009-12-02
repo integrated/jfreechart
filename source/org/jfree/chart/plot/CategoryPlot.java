@@ -171,8 +171,6 @@
 package org.jfree.chart.plot;
 
 import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -367,10 +365,12 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
         this.foregroundRangeMarkers = new HashMap();
         this.backgroundRangeMarkers = new HashMap();
 
-        Marker baseline = new ValueMarker(0.0, new Color(0.8f, 0.8f, 0.8f,
-                0.5f), new BasicStroke(1.0f), new Color(0.85f, 0.85f, 0.95f,
-                0.5f), new BasicStroke(1.0f), 0.6f);
-        addRangeMarker(baseline, Layer.BACKGROUND);
+        // hard-coded - caused so many troubles in other stuff while I figured out what was causing this.
+        // replaced with the rangeZeroBaseline settings that are now handled in AbstractDomainRangePlot 02-Dec-2009.
+//        Marker baseline = new ValueMarker(0.0, new Color(0.8f, 0.8f, 0.8f,
+//                0.5f), new BasicStroke(1.0f), new Color(0.85f, 0.85f, 0.95f,
+//                0.5f), new BasicStroke(1.0f), 0.6f);
+//        addRangeMarker(baseline, Layer.BACKGROUND);
 
         this.anchorValue = 0.0;
 
@@ -2102,6 +2102,7 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
         }
         if (rangeAxisState != null) {
             drawRangeGridlines(g2, dataArea, rangeAxisState.getTicks());
+            drawZeroRangeBaseline(g2, dataArea);
         }
     }
 
@@ -2491,6 +2492,20 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
         g2.setPaint(paint);
         g2.draw(line);
 
+    }
+
+    /**
+     * Draws a base line across the chart at value zero on the range axis.
+     *
+     * @param g2  the graphics device.
+     * @param area  the data area.
+     *
+     * @see #setRangeZeroBaselineVisible(boolean)
+     */
+    protected void drawZeroRangeBaseline(Graphics2D g2, Rectangle2D area) {
+        if (isRangeZeroBaselineVisible()) {
+            drawRangeLine(g2, area, 0.0, getRangeZeroBaselineStroke(), getRangeZeroBaselinePaint());
+        }
     }
 
     /**

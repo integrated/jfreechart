@@ -60,7 +60,11 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.DomainRangePlot;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.editor.themes.AxisTheme;
+import org.jfree.chart.editor.components.LineEditorPanel;
 
 /**
  * A panel for editing the properties of a value axis.
@@ -89,6 +93,9 @@ public class DefaultNumberAxisEditor extends DefaultAxisEditor
 
     /** A text field for entering the maximum value in the axis range. */
     private JTextField maximumRangeValue;
+
+    /** The component that handles properties of the axis' zero line */
+    private LineEditorPanel zeroLine;
 
 
     /** The resourceBundle for the localization. */
@@ -159,6 +166,23 @@ public class DefaultNumberAxisEditor extends DefaultAxisEditor
 
         addCustomTabs(other);
 
+    }
+
+    private boolean isHandlingZeroLine() {
+        return isDomainRangeImpl && (isRange || isXYDescendent);
+    }
+
+    protected void addSubclassAxisControls(GridBagConstraints c) {
+        if(!isHandlingZeroLine()) {
+            return;
+        }
+        zeroLine = new LineEditorPanel(localizationResources.getString("Zero_Line"), theme.isZeroLineVisible(),
+                theme.getZeroLinePaint(), theme.getZeroLineStroke());
+        zeroLine.addChangeListener(updateHandler);
+
+        startNewRow(c);
+        c.weightx = 1;
+        add(zeroLine, c);
     }
 
     /**
@@ -295,6 +319,29 @@ public class DefaultNumberAxisEditor extends DefaultAxisEditor
         theme.setAutoRange(this.autoRange);
         theme.setMinRange(this.minimumValue);
         theme.setMaxRange(this.maximumValue);
+        if(isHandlingZeroLine() && axes.length > 0) {
+            Axis a = axes[0];
+            Plot p = a.getPlot();
+            
+            boolean lineVis = zeroLine.isLineVisible();
+            theme.setZeroLineVisible(lineVis);
+            Paint linePaint = zeroLine.getLinePaint();
+            theme.setZeroLinePaint(linePaint);
+            BasicStroke lineStroke = zeroLine.getLineStroke();
+            theme.setZeroLineStroke(lineStroke);
+
+            if(p instanceof DomainRangePlot && isRange) {
+                DomainRangePlot drPlot = (DomainRangePlot) p;
+                drPlot.setRangeZeroBaselineVisible(lineVis);
+                drPlot.setRangeZeroBaselinePaint(linePaint);
+                drPlot.setRangeZeroBaselineStroke(lineStroke);
+            } else if (p instanceof XYPlot && !isRange) {
+                XYPlot xyPlot = (XYPlot) p;
+                xyPlot.setDomainZeroBaselineVisible(lineVis);
+                xyPlot.setDomainZeroBaselinePaint(linePaint);
+                xyPlot.setDomainZeroBaselineStroke(lineStroke);
+            }
+        }
 
         for(int i = 0; i < axes.length; i++) {
             if(axes[i] instanceof NumberAxis) {

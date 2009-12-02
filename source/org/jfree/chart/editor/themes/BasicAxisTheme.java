@@ -3,9 +3,7 @@ package org.jfree.chart.editor.themes;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.axis.*;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.DomainRangePlot;
+import org.jfree.chart.plot.*;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
 
@@ -80,6 +78,12 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
 
     private BasicStroke lineStroke;
 
+    private boolean zeroLineVisible;
+
+    private Paint zeroLinePaint;
+
+    private BasicStroke zeroLineStroke;
+
     private int catLabelMaxLines;
 
     private double upperMargin, lowerMargin, categoryMargin, itemMargin;
@@ -135,6 +139,11 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         this.lineVisible = DEFAULT_AXIS_LINE_VIS;
         this.linePaint = DEFAULT_AXIS_LINE_PAINT;
         this.lineStroke = DEFAULT_AXIS_LINE_STROKE;
+
+        this.zeroLineVisible = AbstractDomainRangePlot.DEFAULT_RANGE_ZERO_BASELINE_VISIBLE;
+        this.zeroLinePaint = AbstractDomainRangePlot.DEFAULT_RANGE_ZERO_BASELINE_PAINT;
+        this.zeroLineStroke = AbstractDomainRangePlot.DEFAULT_RANGE_ZERO_BASELINE_STROKE;
+
         this.tickLabelPaint = DEFAULT_LABEL_PAINT;
 
         this.upperMargin = CategoryAxis.DEFAULT_AXIS_MARGIN;
@@ -149,20 +158,29 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         Plot plot = chart.getPlot();
         Axis axis = null;
         if (plot instanceof DomainRangePlot) {
-            DomainRangePlot cPlot = chart.getDomainRangePlot();
-            axis = cPlot.getBasicDomainAxis();
+            DomainRangePlot drPlot = chart.getDomainRangePlot();
+            axis = drPlot.getBasicDomainAxis();
             switch (type) {
                 case RANGE_AXIS:
-                    axis = cPlot.getRangeAxis();
-                    this.axisLocation = cPlot.getRangeAxisLocation();
+                    axis = drPlot.getRangeAxis();
+                    this.axisLocation = drPlot.getRangeAxisLocation();
+                    this.zeroLineVisible = drPlot.isRangeZeroBaselineVisible();
+                    this.zeroLinePaint = drPlot.getRangeZeroBaselinePaint();
+                    this.zeroLineStroke = (BasicStroke) drPlot.getRangeZeroBaselineStroke();
                     break;
                 case DOMAIN_AXIS:
-                    axis = cPlot.getBasicDomainAxis();
-                    this.axisLocation = cPlot.getDomainAxisLocation();
+                    axis = drPlot.getBasicDomainAxis();
+                    this.axisLocation = drPlot.getDomainAxisLocation();
+                    if(drPlot instanceof XYPlot) {
+                        XYPlot xyPlot = (XYPlot) drPlot;
+                        this.zeroLineVisible = xyPlot.isDomainZeroBaselineVisible();
+                        this.zeroLinePaint = xyPlot.getDomainZeroBaselinePaint();
+                        this.zeroLineStroke = (BasicStroke) xyPlot.getDomainZeroBaselineStroke();
+                    }
                     break;
             }
-            if(cPlot.getBasicRenderer() instanceof BarRenderer) {
-                this.itemMargin = ((BarRenderer)cPlot.getBasicRenderer()).getItemMargin();
+            if(drPlot.getBasicRenderer() instanceof BarRenderer) {
+                this.itemMargin = ((BarRenderer)drPlot.getBasicRenderer()).getItemMargin();
             }
         }
         if (axis != null) {
@@ -331,6 +349,30 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
         this.lineStroke = lineStroke;
     }
 
+    public boolean isZeroLineVisible() {
+        return zeroLineVisible;
+    }
+
+    public void setZeroLineVisible(boolean lineVisible) {
+        this.zeroLineVisible = lineVisible;
+    }
+
+    public Paint getZeroLinePaint() {
+        return zeroLinePaint;
+    }
+
+    public void setZeroLinePaint(Paint linePaint) {
+        this.zeroLinePaint = linePaint;
+    }
+
+    public BasicStroke getZeroLineStroke() {
+        return zeroLineStroke;
+    }
+
+    public void setZeroLineStroke(BasicStroke lineStroke) {
+        this.zeroLineStroke = lineStroke;
+    }
+
     public void setCategoryMargin(double d) {
         if(d>=0 && d<=1) {
             this.categoryMargin = d;
@@ -393,9 +435,18 @@ public class BasicAxisTheme extends BasicAbstractChartTheme implements AxisTheme
             switch(type) {
                 case DOMAIN_AXIS:
                     plot.setDomainAxisLocation(this.axisLocation);
+                    if(plot instanceof XYPlot) {
+                        XYPlot xyPlot = (XYPlot) plot;
+                        xyPlot.setDomainZeroBaselineVisible(zeroLineVisible);
+                        xyPlot.setDomainZeroBaselinePaint(zeroLinePaint);
+                        xyPlot.setDomainZeroBaselineStroke(zeroLineStroke);
+                    }
                     break;
                 case RANGE_AXIS:
                     plot.setRangeAxisLocation(this.axisLocation);
+                    plot.setRangeZeroBaselineVisible(zeroLineVisible);
+                    plot.setRangeZeroBaselinePaint(zeroLinePaint);
+                    plot.setRangeZeroBaselineStroke(zeroLineStroke);
                     break;
             }
         }

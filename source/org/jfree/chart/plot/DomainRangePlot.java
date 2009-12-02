@@ -1175,6 +1175,64 @@ public interface DomainRangePlot extends Cloneable, RendererChangeListener {
      */
     public void setRangeGridlinePaint(Paint paint);
 
+    /**
+     * Returns a flag that controls whether or not a zero baseline is
+     * displayed for the range axis.
+     *
+     * @return A boolean.
+     *
+     * @see #setRangeZeroBaselineVisible(boolean)
+     */
+    public boolean isRangeZeroBaselineVisible();
 
+    /**
+     * Sets the flag that controls whether or not the zero baseline is
+     * displayed for the range axis, and sends a {@link org.jfree.chart.event.PlotChangeEvent} to
+     * all registered listeners.
+     *
+     * @param visible  the flag.
+     *
+     * @see #isRangeZeroBaselineVisible()
+     */
+    public void setRangeZeroBaselineVisible(boolean visible);
+
+    /**
+     * Returns the stroke used for the zero baseline against the range axis.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @see #setRangeZeroBaselineStroke(Stroke)
+     */
+    public Stroke getRangeZeroBaselineStroke();
+
+    /**
+     * Sets the stroke for the zero baseline for the range axis,
+     * and sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @see #getRangeZeroBaselineStroke()
+     */
+    public void setRangeZeroBaselineStroke(Stroke stroke);
+
+    /**
+     * Returns the paint for the zero baseline (if any) plotted against the
+     * range axis.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setRangeZeroBaselinePaint(Paint)
+     */
+    public Paint getRangeZeroBaselinePaint();
+
+    /**
+     * Sets the paint for the zero baseline plotted against the range axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getRangeZeroBaselinePaint()
+     */
+    public void setRangeZeroBaselinePaint(Paint paint);
 
 }

@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Created by IntelliJ IDEA.
@@ -69,6 +70,18 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
      * @since 1.0.5
      */
     public static final Paint DEFAULT_CROSSHAIR_PAINT = Color.blue;
+    /**
+     * Default visibility of the baseline drawn at zero on the range axis.
+     */
+    public static final boolean DEFAULT_RANGE_ZERO_BASELINE_VISIBLE = false;
+    /**
+     * Default paint of the baseline drawn at zero on the range axis.
+     */
+    public static final Color DEFAULT_RANGE_ZERO_BASELINE_PAINT = Color.black;
+    /**
+     * Default stroke of the baseline drawn at zero on the range axis.
+     */
+    public static final BasicStroke DEFAULT_RANGE_ZERO_BASELINE_STROKE = new BasicStroke(0.5f);
     /**
      * A (possibly empty) list of annotations for the plot.  The list should
      * be initialised in the constructor and never allowed to be
@@ -171,6 +184,18 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
      */
     private LegendItemCollection fixedLegendItems;
 
+    /**
+     * A flag that controls whether or not the zero baseline against the range
+     * axis is visible.
+     */
+    private boolean rangeZeroBaselineVisible;
+
+    /** The stroke used for the zero baseline against the range axis. */
+    private transient Stroke rangeZeroBaselineStroke;
+
+    /** The paint used for the zero baseline against the range axis. */
+    private transient Paint rangeZeroBaselinePaint;
+
     public AbstractDomainRangePlot() {
         this(null, null, null, null);
     }
@@ -246,6 +271,10 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
         this.rangeGridlinesVisible = DEFAULT_RANGE_GRIDLINES_VISIBLE;
         this.rangeGridlineStroke = DEFAULT_GRIDLINE_STROKE;
         this.rangeGridlinePaint = DEFAULT_GRIDLINE_PAINT;
+
+        this.rangeZeroBaselineVisible = DEFAULT_RANGE_ZERO_BASELINE_VISIBLE;
+        this.rangeZeroBaselinePaint = DEFAULT_RANGE_ZERO_BASELINE_PAINT;
+        this.rangeZeroBaselineStroke = DEFAULT_RANGE_ZERO_BASELINE_STROKE;
     }
 
     /**
@@ -1697,6 +1726,98 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
         fireChangeEvent();
     }
 
+
+    /**
+     * Returns a flag that controls whether or not a zero baseline is
+     * displayed for the range axis.
+     *
+     * @return A boolean.
+     *
+     * @see #setRangeZeroBaselineVisible(boolean)
+     */
+    public boolean isRangeZeroBaselineVisible() {
+        return this.rangeZeroBaselineVisible;
+    }
+
+    /**
+     * Sets the flag that controls whether or not the zero baseline is
+     * displayed for the range axis, and sends a {@link org.jfree.chart.event.PlotChangeEvent} to
+     * all registered listeners.
+     *
+     * @param visible  the flag.
+     *
+     * @see #isRangeZeroBaselineVisible()
+     */
+    public void setRangeZeroBaselineVisible(boolean visible) {
+        this.rangeZeroBaselineVisible = visible;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the stroke used for the zero baseline against the range axis.
+     *
+     * @return The stroke (never <code>null</code>).
+     *
+     * @see #setRangeZeroBaselineStroke(Stroke)
+     */
+    public Stroke getRangeZeroBaselineStroke() {
+        return this.rangeZeroBaselineStroke;
+    }
+
+    /**
+     * Sets the stroke for the zero baseline for the range axis,
+     * and sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param stroke  the stroke (<code>null</code> not permitted).
+     *
+     * @see #getRangeZeroBaselineStroke()
+     */
+    public void setRangeZeroBaselineStroke(Stroke stroke) {
+        if (stroke == null) {
+            throw new IllegalArgumentException("Null 'stroke' argument.");
+        }
+        this.rangeZeroBaselineStroke = stroke;
+        fireChangeEvent();
+    }
+
+    /**
+     * Returns the paint for the zero baseline (if any) plotted against the
+     * range axis.
+     *
+     * @return The paint (never <code>null</code>).
+     *
+     * @see #setRangeZeroBaselinePaint(Paint)
+     */
+    public Paint getRangeZeroBaselinePaint() {
+        return this.rangeZeroBaselinePaint;
+    }
+
+    /**
+     * Sets the paint for the zero baseline plotted against the range axis and
+     * sends a {@link org.jfree.chart.event.PlotChangeEvent} to all registered listeners.
+     *
+     * @param paint  the paint (<code>null</code> not permitted).
+     *
+     * @see #getRangeZeroBaselinePaint()
+     */
+    public void setRangeZeroBaselinePaint(Paint paint) {
+        if (paint == null) {
+            throw new IllegalArgumentException("Null 'paint' argument.");
+        }
+        this.rangeZeroBaselinePaint = paint;
+        fireChangeEvent();
+    }
+
+    /**
+     * Draws a base line across the chart at value zero on the range axis.
+     *
+     * @param g2  the graphics device.
+     * @param area  the data area.
+     *
+     * @see #setRangeZeroBaselineVisible(boolean)
+     */
+    protected abstract void drawZeroRangeBaseline(Graphics2D g2, Rectangle2D area);
+
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -1713,6 +1834,9 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
             return false;
         }
         if (this.renderingOrder != that.renderingOrder) {
+            return false;
+        }
+        if (this.rangeZeroBaselineVisible != that.rangeZeroBaselineVisible) {
             return false;
         }
         if (!ObjectUtilities.equal(this.annotations, that.annotations)) {
@@ -1787,6 +1911,14 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
         }
         if (!ObjectUtilities.equal(this.fixedLegendItems,
                 that.fixedLegendItems)) {
+            return false;
+        }
+        if (!PaintUtilities.equal(this.rangeZeroBaselinePaint,
+                that.rangeZeroBaselinePaint)) {
+            return false;
+        }
+        if (!ObjectUtilities.equal(this.rangeZeroBaselineStroke,
+                that.rangeZeroBaselineStroke)) {
             return false;
         }
         return super.equals(obj);
@@ -1908,6 +2040,8 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
         this.rangeCrosshairPaint = SerialUtilities.readPaint(stream);
         this.domainCrosshairStroke = SerialUtilities.readStroke(stream);
         this.domainCrosshairPaint = SerialUtilities.readPaint(stream);
+        this.rangeZeroBaselineStroke = SerialUtilities.readStroke(stream);
+        this.rangeZeroBaselinePaint = SerialUtilities.readPaint(stream);
     }
 
     /**
@@ -1927,5 +2061,7 @@ public abstract class AbstractDomainRangePlot extends Plot implements DomainRang
         SerialUtilities.writePaint(this.rangeCrosshairPaint, stream);
         SerialUtilities.writeStroke(this.domainCrosshairStroke, stream);
         SerialUtilities.writePaint(this.domainCrosshairPaint, stream);
+        SerialUtilities.writeStroke(this.rangeZeroBaselineStroke, stream);
+        SerialUtilities.writePaint(this.rangeZeroBaselinePaint, stream);
     }
 }
