@@ -1,14 +1,12 @@
 package org.jfree.chart.editor.themes;
 
 import org.jfree.ui.RectangleInsets;
+import org.jfree.ui.TextAnchor;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.axis.Axis;
-import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
-import org.jfree.chart.labels.StandardXYItemLabelGenerator;
-import org.jfree.chart.labels.PieSectionLabelGenerator;
-import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.labels.*;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -43,6 +41,11 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
     static final Paint DEFAULT_GRIDLINE_PAINT = Color.DARK_GRAY;
 
     static final Paint DEFAULT_BACKGROUND_PAINT = ExtendedChartTheme.DEFAULT_BACKGROUND_PAINT;
+
+    public static final ItemLabelPosition DEFAULT_POSITIVE_POSITION =
+            new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER);
+    public static final ItemLabelPosition DEFAULT_NEGATIVE_POSITION =
+            new ItemLabelPosition(ItemLabelAnchor.OUTSIDE6, TextAnchor.TOP_CENTER);
 
     static final String DEFAULT_NUMBER_FORMAT;
     static final String DEFAULT_PERCENT_FORMAT;
@@ -127,6 +130,9 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
 
     private double pieSectionDepth;
 
+    private ItemLabelPosition positiveItemLabelPosition;
+    private ItemLabelPosition negativeItemLabelPosition;
+
     public BasicPlotTheme(String name) {
         super(name, CUSTOM_PLOT_THEME);
     }
@@ -174,6 +180,9 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         this.percentFormatString = DEFAULT_PERCENT_FORMAT;
 
         this.pieSectionDepth = DEFAULT_PIE_SECTION_DEPTH;
+
+        this.positiveItemLabelPosition = DEFAULT_POSITIVE_POSITION;
+        this.negativeItemLabelPosition = DEFAULT_NEGATIVE_POSITION;
     }
 
     public void readSettingsFromChart(JFreeChart chart) {
@@ -201,6 +210,9 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
             this.labelsVisible = Bool != null && Bool.booleanValue();
             this.labelFont = renderer.getBaseItemLabelFont();
             this.labelPaint = renderer.getBaseItemLabelPaint();
+
+            this.positiveItemLabelPosition = renderer.getBasePositiveItemLabelPosition();
+            this.negativeItemLabelPosition = renderer.getBaseNegativeItemLabelPosition();
 
             // TODO: Still plenty of room for refactoring common interfaces and code with label generators I think.
             if (dPlot instanceof CategoryPlot) {
@@ -590,6 +602,28 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         this.pieSectionDepth = d;
     }
 
+    public ItemLabelPosition getPositiveItemLabelPosition() {
+        return positiveItemLabelPosition;
+    }
+
+    public void setPositiveItemLabelPosition(ItemLabelPosition pos) {
+        if(pos == null) {
+            throw new IllegalArgumentException("Label positions cannot be null");
+        }
+        this.positiveItemLabelPosition = pos;
+    }
+
+    public ItemLabelPosition getNegativeItemLabelPosition() {
+        return negativeItemLabelPosition;
+    }
+
+    public void setNegativeItemLabelPosition(ItemLabelPosition pos) {
+        if(pos == null) {
+            throw new IllegalArgumentException("Label positions cannot be null");
+        }
+        this.negativeItemLabelPosition = pos;
+    }
+
     public void apply(JFreeChart chart) {
         Plot plot = chart.getPlot();
         if (plot == null) {
@@ -823,6 +857,9 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
         renderer.setBaseItemLabelsVisible(labelsVisible);
         renderer.setBaseItemLabelFont(labelFont);
         renderer.setBaseItemLabelPaint(labelPaint);
+
+        renderer.setBasePositiveItemLabelPosition(positiveItemLabelPosition);
+        renderer.setBaseNegativeItemLabelPosition(negativeItemLabelPosition);
 
         if(renderer instanceof CategoryItemRenderer) {
             applyToCategoryItemRenderer((CategoryItemRenderer) renderer);

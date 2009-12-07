@@ -5,6 +5,7 @@ import java.awt.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PieLabelLinkStyle;
 import org.jfree.chart.plot.DrawingSupplier;
+import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.Rotation;
 
@@ -193,4 +194,28 @@ public interface PlotTheme extends ChartThemeBasis, EditableBorder {
      * @throws IllegalArgumentException If the value is outside the range [0..1].
      */
     void setPieSectionDepth(double d);
+
+    /**
+     * The position of the labels for positively valued data.
+     * @return An ItemLabelPosition encapsulating the information, never null.
+     */
+    ItemLabelPosition getPositiveItemLabelPosition();
+
+    /**
+     * Set the position of item labels when data is positive.
+     * @param pos The position. Null not permitted.
+     */
+    void setPositiveItemLabelPosition(ItemLabelPosition pos);
+
+    /**
+     * The position of the labels for negatively valued data.
+     * @return An ItemLabelPosition encapsulating the information, never null.
+     */
+    ItemLabelPosition getNegativeItemLabelPosition();
+
+    /**
+     * Set the position of item labels when data is negative.
+     * @param pos The position. Null not permitted.
+     */
+    void setNegativeItemLabelPosition(ItemLabelPosition pos);
 }

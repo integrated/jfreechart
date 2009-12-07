@@ -64,6 +64,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.labels.StandardXYItemLabelGenerator;
+import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -130,8 +131,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private RotationComboBox pieDirection;
     private JSpinner sectionDepth;
 
-    // label controls
-    private JPanel labelPanel = null;
     private JCheckBox labelsVisible;
     private FontControl labelFont;
     private PaintControl labelPaint, labelBackgroundPaint, labelOutlinePaint, labelShadowPaint;
@@ -140,6 +139,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private StrokeControl labelOutlineStroke;
     private InsetPanel labelPadding;
     private JTextField labelFormat;
+    private ItemLabelPositionPanel positivePanel, negativePanel;
 
     private NumberFormatDisplay numberFormatDisplay, percentFormatDisplay;
 
@@ -230,6 +230,8 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         c.gridwidth = 3; c.weightx = 1;
         interior.add(backgroundPanel,c);
 
+        JPanel labelPanel = null;
+        
         if(plot instanceof PiePlot) {
             JPanel piePanel = getPiePanel(plot instanceof RingPlot);
             startNewRow(c);
@@ -237,7 +239,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             interior.add(piePanel, c);
 
             labelPanel = getLabelPanel(PIE);
-            enableDisableLabelControls();
         }
 
         general.add(interior, BorderLayout.NORTH);
@@ -273,13 +274,13 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
 
         Axis rangeAxis = null;
-        if (plot instanceof CategoryPlot) {
-            rangeAxis = ((CategoryPlot) plot).getRangeAxis();
-            labelPanel = getLabelPanel(CATEGORY);
-        }
-        else if (plot instanceof XYPlot) {
-            rangeAxis = ((XYPlot) plot).getRangeAxis();
-            labelPanel = getLabelPanel(XY);
+        if(plot instanceof DomainRangePlot) {
+            rangeAxis = ((DomainRangePlot) plot).getRangeAxis();
+            if(plot instanceof CategoryPlot) {
+                labelPanel = getLabelPanel(CATEGORY);
+            } else {
+                labelPanel = getLabelPanel(XY);
+            }
         }
 
         this.rangeAxisPropertyPanel
@@ -307,6 +308,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         panel.add(tabs);
 
         add(panel);
+        
+        // init control states to correct settings.
+        enableDisableLabelControls();
     }
 
     private JPanel createLayoutPanel() {
@@ -395,6 +399,12 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         labelLinkStyle.setSelectedObject(theme.getLabelLinkStyle());
         labelLinkStyle.addActionListener(updateHandler);
 
+        positivePanel = new ItemLabelPositionPanel(localizationResources.getString("Label_Position_Positive"), theme.getPositiveItemLabelPosition());
+        positivePanel.addChangeListener(updateHandler);
+
+        negativePanel = new ItemLabelPositionPanel(localizationResources.getString("Label_Position_Negative"), theme.getNegativeItemLabelPosition());
+        negativePanel.addChangeListener(updateHandler);
+
         c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
         retVal.add(createLabelVisibilityPanel(), c);
 
@@ -410,6 +420,14 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             startNewRow(c);
             c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
             retVal.add(createPieLabelPanel(),c);
+        } else if (plotType == CATEGORY || plotType == XY) {
+            startNewRow(c);
+            c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+            retVal.add(positivePanel, c);
+
+            startNewRow(c);
+            c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
+            retVal.add(negativePanel, c);
         }
 
         startNewRow(c);
@@ -671,6 +689,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         percentFormatDisplay.setEnabled(b);
         labelLinkVisible.setEnabled(b);
         labelLinkStyle.setEnabled(b&&l);
+
+        positivePanel.setEnabled(b);
+        negativePanel.setEnabled(b);
     }
 
     /**
@@ -756,6 +777,14 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             Paint labelPaint = this.labelPaint.getChosenPaint();
             renderer.setBaseItemLabelPaint(labelPaint);
             theme.setLabelPaint(labelPaint);
+
+            ItemLabelPosition posPosition = this.positivePanel.getItemLabelPosition();
+            renderer.setBasePositiveItemLabelPosition(posPosition);
+            theme.setPositiveItemLabelPosition(posPosition);
+
+            ItemLabelPosition negPosition = this.negativePanel.getItemLabelPosition();
+            renderer.setBaseNegativeItemLabelPosition(negPosition);
+            theme.setNegativeItemLabelPosition(negPosition);
         }
 
         if(plot instanceof CategoryPlot) {
