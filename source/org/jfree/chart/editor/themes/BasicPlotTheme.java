@@ -47,8 +47,8 @@ public class BasicPlotTheme extends BasicAbstractChartTheme implements PlotTheme
     public static final ItemLabelPosition DEFAULT_NEGATIVE_POSITION =
             new ItemLabelPosition(ItemLabelAnchor.OUTSIDE6, TextAnchor.TOP_CENTER);
 
-    static final String DEFAULT_NUMBER_FORMAT;
-    static final String DEFAULT_PERCENT_FORMAT;
+    public static final String DEFAULT_NUMBER_FORMAT;
+    public static final String DEFAULT_PERCENT_FORMAT;
     static {
         NumberFormat nf = NumberFormat.getNumberInstance();
         NumberFormat pf = NumberFormat.getPercentInstance();

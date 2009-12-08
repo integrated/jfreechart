@@ -169,6 +169,15 @@ public class MultipleXYSeriesLabelGenerator implements XYSeriesLabelGenerator,
         return result;
     }
 
+
+    /**
+     * The formatting pattern that is used by this label generator.
+     * @return A MessageFormat string.
+     */
+    public String getFormatPattern() {
+        return formatPattern;
+    }
+
     /**
      * Returns an independent copy of the generator.
      *

@@ -40,4 +40,32 @@ public interface LegendTheme extends TitleTheme {
     RectangleEdge getGraphicEdge();
 
     void setGraphicEdge(RectangleEdge graphicEdge);
+
+    /**
+     * Can be used for all chart types, denotes the format string to use when printing the item
+     * labels in a legend. For PiePlot this will have more possible parameters, but most of the time
+     * it will just be "{0}" to denote the series/category name.
+     * @return A MessageFormat string for legend items.
+     */
+    String getItemFormatString();
+
+    void setItemFormatString(String s);
+
+    /**
+     * Number format pattern used for numbers that occur in legend labels. Will mostly only be
+     * used for PiePlots.
+     * @return A number format string for legend item labels.
+     */
+    String getItemNumberFormatString();
+
+    void setItemNumberFormatString(String s);
+
+    /**
+     * Number format pattern used for percentages that occur in legend labels. Will mostly only be
+     * used for PiePlots.
+     * @return A number format string for legend item labels, when percentages are required.
+     */
+    String getItemPercentFormatString();
+
+    void setItemPercentFormatString(String s);
 }

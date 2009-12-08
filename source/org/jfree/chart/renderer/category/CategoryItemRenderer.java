@@ -106,6 +106,7 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.labels.CategoryToolTipGenerator;
+import org.jfree.chart.labels.CategorySeriesLabelGenerator;
 import org.jfree.chart.plot.CategoryMarker;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.Marker;
@@ -556,4 +557,23 @@ public interface CategoryItemRenderer extends ItemRenderer {
             CategoryDataset dataset, CategoryAxis axis, Rectangle2D area,
             RectangleEdge edge);
 
+    /**
+     * Returns the legend item label generator.
+     *
+     * @return The label generator (never <code>null</code>).
+     *
+     * @see #setLegendItemLabelGenerator(org.jfree.chart.labels.CategorySeriesLabelGenerator)
+     */
+    public CategorySeriesLabelGenerator getLegendItemLabelGenerator();
+
+    /**
+     * Sets the legend item label generator and sends a
+     * {@link RendererChangeEvent} to all registered listeners.
+     *
+     * @param generator  the generator (<code>null</code> not permitted).
+     *
+     * @see #getLegendItemLabelGenerator()
+     */
+    public void setLegendItemLabelGenerator(
+            CategorySeriesLabelGenerator generator);
 }

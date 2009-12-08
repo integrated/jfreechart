@@ -64,4 +64,10 @@ public interface CategorySeriesLabelGenerator {
      */
     public String generateLabel(CategoryDataset dataset, int series);
 
+    /**
+     * The formatting pattern that is used by this label generator.
+     * @return A MessageFormat string.
+     */
+    public String getFormatPattern();
+
 }

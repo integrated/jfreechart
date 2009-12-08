@@ -47,15 +47,10 @@ package org.jfree.chart.editor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusListener;
-import java.awt.event.FocusEvent;
 import java.util.ResourceBundle;
-import java.text.MessageFormat;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
 
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.plot.*;
@@ -82,7 +77,6 @@ import org.jfree.chart.editor.themes.AxisTheme;
  */
 public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
-    private final static int PIE = -1, CATEGORY = -2, XY = -3;
 
     /** Orientation constants. */
     final static String[] ORIENTATION_NAMES = {"Vertical", "Horizontal"};
@@ -138,10 +132,8 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     private LinkStyleComboBox labelLinkStyle;
     private StrokeControl labelOutlineStroke;
     private InsetPanel labelPadding;
-    private JTextField labelFormat;
     private ItemLabelPositionPanel positivePanel, negativePanel;
-
-    private NumberFormatDisplay numberFormatDisplay, percentFormatDisplay;
+    private ItemLabelFormatPanel labelFormatPanel;
 
     /** The resourceBundle for the localization. */
     protected static ResourceBundle localizationResources
@@ -238,7 +230,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             c.gridwidth = 3; c.weightx = 1;
             interior.add(piePanel, c);
 
-            labelPanel = getLabelPanel(PIE);
+            labelPanel = getLabelPanel(plot);
         }
 
         general.add(interior, BorderLayout.NORTH);
@@ -275,12 +267,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         Axis rangeAxis = null;
         if(plot instanceof DomainRangePlot) {
+
             rangeAxis = ((DomainRangePlot) plot).getRangeAxis();
-            if(plot instanceof CategoryPlot) {
-                labelPanel = getLabelPanel(CATEGORY);
-            } else {
-                labelPanel = getLabelPanel(XY);
-            }
+            labelPanel = getLabelPanel(plot);
         }
 
         this.rangeAxisPropertyPanel
@@ -337,7 +326,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         return retVal;
     }
 
-    protected JPanel getLabelPanel(int plotType) {
+    protected JPanel getLabelPanel(Plot p) {
         JPanel retVal = new JPanel(new GridBagLayout());
         GridBagConstraints c = getNewConstraints();
 
@@ -345,30 +334,6 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         labelsVisible.addActionListener(updateHandler);
         labelsVisible.addActionListener(this);
 
-        labelFormat = new JTextField(theme.getLabelFormat());
-        DocHandler handler = new DocHandler();
-        labelFormat.getDocument().addDocumentListener(handler);
-        labelFormat.addFocusListener(handler);
-        String tip;
-        switch(plotType) {
-            case CATEGORY:
-                tip = localizationResources.getString("Format_tip_cat");
-                break;
-            case XY:
-                tip = localizationResources.getString("Format_tip_xy");
-                break;
-            case PIE:
-            default:
-                tip = localizationResources.getString("Format_tip_pie");
-                break;
-        }
-        labelFormat.setToolTipText(tip);
-
-        numberFormatDisplay = buildNumberFormatDisplay(theme.getNumberFormatString());
-        numberFormatDisplay.addChangeListener(updateHandler);
-
-        percentFormatDisplay = buildNumberFormatDisplay(theme.getPercentFormatString());
-        percentFormatDisplay.addChangeListener(updateHandler);
 
         labelFont = new FontControl(theme.getLabelFont());
         labelFont.addChangeListener(updateHandler);
@@ -410,17 +375,19 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         startNewRow(c);
         c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
-        retVal.add(createLabelFormatPanel(),c);
+        labelFormatPanel = createLabelFormatPanel(p);
+        labelFormatPanel.addChangeListener(updateHandler);
+        retVal.add(labelFormatPanel,c);
 
         startNewRow(c);
         c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
         retVal.add(createLabelTextPanel(),c);
 
-        if (plotType == PIE) {
+        if (p instanceof PiePlot) {
             startNewRow(c);
             c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
             retVal.add(createPieLabelPanel(),c);
-        } else if (plotType == CATEGORY || plotType == XY) {
+        } else if (p instanceof DomainRangePlot) {
             startNewRow(c);
             c.gridwidth = 2; c.anchor = GridBagConstraints.WEST; c.weightx = 1;
             retVal.add(positivePanel, c);
@@ -502,29 +469,9 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         return retVal;
     }
 
-    private JPanel createLabelFormatPanel() {
-        JPanel retVal = createBorderedLabelPanel(localizationResources.getString("Label_Format"));
-        GridBagConstraints c = getNewConstraints();
-
-        retVal.add(new JLabel(localizationResources.getString("Format")), c);
-        c.gridx++; c.weightx = 1;
-        retVal.add(labelFormat, c);
-
-        startNewRow(c);
-        retVal.add(new JLabel(localizationResources.getString("Number_Format")), c);
-        c.gridx++; c.weightx = 1;
-        retVal.add(numberFormatDisplay, c);
-
-        startNewRow(c);
-        retVal.add(new JLabel(localizationResources.getString("Percent_Format")), c);
-        c.gridx++; c.weightx = 1;
-        retVal.add(percentFormatDisplay, c);
-
-        return retVal;
-    }
-
-    protected NumberFormatDisplay buildNumberFormatDisplay(String formatStr) {
-        return new NumberFormatDisplay(formatStr);
+    protected ItemLabelFormatPanel createLabelFormatPanel(Plot p) {
+        return new ItemLabelFormatPanel(theme.getLabelFormat(), p,
+                theme.getNumberFormatString(), theme.getPercentFormatString(), true);
     }
 
     protected JPanel getGridlinesPanel() {
@@ -684,9 +631,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         labelOutlinePaint.setEnabled(b);
         labelOutlineStroke.setEnabled(b);
         labelPadding.setEnabled(b);
-        labelFormat.setEnabled(b);
-        numberFormatDisplay.setEnabled(b);
-        percentFormatDisplay.setEnabled(b);
+        labelFormatPanel.setEnabled(b);
         labelLinkVisible.setEnabled(b);
         labelLinkStyle.setEnabled(b&&l);
 
@@ -786,126 +731,39 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             renderer.setBaseNegativeItemLabelPosition(negPosition);
             theme.setNegativeItemLabelPosition(negPosition);
         }
-
-        if(plot instanceof CategoryPlot) {
-            CategoryPlot cPlot = (CategoryPlot) plot;
-
-            CategoryItemRenderer renderer = cPlot.getRenderer();
-
-            String formatText = labelFormat.getText();
+        if(plot instanceof DomainRangePlot || plot instanceof PiePlot) {
+            String formatText = labelFormatPanel.getLabelFormat();
             theme.setLabelFormat(formatText);
-            String numFormatString = numberFormatDisplay.getFormatString();
-            String perFormatString = percentFormatDisplay.getFormatString();
+            String numFormatString = labelFormatPanel.getNumberFormatString();
+            String perFormatString = labelFormatPanel.getPercentFormatString();
             theme.setNumberFormatString(numFormatString);
             theme.setPercentFormatString(perFormatString);
 
-
-            DecimalFormat numF = new DecimalFormat(numFormatString);
-            DecimalFormat perF = new DecimalFormat(perFormatString);
-            StandardCategoryItemLabelGenerator sLabelGen = new StandardCategoryItemLabelGenerator(
-                    formatText, numF, perF
-            );
-            renderer.setBaseItemLabelGenerator(sLabelGen);
-
-        } else if (plot instanceof XYPlot) {
-            XYPlot xyPlot = (XYPlot) plot;
-
-            XYItemRenderer renderer = xyPlot.getRenderer();
-
-            String formatText = labelFormat.getText();
-            theme.setLabelFormat(formatText);
-            String numFormatString = numberFormatDisplay.getFormatString();
-            String perFormatString = percentFormatDisplay.getFormatString();
-            theme.setNumberFormatString(numFormatString);
-            theme.setPercentFormatString(perFormatString);
-
-            // 2 copies for thread safety.
-            DecimalFormat numF = new DecimalFormat(numFormatString);
-            DecimalFormat numF2 = new DecimalFormat(numFormatString);
-            StandardXYItemLabelGenerator sLabelGen = new StandardXYItemLabelGenerator(
-                    formatText, numF, numF2
-            );
-            renderer.setBaseItemLabelGenerator(sLabelGen);
-
-        } else if (plot instanceof PiePlot) {
-            PiePlot piePlot = (PiePlot) plot;
-
-            boolean circular = circularPlot.isSelected();
-            theme.setCircularPie(circular);
-            piePlot.setCircular(circular);
-
-            double angle = ((Number)startAngle.getValue()).doubleValue();
-            theme.setStartAngle(angle);
-            piePlot.setStartAngle(angle);
-
-            Rotation direction = (Rotation)pieDirection.getSelectedObject();
-            theme.setPieDirection(direction);
-            piePlot.setDirection(direction);
-
-            if(piePlot instanceof RingPlot) {
-                double depth = 1.0 - ((Number)sectionDepth.getValue()).doubleValue();
-                theme.setPieSectionDepth(depth);
-                ((RingPlot)piePlot).setSectionDepth(depth);
-            }
-
-            boolean visible = labelsVisible.isSelected();
-            theme.setLabelsVisible(visible);
-            String formatText = labelFormat.getText();
-            theme.setLabelFormat(formatText);
-            String numFormatString = numberFormatDisplay.getFormatString();
-            String perFormatString = percentFormatDisplay.getFormatString();
-            theme.setNumberFormatString(numFormatString);
-            theme.setPercentFormatString(perFormatString);
-
-            if(visible) {
+            if(plot instanceof CategoryPlot) {
+                CategoryPlot cPlot = (CategoryPlot) plot;
+                CategoryItemRenderer renderer = cPlot.getRenderer();
                 DecimalFormat numF = new DecimalFormat(numFormatString);
                 DecimalFormat perF = new DecimalFormat(perFormatString);
-                StandardPieSectionLabelGenerator sLabelGen = new StandardPieSectionLabelGenerator(
+                StandardCategoryItemLabelGenerator sLabelGen = new StandardCategoryItemLabelGenerator(
                         formatText, numF, perF
                 );
-                piePlot.setLabelGenerator(sLabelGen);
-            } else {
-                piePlot.setLabelGenerator(null);
-            }
+                renderer.setBaseItemLabelGenerator(sLabelGen);
 
-            if(visible) {
-                Font font = labelFont.getChosenFont();
-                theme.setLabelFont(font);
-                piePlot.setLabelFont(font);
+            } else if (plot instanceof XYPlot) {
+                XYPlot xyPlot = (XYPlot) plot;
 
-                Paint paint = labelPaint.getChosenPaint();
-                theme.setLabelPaint(paint);
-                piePlot.setLabelLinkPaint(paint);
+                XYItemRenderer renderer = xyPlot.getRenderer();
 
-                paint = labelBackgroundPaint.getChosenPaint();
-                theme.setLabelBackgroundPaint(paint);
-                piePlot.setLabelBackgroundPaint(paint);
+                // 2 copies for thread safety.
+                DecimalFormat numF = new DecimalFormat(numFormatString);
+                DecimalFormat numF2 = new DecimalFormat(numFormatString);
+                StandardXYItemLabelGenerator sLabelGen = new StandardXYItemLabelGenerator(
+                        formatText, numF, numF2
+                );
+                renderer.setBaseItemLabelGenerator(sLabelGen);
 
-                paint = labelOutlinePaint.getChosenPaint();
-                theme.setLabelOutlinePaint(paint);
-                piePlot.setLabelOutlinePaint(paint);
-
-                BasicStroke stroke = labelOutlineStroke.getChosenStroke();
-                theme.setLabelOutlineStroke(stroke);
-                piePlot.setLabelOutlineStroke(stroke);
-
-                RectangleInsets padding = labelPadding.getSelectedInsets();
-                theme.setLabelPadding(padding);
-                piePlot.setLabelPadding(padding);
-
-                Paint shadowPaint = labelShadowPaint.getChosenPaint();
-                theme.setLabelShadowPaint(shadowPaint);
-                piePlot.setLabelShadowPaint(shadowPaint);
-
-                boolean linkVis = labelLinkVisible.isSelected();
-                theme.setLabelLinksVisible(linkVis);
-                piePlot.setLabelLinksVisible(linkVis);
-
-                if(linkVis) {
-                    PieLabelLinkStyle style = (PieLabelLinkStyle) labelLinkStyle.getSelectedObject();
-                    theme.setLabelLinkStyle(style);
-                    piePlot.setLabelLinkStyle(style);
-                }
+            } else if (plot instanceof PiePlot) {
+                updatePiePlot(plot, formatText, numFormatString, perFormatString);
             }
         }
 
@@ -965,15 +823,77 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         applyCustomEditors(chart);
     }
 
+    private void updatePiePlot(Plot plot, String formatText, String numFormatString, String perFormatString) {
+        PiePlot piePlot = (PiePlot) plot;
 
+        boolean circular = circularPlot.isSelected();
+        theme.setCircularPie(circular);
+        piePlot.setCircular(circular);
 
-    private boolean formatValid() {
-        String format = labelFormat.getText();
-        try {
-            new MessageFormat(format);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
+        double angle = ((Number)startAngle.getValue()).doubleValue();
+        theme.setStartAngle(angle);
+        piePlot.setStartAngle(angle);
+
+        Rotation direction = (Rotation)pieDirection.getSelectedObject();
+        theme.setPieDirection(direction);
+        piePlot.setDirection(direction);
+
+        if(piePlot instanceof RingPlot) {
+            double depth = 1.0 - ((Number)sectionDepth.getValue()).doubleValue();
+            theme.setPieSectionDepth(depth);
+            ((RingPlot)piePlot).setSectionDepth(depth);
+        }
+
+        boolean visible = labelsVisible.isSelected();
+        theme.setLabelsVisible(visible);
+
+        if(visible) {
+            DecimalFormat numF = new DecimalFormat(numFormatString);
+            DecimalFormat perF = new DecimalFormat(perFormatString);
+            StandardPieSectionLabelGenerator sLabelGen = new StandardPieSectionLabelGenerator(
+                    formatText, numF, perF
+            );
+            piePlot.setLabelGenerator(sLabelGen);
+
+            Font font = labelFont.getChosenFont();
+            theme.setLabelFont(font);
+            piePlot.setLabelFont(font);
+
+            Paint paint = labelPaint.getChosenPaint();
+            theme.setLabelPaint(paint);
+            piePlot.setLabelLinkPaint(paint);
+
+            paint = labelBackgroundPaint.getChosenPaint();
+            theme.setLabelBackgroundPaint(paint);
+            piePlot.setLabelBackgroundPaint(paint);
+
+            paint = labelOutlinePaint.getChosenPaint();
+            theme.setLabelOutlinePaint(paint);
+            piePlot.setLabelOutlinePaint(paint);
+
+            BasicStroke stroke = labelOutlineStroke.getChosenStroke();
+            theme.setLabelOutlineStroke(stroke);
+            piePlot.setLabelOutlineStroke(stroke);
+
+            RectangleInsets padding = labelPadding.getSelectedInsets();
+            theme.setLabelPadding(padding);
+            piePlot.setLabelPadding(padding);
+
+            Paint shadowPaint = labelShadowPaint.getChosenPaint();
+            theme.setLabelShadowPaint(shadowPaint);
+            piePlot.setLabelShadowPaint(shadowPaint);
+
+            boolean linkVis = labelLinkVisible.isSelected();
+            theme.setLabelLinksVisible(linkVis);
+            piePlot.setLabelLinksVisible(linkVis);
+
+            if(linkVis) {
+                PieLabelLinkStyle style = (PieLabelLinkStyle) labelLinkStyle.getSelectedObject();
+                theme.setLabelLinkStyle(style);
+                piePlot.setLabelLinkStyle(style);
+            }
+        } else {
+            piePlot.setLabelGenerator(null);
         }
     }
 
@@ -996,56 +916,4 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
             rangeAxisPropertyPanel.setChart(chart);
         }
     }
-
-
-    private class DocHandler implements DocumentListener, FocusListener {
-        String lastGoodFormat = labelFormat.getText();
-
-        public void changedUpdate(DocumentEvent e) {
-            if(formatValid()) {
-                labelFormat.setBackground(Color.WHITE);
-                labelFormat.setForeground(Color.BLACK);
-                lastGoodFormat = labelFormat.getText();
-                updateHandler.changedUpdate(e);
-            } else {
-                labelFormat.setBackground(Color.RED);
-                labelFormat.setForeground(Color.WHITE);
-            }
-        }
-
-        public void insertUpdate(DocumentEvent e) {
-            if(formatValid()) {
-                labelFormat.setBackground(Color.WHITE);
-                labelFormat.setForeground(Color.BLACK);
-                lastGoodFormat = labelFormat.getText();
-                updateHandler.removeUpdate(e);
-            } else {
-                labelFormat.setBackground(Color.RED);
-                labelFormat.setForeground(Color.WHITE);
-            }
-        }
-
-        public void removeUpdate(DocumentEvent e) {
-            if(formatValid()) {
-                labelFormat.setBackground(Color.WHITE);
-                labelFormat.setForeground(Color.BLACK);
-                lastGoodFormat = labelFormat.getText();
-                updateHandler.removeUpdate(e);
-            } else {
-                labelFormat.setBackground(Color.RED);
-                labelFormat.setForeground(Color.WHITE);
-            }
-        }
-
-        public void focusGained(FocusEvent e) {
-            // do nothing.
-        }
-
-        public void focusLost(FocusEvent e) {
-            if(!formatValid()) {
-                labelFormat.setText(lastGoodFormat);
-            }
-        }
-    }
-
 }

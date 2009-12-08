@@ -530,26 +530,35 @@ public class XYShapeRenderer extends AbstractXYItemRenderer
         XYShapeRenderer that = (XYShapeRenderer) obj;
         if ((this.paintScale == null && that.paintScale != null)
                 || (!this.paintScale.equals(that.paintScale))) {
+            System.err.println("paintscale");
             return false;
         }
         if (this.drawOutlines != that.drawOutlines) {
+            System.err.println("drawoutlines");
             return false;
         }
         if (this.useOutlinePaint != that.useOutlinePaint) {
+            System.err.println("useoutlinepaint");
             return false;
         }
         if (this.useFillPaint != that.useFillPaint) {
+            System.err.println("usefillpaint");
             return false;
         }
         if (this.guideLinesVisible != that.guideLinesVisible) {
+            System.err.println("guidelinesvisible");
             return false;
         }
         if ((this.guideLinePaint == null && that.guideLinePaint != null)
-                || (!this.guideLinePaint.equals(that.guideLinePaint)))
+                || (!this.guideLinePaint.equals(that.guideLinePaint))) {
+            System.err.println("guidelinepaint");
             return false;
+        }
         if ((this.guideLineStroke == null && that.guideLineStroke != null)
-                || (!this.guideLineStroke.equals(that.guideLineStroke)))
+                || (!this.guideLineStroke.equals(that.guideLineStroke))) {
+            System.err.println("guidelinestroke");
             return false;
+        }
 
         return super.equals(obj);
     }

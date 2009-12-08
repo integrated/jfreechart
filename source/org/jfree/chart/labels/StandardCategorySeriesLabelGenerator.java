@@ -87,6 +87,14 @@ public class StandardCategorySeriesLabelGenerator implements
     }
 
     /**
+     * The formatting pattern that is used by this label generator.
+     * @return A MessageFormat string.
+     */
+    public String getFormatPattern() {
+        return this.formatPattern;
+    }
+
+    /**
      * Generates a label for the specified series.
      *
      * @param dataset  the dataset (<code>null</code> not permitted).

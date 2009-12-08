@@ -124,6 +124,14 @@ public class StandardXYSeriesLabelGenerator implements XYSeriesLabelGenerator,
     }
 
     /**
+     * The formatting pattern that is used by this label generator.
+     * @return A MessageFormat string.
+     */
+    public String getFormatPattern() {
+        return formatPattern;
+    }
+
+    /**
      * Returns an independent copy of the generator.  This is unnecessary,
      * because instances are immutable anyway, but we retain this
      * behaviour for backwards compatibility.
