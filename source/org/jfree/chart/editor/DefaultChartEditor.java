@@ -142,7 +142,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         this.theme = theme;
 
         // background tab
-        background = new BackgroundEditingPanel(theme);
+        background = buildBackgroundEditingPanel(theme);
         background.addChangeListener(updateHandler);
         // box tab
         JPanel box = buildBoxTab();
@@ -233,6 +233,14 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
         return new DefaultLegendEditor(theme.getLegendTheme(), chart, this.immediateUpdate);
     }
 
+    protected BorderPanel buildBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint) {
+        return new BorderPanel(title, visible, stroke, paint);
+    }
+
+    protected BackgroundEditingPanel buildBackgroundEditingPanel(ExtendedChartTheme theme) {
+        return new BackgroundEditingPanel(theme);
+    }
+
     public void addTab(String title, Icon icon, Component component, String tip) {
         if(!(component instanceof JScrollPane)) {
             component = new JScrollPane(component);
@@ -255,7 +263,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
         ChartBorder border = theme.getBorder();
 
-        borderPanel = new BorderPanel(localizationResources.getString("Border"),
+        borderPanel = buildBorderPanel(localizationResources.getString("Border"),
                 border.isVisible(), border.getStroke(), border.getPaint());
         borderPanel.addChangeListener(updateHandler);
         c.gridwidth = 3; c.weightx = 1;

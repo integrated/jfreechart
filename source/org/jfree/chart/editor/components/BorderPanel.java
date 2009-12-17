@@ -24,8 +24,6 @@ public class BorderPanel extends EditPanel {
     private StrokeControl strokeControl;
     private PaintControl paintControl;
 
-    private EventHandler handler = new EventHandler();
-
     public BorderPanel(String title) {
         this(title, true, new BasicStroke(), Color.BLACK);
     }
@@ -38,8 +36,9 @@ public class BorderPanel extends EditPanel {
 
         this.visible = new JCheckBox(localizationResources.getString("Border_Visible"), visible);
         this.strokeControl = new StrokeControl(stroke);
-        this.paintControl = new PaintControl(paint);
+        this.paintControl = buildPaintControl(paint);
 
+        EventHandler handler = new EventHandler();
         this.visible.addActionListener(handler);
         this.strokeControl.addChangeListener(handler);
         this.paintControl.addChangeListener(handler);
@@ -59,6 +58,10 @@ public class BorderPanel extends EditPanel {
         add(new JLabel(localizationResources.getString("Border_Paint")+":"), c);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;
         add(this.paintControl, c);
+    }
+
+    protected PaintControl buildPaintControl(Paint p) {
+        return new PaintControl(p);
     }
 
     private void updateControls() {

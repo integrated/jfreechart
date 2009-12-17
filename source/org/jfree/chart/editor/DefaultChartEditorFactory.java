@@ -62,7 +62,8 @@ public class DefaultChartEditorFactory implements ChartEditorFactory {
      * @return A chart editor for the given chart.
      */
     public ChartEditor createEditor(JFreeChart chart) {
-        return new DefaultChartEditor(new BasicChartTheme("basic"), chart);
+
+        return ChartEditorComponentFactory.Controller.getInstance().createChartEditor(new BasicChartTheme("basic"), chart, false);
     }
 
 }

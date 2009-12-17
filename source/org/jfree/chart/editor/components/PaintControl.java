@@ -13,9 +13,9 @@ import java.awt.*;
  * Controls for editing a paint.
  */
 public class PaintControl extends AbstractControl {
-    private PaintSample paintSample;
+    protected PaintSample paintSample;
     private boolean allowNulls;
-    private static final Paint DEFAULT_PAINT = Color.BLACK;
+    private static final Color DEFAULT_PAINT = Color.BLACK;
 
     public PaintControl(Paint paint) {
         this(paint, false);
@@ -36,8 +36,12 @@ public class PaintControl extends AbstractControl {
 
     protected void doEditAction() {
         Color c;
+        Color initialColor = (Color) paintSample.getPaint();
+        if(initialColor == null) {
+            initialColor = DEFAULT_PAINT;
+        }
         c = JColorChooser.showDialog(
-            this, localizationResources.getString("Color"), Color.black
+            this, localizationResources.getString("Color"), initialColor
         );
         if (c != null) {
             paintSample.setPaint(c);
