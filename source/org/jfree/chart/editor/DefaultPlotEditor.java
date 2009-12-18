@@ -159,7 +159,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         this.theme = theme;
 
-        this.backgroundPanel = compFactory.buildBackgroundEditingPanel(theme);
+        this.backgroundPanel = compFactory.createBackgroundEditingPanel(theme);
         this.plotOrientation = theme.getOrientation();
 
         domainPanel = new LineEditorPanel(localizationResources.getString("Domain_Axis"),
@@ -209,7 +209,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         startNewRow(c);
         c.gridwidth = 3; c.weightx = 1;
         ChartBorder border = theme.getBorder();
-        plotBorder = compFactory.buildBorderPanel(localizationResources.getString("Border"),
+        plotBorder = compFactory.createBorderPanel(localizationResources.getString("Border"),
                 border.isVisible(), border.getStroke(), border.getPaint());
         plotBorder.addChangeListener(updateHandler);
         interior.add(plotBorder, c);
@@ -334,22 +334,22 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         labelsVisible.addActionListener(this);
 
 
-        labelFont = compFactory.getFontControl(theme.getLabelFont());
+        labelFont = compFactory.createFontControl(theme.getLabelFont());
         labelFont.addChangeListener(updateHandler);
 
-        labelPaint = compFactory.getPaintControl(theme.getLabelPaint(), false);
+        labelPaint = compFactory.createPaintControl(theme.getLabelPaint(), false);
         labelPaint.addChangeListener(updateHandler);
 
-        labelBackgroundPaint = compFactory.getPaintControl(theme.getLabelBackgroundPaint(), true);
+        labelBackgroundPaint = compFactory.createPaintControl(theme.getLabelBackgroundPaint(), true);
         labelBackgroundPaint.addChangeListener(updateHandler);
 
-        labelShadowPaint = compFactory.getPaintControl(theme.getLabelShadowPaint(), true);
+        labelShadowPaint = compFactory.createPaintControl(theme.getLabelShadowPaint(), true);
         labelShadowPaint.addChangeListener(updateHandler);
 
-        labelOutlinePaint = compFactory.getPaintControl(theme.getLabelOutlinePaint(), true);
+        labelOutlinePaint = compFactory.createPaintControl(theme.getLabelOutlinePaint(), true);
         labelOutlinePaint.addChangeListener(updateHandler);
 
-        labelOutlineStroke = compFactory.getStrokeControl(theme.getLabelOutlineStroke());
+        labelOutlineStroke = compFactory.createStrokeControl(theme.getLabelOutlineStroke());
         labelOutlineStroke.addChangeListener(updateHandler);
 
         labelPadding = new InsetPanel(localizationResources.getString("Padding"), theme.getLabelPadding());

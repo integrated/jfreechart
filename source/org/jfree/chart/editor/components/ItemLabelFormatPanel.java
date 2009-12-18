@@ -87,7 +87,7 @@ public class ItemLabelFormatPanel extends EditPanel {
     }
 
     protected NumberFormatDisplay buildNumberFormatDisplay(String formatStr) {
-        return componentFactory.getNumberFormatDisplay(formatStr);
+        return componentFactory.createNumberFormatDisplay(formatStr);
     }
 
     private boolean formatValid() {

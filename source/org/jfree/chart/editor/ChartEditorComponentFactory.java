@@ -46,21 +46,21 @@ public interface ChartEditorComponentFactory {
 
     ItemLabelFormatPanel createItemLabelFormatPanel(PlotTheme theme, Plot p );
 
-    BorderPanel buildBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint);
+    BorderPanel createBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint);
 
-    BackgroundEditingPanel buildBackgroundEditingPanel(ExtendedChartTheme theme);
+    BackgroundEditingPanel createBackgroundEditingPanel(ExtendedChartTheme theme);
 
-    BackgroundEditingPanel buildBackgroundEditingPanel(PlotTheme theme);
+    BackgroundEditingPanel createBackgroundEditingPanel(PlotTheme theme);
 
-    PaintControl getPaintControl(Paint p);
+    PaintControl createPaintControl(Paint p);
 
-    PaintControl getPaintControl(Paint p, boolean allowNulls);
+    PaintControl createPaintControl(Paint p, boolean allowNulls);
 
-    StrokeControl getStrokeControl(BasicStroke s);
+    StrokeControl createStrokeControl(BasicStroke s);
 
-    FontControl getFontControl(Font f);
+    FontControl createFontControl(Font f);
 
-    NumberFormatDisplay getNumberFormatDisplay(String formatString);
+    NumberFormatDisplay createNumberFormatDisplay(String formatString);
 
     static class Controller {
         private static String implementationClass = DEFAULT_IMPLEMENTATION;

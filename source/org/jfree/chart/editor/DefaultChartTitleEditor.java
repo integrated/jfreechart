@@ -99,7 +99,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
         this.theme = theme;
 
         this.titleField = new JTextField(theme.getChartTitle());
-        this.fontPaintControl = compFactory.getPaintControl(theme.getTitlePaint());
+        this.fontPaintControl = compFactory.createPaintControl(theme.getTitlePaint());
 
         setLayout(new BorderLayout());
 
@@ -178,7 +178,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
         JLabel backPaintLabel = new JLabel(
                 localizationResources.getString("Background_paint")
         );
-        this.backgroundPaintControl = compFactory.getPaintControl(theme.getTitleBackground(), true);
+        this.backgroundPaintControl = compFactory.createPaintControl(theme.getTitleBackground(), true);
         this.backgroundPaintControl.addChangeListener(updateHandler);
         retVal.add(backPaintLabel, c);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;
@@ -209,7 +209,7 @@ public class DefaultChartTitleEditor extends DefaultTitleEditor implements Actio
 
         startNewRow(c);
         JLabel fontLabel = new JLabel(localizationResources.getString("Font"));
-        this.fontControl = compFactory.getFontControl(theme.getTitleFont());
+        this.fontControl = compFactory.createFontControl(theme.getTitleFont());
         this.fontControl.addChangeListener(updateHandler);
         retVal.add(fontLabel,c);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;

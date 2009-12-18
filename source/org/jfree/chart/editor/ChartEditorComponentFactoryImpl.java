@@ -69,35 +69,35 @@ public class ChartEditorComponentFactoryImpl implements ChartEditorComponentFact
                 theme.getNumberFormatString(), theme.getPercentFormatString(), true);
     }
 
-    public BorderPanel buildBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint) {
+    public BorderPanel createBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint) {
         return new BorderPanel(title, visible, stroke, paint);
     }
 
-    public BackgroundEditingPanel buildBackgroundEditingPanel(ExtendedChartTheme theme) {
+    public BackgroundEditingPanel createBackgroundEditingPanel(ExtendedChartTheme theme) {
         return new BackgroundEditingPanel(theme);
     }
 
-    public BackgroundEditingPanel buildBackgroundEditingPanel(PlotTheme theme) {
+    public BackgroundEditingPanel createBackgroundEditingPanel(PlotTheme theme) {
         return new BackgroundEditingPanel(theme);
     }
 
-    public PaintControl getPaintControl(Paint p) {
-        return getPaintControl(p, false);
+    public PaintControl createPaintControl(Paint p) {
+        return createPaintControl(p, false);
     }
 
-    public PaintControl getPaintControl(Paint p, boolean allowNulls) {
+    public PaintControl createPaintControl(Paint p, boolean allowNulls) {
         return new PaintControl(p, allowNulls);
     }
 
-    public NumberFormatDisplay getNumberFormatDisplay(String formatString) {
+    public NumberFormatDisplay createNumberFormatDisplay(String formatString) {
         return new NumberFormatDisplay(formatString);
     }
 
-    public StrokeControl getStrokeControl(BasicStroke s) {
+    public StrokeControl createStrokeControl(BasicStroke s) {
         return new StrokeControl(s);
     }
 
-    public FontControl getFontControl(Font f) {
+    public FontControl createFontControl(Font f) {
         return new FontControl(f);
     }
 }

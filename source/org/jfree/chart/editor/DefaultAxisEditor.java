@@ -202,7 +202,7 @@ public class DefaultAxisEditor extends BaseEditor {
         axisLine = new LineEditorPanel(localizationResources.getString("Axis_Line"),
                 theme.isLineVisible(), theme.getLinePaint(), theme.getLineStroke());
         axisLine.addChangeListener(updateHandler);
-        
+
         this.slot1 = new JPanel(new BorderLayout());
 
         JPanel other = new JPanel(new BorderLayout());
@@ -283,14 +283,14 @@ public class DefaultAxisEditor extends BaseEditor {
 
         startNewRow(c);
         labelPanel.add(new JLabel(localizationResources.getString("Font")),c);
-        this.labelFontControl = compFactory.getFontControl(labelFont);
+        this.labelFontControl = compFactory.createFontControl(labelFont);
         this.labelFontControl.addChangeListener(updateHandler);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;
         labelPanel.add(this.labelFontControl,c);
 
         startNewRow(c);
         labelPanel.add(new JLabel(localizationResources.getString("Paint")),c);
-        this.labelPaintControl = compFactory.getPaintControl(theme.getAxisLabelPaint());
+        this.labelPaintControl = compFactory.createPaintControl(theme.getAxisLabelPaint());
         this.labelPaintControl.addChangeListener(updateHandler);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;
         labelPanel.add(this.labelPaintControl,c);
@@ -325,7 +325,7 @@ public class DefaultAxisEditor extends BaseEditor {
         ticks.add(
             new JLabel(localizationResources.getString("Font")), c
         );
-        this.tickFontControl = compFactory.getFontControl(theme.getTickLabelFont());
+        this.tickFontControl = compFactory.createFontControl(theme.getTickLabelFont());
         this.tickFontControl.addChangeListener(updateHandler);
         c.gridx++;
         c.weightx = 1;
@@ -336,7 +336,7 @@ public class DefaultAxisEditor extends BaseEditor {
         ticks.add(
             new JLabel(localizationResources.getString("Paint")), c
         );
-        this.tickPaintControl = compFactory.getPaintControl(theme.getTickLabelPaint());
+        this.tickPaintControl = compFactory.createPaintControl(theme.getTickLabelPaint());
         this.tickPaintControl.addChangeListener(updateHandler);
         c.gridx++;
         c.weightx = 1;

@@ -24,8 +24,8 @@ public class LineEditorPanel extends EditPanel {
 
     public LineEditorPanel(String title, boolean isVisible, Paint paint, BasicStroke line) {
         visibility = new JCheckBox(localizationResources.getString("Visible"), isVisible);
-        paintControl = componentFactory.getPaintControl(paint, false);
-        strokeControl = componentFactory.getStrokeControl(line);
+        paintControl = componentFactory.createPaintControl(paint, false);
+        strokeControl = componentFactory.createStrokeControl(line);
 
         visibility.addActionListener(handler);
         paintControl.addChangeListener(handler);

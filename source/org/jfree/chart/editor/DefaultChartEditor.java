@@ -235,11 +235,11 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
     }
 
     protected BorderPanel buildBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint) {
-        return compFactory.buildBorderPanel(title, visible, stroke, paint);
+        return compFactory.createBorderPanel(title, visible, stroke, paint);
     }
 
     protected BackgroundEditingPanel buildBackgroundEditingPanel(ExtendedChartTheme theme) {
-        return compFactory.buildBackgroundEditingPanel(theme);
+        return compFactory.createBackgroundEditingPanel(theme);
     }
 
     public void addTab(String title, Icon icon, Component component, String tip) {
