@@ -56,7 +56,6 @@ import org.jfree.chart.editor.themes.ExtendedChartTheme;
 import org.jfree.chart.editor.themes.ChartBorder;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.util.ResourceBundleWrapper;
-import org.jfree.ui.FontChooserPanel;
 import org.jfree.ui.RectangleInsets;
 
 /**
@@ -101,20 +100,6 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
 
     /** The panel that edits the background's properties */
     private BackgroundEditingPanel background;
-
-    private static FontChooserPanel fontChooser;
-
-    static {
-        fontChooser = new FontChooserPanel(new Font("Tahoma", Font.PLAIN, 12));
-    }
-
-    public static FontChooserPanel getDefaultFontChooserPanel() {
-        return fontChooser;
-    }
-
-    public static void setDefaultFontChooserPanel(FontChooserPanel panel) {
-        fontChooser = panel;
-    }
 
     /**
      * Standard constructor - the property panel is made up of a number of

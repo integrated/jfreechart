@@ -2,6 +2,7 @@ package org.jfree.chart.editor.components;
 
 import org.jfree.ui.FontChooserPanel;
 import org.jfree.chart.editor.DefaultChartEditor;
+import org.jfree.chart.editor.ChartEditorComponentFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,8 +24,8 @@ public class FontControl extends AbstractControl {
     }
 
     protected void doEditAction() {
-        FontChooserPanel panel = DefaultChartEditor.getDefaultFontChooserPanel();
-        panel.setSelectedFont(getChosenFont());
+        FontChooserPanel panel = ChartEditorComponentFactory.Controller.getInstance().createFontChooserPanel(getChosenFont());
+        //panel.setSelectedFont(getChosenFont());
         int result =
             JOptionPane.showConfirmDialog(
                 this, panel, localizationResources.getString("Font_Selection"),

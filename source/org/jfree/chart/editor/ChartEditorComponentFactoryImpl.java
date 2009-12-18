@@ -7,6 +7,7 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.ui.FontChooserPanel;
 
 import java.awt.*;
 
@@ -99,5 +100,9 @@ public class ChartEditorComponentFactoryImpl implements ChartEditorComponentFact
 
     public FontControl createFontControl(Font f) {
         return new FontControl(f);
+    }
+
+    public FontChooserPanel createFontChooserPanel(Font f) {
+        return new FontChooserPanel(f);
     }
 }

@@ -5,6 +5,8 @@ import org.jfree.chart.editor.components.*;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.axis.Axis;
+import org.jfree.ui.PaintSample;
+import org.jfree.ui.FontChooserPanel;
 
 import java.awt.*;
 
@@ -61,6 +63,8 @@ public interface ChartEditorComponentFactory {
     FontControl createFontControl(Font f);
 
     NumberFormatDisplay createNumberFormatDisplay(String formatString);
+
+    FontChooserPanel createFontChooserPanel(Font f);
 
     static class Controller {
         private static String implementationClass = DEFAULT_IMPLEMENTATION;
