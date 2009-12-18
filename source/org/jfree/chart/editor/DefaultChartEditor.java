@@ -137,6 +137,7 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
      */
     public DefaultChartEditor(ExtendedChartTheme theme, JFreeChart chart, boolean immediateUpdate) {
         super(chart, immediateUpdate);
+
         setLayout(new BorderLayout());
 
         this.theme = theme;
@@ -222,23 +223,23 @@ public class DefaultChartEditor extends BaseEditor implements ChartEditor {
     }
 
     protected DefaultChartTitleEditor initTitleEditor() {
-        return new DefaultChartTitleEditor(theme.getTitleTheme(), chart, this.immediateUpdate);
+        return compFactory.createChartTitleEditor(theme.getTitleTheme(), chart, this.immediateUpdate);
     }
 
     protected DefaultPlotEditor initPlotEditor(Plot plot) {
-        return new DefaultPlotEditor(theme.getPlotTheme(), chart, plot, this.immediateUpdate);
+        return compFactory.createPlotEditor(theme.getPlotTheme(), chart, plot, immediateUpdate);
     }
 
     protected DefaultLegendEditor initLegendEditor() {
-        return new DefaultLegendEditor(theme.getLegendTheme(), chart, this.immediateUpdate);
+        return compFactory.createLegendEditor(theme.getLegendTheme(), chart, immediateUpdate);
     }
 
     protected BorderPanel buildBorderPanel(String title, boolean visible, BasicStroke stroke, Paint paint) {
-        return new BorderPanel(title, visible, stroke, paint);
+        return compFactory.buildBorderPanel(title, visible, stroke, paint);
     }
 
     protected BackgroundEditingPanel buildBackgroundEditingPanel(ExtendedChartTheme theme) {
-        return new BackgroundEditingPanel(theme);
+        return compFactory.buildBackgroundEditingPanel(theme);
     }
 
     public void addTab(String title, Icon icon, Component component, String tip) {

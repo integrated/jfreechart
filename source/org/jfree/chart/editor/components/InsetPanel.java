@@ -69,7 +69,7 @@ public class InsetPanel extends EditPanel {
         c.gridx++; c.weightx = 1;
         add(right, c);
         if(paint != null) {
-            paintControl = new PaintControl(paint);
+            paintControl = componentFactory.getPaintControl(paint);
             paintControl.addChangeListener(handler);
             c.gridx = 0; c.gridy++; c.weightx = 0;
             add(new JLabel(localizationResources.getString("Color")), c);

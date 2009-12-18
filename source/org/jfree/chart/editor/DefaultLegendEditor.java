@@ -83,7 +83,7 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
         textPanel.setBorder(BorderFactory.createTitledBorder(localizationResources.getString("Text")));
         GridBagConstraints c = getNewConstraints();
 
-        itemFont = new FontControl(theme.getLegendItemFont());
+        itemFont = compFactory.getFontControl(theme.getLegendItemFont());
         itemFont.addChangeListener(updateHandler);
 
         textPanel.add(new JLabel(localizationResources.getString("Font")), c);
@@ -92,7 +92,7 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
 
         startNewRow(c);
 
-        itemPaint = new PaintControl(theme.getLegendItemPaint(), false);
+        itemPaint = compFactory.getPaintControl(theme.getLegendItemPaint(), false);
         itemPaint.addChangeListener(updateHandler);
 
         textPanel.add(new JLabel(localizationResources.getString("Paint")),c);
@@ -128,7 +128,7 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
         JPanel backgroundPanel = createBorderedLabelPanel(localizationResources.getString("Background"));
         c = getNewConstraints();
 
-        backgroundPaint = new PaintControl(theme.getLegendBackgroundPaint(), true);
+        backgroundPaint = compFactory.getPaintControl(theme.getLegendBackgroundPaint(), true);
         backgroundPaint.addChangeListener(updateHandler);
 
 
@@ -169,9 +169,7 @@ public class DefaultLegendEditor extends DefaultTitleEditor {
     }
 
     protected ItemLabelFormatPanel createItemLabelFormatPanel(Plot p) {
-        return new ItemLabelFormatPanel(theme.getItemFormatString(),
-                p, theme.getItemNumberFormatString(),
-                theme.getItemPercentFormatString(), false);
+        return compFactory.createItemLabelFormatPanel(theme, p);
     }
 
     public void updateChart(JFreeChart chart) {

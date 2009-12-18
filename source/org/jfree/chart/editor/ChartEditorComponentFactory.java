@@ -22,6 +22,18 @@ public interface ChartEditorComponentFactory {
 
     DefaultChartEditor createChartEditor(ExtendedChartTheme theme, JFreeChart chart, boolean immediateUpdate);
 
+    /**
+     * A static method that returns a panel that is appropriate for the axis
+     * type.
+     *
+     * @param theme The axis theme that will be edited
+     * @param axis  the axis whose properties are to be displayed/edited in
+     *              the panel.
+     * @param chart The chart the axis belongs to.
+     * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
+     *
+     * @return A panel or <code>null</code< if axis is <code>null</code>.
+     */
     DefaultAxisEditor createAxisEditor(AxisTheme theme, JFreeChart chart, Axis axis, boolean immediateUpdate);
 
     DefaultPlotEditor createPlotEditor(PlotTheme theme, JFreeChart chart, Plot plot, boolean immediateUpdate);
@@ -42,24 +54,34 @@ public interface ChartEditorComponentFactory {
 
     PaintControl getPaintControl(Paint p);
 
+    PaintControl getPaintControl(Paint p, boolean allowNulls);
+
     StrokeControl getStrokeControl(BasicStroke s);
 
     FontControl getFontControl(Font f);
 
+    NumberFormatDisplay getNumberFormatDisplay(String formatString);
+
     static class Controller {
         private static String implementationClass = DEFAULT_IMPLEMENTATION;
 
-        public static void setImplementationClass(String s)
+        private static ChartEditorComponentFactory instance = null;
+
+        public synchronized static void setImplementationClass(String s)
                 throws ClassNotFoundException, IllegalAccessException, InstantiationException {
             // make sure this doesn't throw any nasties.
-            getInstanceInternal(s);
+            ChartEditorComponentFactory newInstance = getInstanceInternal(s);
             // reaching this point means the given class was instantiated with the right interface.
             implementationClass = s;
+            instance = newInstance;
         }
 
-        public static ChartEditorComponentFactory getInstance() {
+        public synchronized static ChartEditorComponentFactory getInstance() {
             try {
-                return getInstanceInternal(implementationClass);
+                if(instance == null) {
+                    instance = getInstanceInternal(implementationClass);
+                }
+                return instance;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
@@ -70,7 +92,7 @@ public interface ChartEditorComponentFactory {
             return null;
         }
 
-        private static ChartEditorComponentFactory getInstanceInternal(String s)
+        private synchronized static ChartEditorComponentFactory getInstanceInternal(String s)
                 throws ClassNotFoundException, InstantiationException, IllegalAccessException {
             Class c = Class.forName(s);
 

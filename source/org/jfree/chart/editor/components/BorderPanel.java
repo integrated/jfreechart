@@ -35,7 +35,7 @@ public class BorderPanel extends EditPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         this.visible = new JCheckBox(localizationResources.getString("Border_Visible"), visible);
-        this.strokeControl = new StrokeControl(stroke);
+        this.strokeControl = componentFactory.getStrokeControl(stroke);
         this.paintControl = buildPaintControl(paint);
 
         EventHandler handler = new EventHandler();
@@ -61,7 +61,7 @@ public class BorderPanel extends EditPanel {
     }
 
     protected PaintControl buildPaintControl(Paint p) {
-        return new PaintControl(p);
+        return componentFactory.getPaintControl(p);
     }
 
     private void updateControls() {

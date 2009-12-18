@@ -82,7 +82,15 @@ public class ChartEditorComponentFactoryImpl implements ChartEditorComponentFact
     }
 
     public PaintControl getPaintControl(Paint p) {
-        return new PaintControl(p);
+        return getPaintControl(p, false);
+    }
+
+    public PaintControl getPaintControl(Paint p, boolean allowNulls) {
+        return new PaintControl(p, allowNulls);
+    }
+
+    public NumberFormatDisplay getNumberFormatDisplay(String formatString) {
+        return new NumberFormatDisplay(formatString);
     }
 
     public StrokeControl getStrokeControl(BasicStroke s) {

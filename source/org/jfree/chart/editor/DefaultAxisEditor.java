@@ -52,8 +52,6 @@ import java.util.Collections;
 import javax.swing.*;
 
 import org.jfree.chart.axis.Axis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.JFreeChart;
@@ -176,37 +174,6 @@ public class DefaultAxisEditor extends BaseEditor {
     protected final boolean isDomainRangeImpl;
 
     /**
-     * A static method that returns a panel that is appropriate for the axis
-     * type.
-     *
-     * @param theme The axis theme that will be edited
-     * @param axis  the axis whose properties are to be displayed/edited in
-     *              the panel.
-     * @param chart The chart the axis belongs to.
-     * @param immediateUpdate Whether changes to GUI controls should immediately alter the chart
-     *
-     * @return A panel or <code>null</code< if axis is <code>null</code>.
-     */
-    public static DefaultAxisEditor getInstance(AxisTheme theme, JFreeChart chart, Axis axis, boolean immediateUpdate) {
-
-        if (axis != null) {
-            // figure out what type of axis we have and instantiate the
-            // appropriate panel
-            if (axis instanceof NumberAxis) {
-                return new DefaultNumberAxisEditor(theme, chart, immediateUpdate);
-            } else if (axis instanceof CategoryAxis) {
-                return new DefaultCategoryAxisEditor(theme, chart, immediateUpdate);
-            }
-            else {
-                return new DefaultAxisEditor(theme, chart, immediateUpdate);
-            }
-        }
-        else {
-            return null;
-        }
-    }
-
-    /**
      * Standard constructor: builds a panel for displaying/editing the
      * properties of the specified axis.
      * @param theme The theme that will be edited.
@@ -316,14 +283,14 @@ public class DefaultAxisEditor extends BaseEditor {
 
         startNewRow(c);
         labelPanel.add(new JLabel(localizationResources.getString("Font")),c);
-        this.labelFontControl = new FontControl(labelFont);
+        this.labelFontControl = compFactory.getFontControl(labelFont);
         this.labelFontControl.addChangeListener(updateHandler);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;
         labelPanel.add(this.labelFontControl,c);
 
         startNewRow(c);
         labelPanel.add(new JLabel(localizationResources.getString("Paint")),c);
-        this.labelPaintControl = new PaintControl(theme.getAxisLabelPaint());
+        this.labelPaintControl = compFactory.getPaintControl(theme.getAxisLabelPaint());
         this.labelPaintControl.addChangeListener(updateHandler);
         c.gridx++; c.weightx = 1; c.gridwidth = 2;
         labelPanel.add(this.labelPaintControl,c);
@@ -358,7 +325,7 @@ public class DefaultAxisEditor extends BaseEditor {
         ticks.add(
             new JLabel(localizationResources.getString("Font")), c
         );
-        this.tickFontControl = new FontControl(theme.getTickLabelFont());
+        this.tickFontControl = compFactory.getFontControl(theme.getTickLabelFont());
         this.tickFontControl.addChangeListener(updateHandler);
         c.gridx++;
         c.weightx = 1;
@@ -369,7 +336,7 @@ public class DefaultAxisEditor extends BaseEditor {
         ticks.add(
             new JLabel(localizationResources.getString("Paint")), c
         );
-        this.tickPaintControl = new PaintControl(theme.getTickLabelPaint());
+        this.tickPaintControl = compFactory.getPaintControl(theme.getTickLabelPaint());
         this.tickPaintControl.addChangeListener(updateHandler);
         c.gridx++;
         c.weightx = 1;

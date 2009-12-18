@@ -26,10 +26,17 @@ public abstract class BaseEditor extends JPanel implements ChartEditor {
     /** This is used to handle live updating of the chart */
     protected final UpdateHandler updateHandler = new UpdateHandler();
 
+    /** Factory class for producing GUI components, allows for users of the library to substitute into the GUI
+     * with extended capabilities.
+     */
+    protected ChartEditorComponentFactory compFactory;
+
     public BaseEditor(JFreeChart chart, boolean immediateUpdate) {
         super();
         this.immediateUpdate = immediateUpdate;
         this.chart = chart;
+
+        compFactory = ChartEditorComponentFactory.Controller.getInstance();
     }
 
     public static GridBagConstraints getNewConstraints() {

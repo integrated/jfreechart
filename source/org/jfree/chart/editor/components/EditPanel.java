@@ -2,6 +2,7 @@ package org.jfree.chart.editor.components;
 
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.editor.BaseEditor;
+import org.jfree.chart.editor.ChartEditorComponentFactory;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -21,12 +22,16 @@ public class EditPanel extends JPanel {
             = ResourceBundleWrapper.getBundle(
                     "org.jfree.chart.editor.LocalizationBundle");
 
+    protected ChartEditorComponentFactory componentFactory;
+
     public EditPanel() {
         super();
+        componentFactory = ChartEditorComponentFactory.Controller.getInstance();
     }
 
     public EditPanel(LayoutManager l) {
         super(l);
+        componentFactory = ChartEditorComponentFactory.Controller.getInstance();
     }
 
     public void addChangeListener(ChangeListener l) {

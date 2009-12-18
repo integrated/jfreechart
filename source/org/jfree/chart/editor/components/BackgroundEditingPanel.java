@@ -43,7 +43,7 @@ public class BackgroundEditingPanel extends EditPanel {
         interior.add(new JLabel(localizationResources.getString(
                 "Background_paint")),c);
         c.gridx++; c.weightx = 1.0; c.gridwidth = 3;
-        this.backgroundPaint = new PaintControl(backPaint, true);
+        this.backgroundPaint = componentFactory.getPaintControl(backPaint, true);
         this.backgroundPaint.addChangeListener(updateHandler);
         interior.add(this.backgroundPaint,c);
 

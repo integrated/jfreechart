@@ -159,7 +159,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
 
         this.theme = theme;
 
-        this.backgroundPanel = new BackgroundEditingPanel(theme);
+        this.backgroundPanel = compFactory.buildBackgroundEditingPanel(theme);
         this.plotOrientation = theme.getOrientation();
 
         domainPanel = new LineEditorPanel(localizationResources.getString("Domain_Axis"),
@@ -209,7 +209,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         startNewRow(c);
         c.gridwidth = 3; c.weightx = 1;
         ChartBorder border = theme.getBorder();
-        plotBorder = new BorderPanel(localizationResources.getString("Border"),
+        plotBorder = compFactory.buildBorderPanel(localizationResources.getString("Border"),
                 border.isVisible(), border.getStroke(), border.getPaint());
         plotBorder.addChangeListener(updateHandler);
         interior.add(plotBorder, c);
@@ -253,8 +253,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
         AxisTheme dAxisTheme = theme.getDomainAxisTheme();
         AxisTheme rAxisTheme = theme.getRangeAxisTheme();
-        this.domainAxisPropertyPanel
-            = DefaultAxisEditor.getInstance(dAxisTheme, chart, domainAxis, immediateUpdate);
+        this.domainAxisPropertyPanel = compFactory.createAxisEditor(dAxisTheme, chart, domainAxis, immediateUpdate);
         if (this.domainAxisPropertyPanel != null) {
             this.domainAxisPropertyPanel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)
@@ -273,7 +272,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         }
 
         this.rangeAxisPropertyPanel
-            = DefaultAxisEditor.getInstance(rAxisTheme, chart, rangeAxis, immediateUpdate);
+            = compFactory.createAxisEditor(rAxisTheme, chart, rangeAxis, immediateUpdate);
         if (this.rangeAxisPropertyPanel != null) {
             this.rangeAxisPropertyPanel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)
@@ -335,22 +334,22 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
         labelsVisible.addActionListener(this);
 
 
-        labelFont = new FontControl(theme.getLabelFont());
+        labelFont = compFactory.getFontControl(theme.getLabelFont());
         labelFont.addChangeListener(updateHandler);
 
-        labelPaint = new PaintControl(theme.getLabelPaint(), false);
+        labelPaint = compFactory.getPaintControl(theme.getLabelPaint(), false);
         labelPaint.addChangeListener(updateHandler);
 
-        labelBackgroundPaint = new PaintControl(theme.getLabelBackgroundPaint(), true);
+        labelBackgroundPaint = compFactory.getPaintControl(theme.getLabelBackgroundPaint(), true);
         labelBackgroundPaint.addChangeListener(updateHandler);
 
-        labelShadowPaint = new PaintControl(theme.getLabelShadowPaint(), true);
+        labelShadowPaint = compFactory.getPaintControl(theme.getLabelShadowPaint(), true);
         labelShadowPaint.addChangeListener(updateHandler);
 
-        labelOutlinePaint = new PaintControl(theme.getLabelOutlinePaint(), true);
+        labelOutlinePaint = compFactory.getPaintControl(theme.getLabelOutlinePaint(), true);
         labelOutlinePaint.addChangeListener(updateHandler);
 
-        labelOutlineStroke = new StrokeControl(theme.getLabelOutlineStroke());
+        labelOutlineStroke = compFactory.getStrokeControl(theme.getLabelOutlineStroke());
         labelOutlineStroke.addChangeListener(updateHandler);
 
         labelPadding = new InsetPanel(localizationResources.getString("Padding"), theme.getLabelPadding());
@@ -470,8 +469,7 @@ public class DefaultPlotEditor extends BaseEditor implements ActionListener {
     }
 
     protected ItemLabelFormatPanel createLabelFormatPanel(Plot p) {
-        return new ItemLabelFormatPanel(theme.getLabelFormat(), p,
-                theme.getNumberFormatString(), theme.getPercentFormatString(), true);
+        return compFactory.createItemLabelFormatPanel(theme, p);
     }
 
     protected JPanel getGridlinesPanel() {
