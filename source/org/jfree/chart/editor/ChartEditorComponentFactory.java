@@ -67,6 +67,11 @@ public interface ChartEditorComponentFactory {
 
         private static ChartEditorComponentFactory instance = null;
 
+        public synchronized static void setImplementationClass(Class c)
+                throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            setImplementationClass(c.getName());
+        }
+
         public synchronized static void setImplementationClass(String s)
                 throws ClassNotFoundException, IllegalAccessException, InstantiationException {
             // make sure this doesn't throw any nasties.
