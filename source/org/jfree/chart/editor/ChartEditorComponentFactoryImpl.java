@@ -20,7 +20,7 @@ import java.awt.*;
  */
 public class ChartEditorComponentFactoryImpl implements ChartEditorComponentFactory {
 
-    ChartEditorComponentFactoryImpl() {
+    public ChartEditorComponentFactoryImpl() {
         // do nothing.
     }
 
