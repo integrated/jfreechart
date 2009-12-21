@@ -15,7 +15,7 @@ import java.awt.*;
  * Displays font and allows editing of it.
  */
 public class FontControl extends AbstractControl {
-    private FontDisplayField fontField;
+    protected FontDisplayField fontField;
     public FontControl(Font font) {
         super(new FontDisplayField(font));
         fontField = (FontDisplayField) sample;
