@@ -251,6 +251,9 @@
     <option name="projectName" value="JFreeChart-iPlus" />
   </component>
   <component name="ProjectFileVersion" converted="true" />
+  <component name="ProjectKey">
+    <option name="state" value="http://dev.integrate.co.uk/svn/jfreechart-iplus/trunk/JFreeChart-iPlus.ipr" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JFreeChart-iPlus.iml" filepath="$PROJECT_DIR$/JFreeChart-iPlus.iml" />
@@ -285,6 +288,7 @@
         </entry>
       </map>
     </option>
+    <option name="myVersion" value="124" />
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="VcsDirectoryMappings">

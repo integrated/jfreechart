@@ -45,25 +45,17 @@
 
 package org.jfree.chart.plot.dial;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.awt.geom.Arc2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import org.jfree.chart.HashUtilities;
 import org.jfree.io.SerialUtilities;
 import org.jfree.util.PaintUtilities;
 import org.jfree.util.PublicCloneable;
+
+import java.awt.*;
+import java.awt.geom.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * A base class for the pointer in a {@link DialPlot}.
@@ -413,6 +405,13 @@ public abstract class DialPointer extends AbstractDialLayer
         private transient Paint outlinePaint;
 
         /**
+         * Whether to draw a line up the center of the pointer.
+         *
+         * @since IPS
+         */
+        private boolean drawCentralLine;
+
+        /**
          * Creates a new instance.
          */
         public Pointer() {
@@ -429,6 +428,7 @@ public abstract class DialPointer extends AbstractDialLayer
             this.widthRadius = 0.05;
             this.fillPaint = Color.gray;
             this.outlinePaint = Color.black;
+            this.drawCentralLine = true;
         }
 
         /**
@@ -453,6 +453,29 @@ public abstract class DialPointer extends AbstractDialLayer
         public void setWidthRadius(double radius) {
             this.widthRadius = radius;
             notifyListeners(new DialLayerChangeEvent(this));
+        }
+
+        /**
+         * Whether a line will be drawn up the center of the pointer.
+         * @return true iff the line will be drawn.
+         * @see #setDrawCentralLine(boolean)
+         * @since IPS
+         */
+        public boolean isDrawCentralLine() {
+            return drawCentralLine;
+        }
+
+        /**
+         * Whether a line will be drawn up the center of the pointer.
+         * @param b The new value for the flag. If this is different to the old value, listeners will be notified.
+         * @see #isDrawCentralLine() 
+         * @since IPS
+         */
+        public void setDrawCentralLine(boolean b) {
+            if(b != drawCentralLine) {
+                this.drawCentralLine = b;
+                notifyListeners(new DialLayerChangeEvent(this));
+            }
         }
 
         /**
@@ -560,7 +583,9 @@ public abstract class DialPointer extends AbstractDialLayer
             g2.setPaint(this.outlinePaint);
             Line2D line = new Line2D.Double(frame.getCenterX(),
                     frame.getCenterY(), pt1.getX(), pt1.getY());
-            g2.draw(line);
+            if(drawCentralLine) {
+                g2.draw(line);
+            }
 
             line.setLine(pt2, pt3);
             g2.draw(line);
@@ -597,6 +622,9 @@ public abstract class DialPointer extends AbstractDialLayer
             if (this.widthRadius != that.widthRadius) {
                 return false;
             }
+            if (this.drawCentralLine != that.drawCentralLine) {
+                return false;
+            }
             if (!PaintUtilities.equal(this.fillPaint, that.fillPaint)) {
                 return false;
             }
@@ -616,6 +644,7 @@ public abstract class DialPointer extends AbstractDialLayer
             result = HashUtilities.hashCode(result, this.widthRadius);
             result = HashUtilities.hashCode(result, this.fillPaint);
             result = HashUtilities.hashCode(result, this.outlinePaint);
+            result = HashUtilities.hashCode(result, this.drawCentralLine);
             return result;
         }
 
