@@ -43,21 +43,19 @@
 
 package org.jfree.chart.plot.dial;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Paint;
+import org.jfree.chart.HashUtilities;
+import org.jfree.io.SerialUtilities;
+import org.jfree.util.PaintUtilities;
+import org.jfree.util.PublicCloneable;
+
+import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
-import org.jfree.chart.HashUtilities;
-import org.jfree.io.SerialUtilities;
-import org.jfree.util.PaintUtilities;
-import org.jfree.util.PublicCloneable;
 
 /**
  * A layer that draws a range highlight on a dial plot.
@@ -98,6 +96,12 @@ public class StandardDialRange extends AbstractDialLayer implements DialLayer,
     private double outerRadius;
 
     /**
+     * Whether to use the paint to fill the gap between the inner and outer lines.
+     * @since IPS
+     */
+    private boolean fillSpaceBetweenInnerAndOuter;
+
+    /**
      * Creates a new instance of <code>StandardDialRange</code>.
      */
     public StandardDialRange() {
@@ -121,6 +125,7 @@ public class StandardDialRange extends AbstractDialLayer implements DialLayer,
         this.innerRadius = 0.48;
         this.outerRadius = 0.52;
         this.paint = paint;
+        this.fillSpaceBetweenInnerAndOuter = false;
     }
 
     /**
@@ -283,6 +288,36 @@ public class StandardDialRange extends AbstractDialLayer implements DialLayer,
     }
 
     /**
+     * Sets whether to fill the space between the inner and outer radii and sends a {@link DialLayerChangeEvent} to all
+     * registered listeners. If false, the radii will be drawn individually using a stroke.
+     *
+     * @param b  the value.
+     *
+     * @see #isFillSpaceBetweenInnerAndOuter()
+     *
+     * @since IPS
+     */
+    public void setFillSpaceBetweenInnerAndOuter(boolean b) {
+        if(b == this.fillSpaceBetweenInnerAndOuter) {
+            return;
+        }
+        this.fillSpaceBetweenInnerAndOuter = b;
+        notifyListeners(new DialLayerChangeEvent(this));
+    }
+
+    /**
+     * Returns whether the range will be drawn as a filled shape between the inner and outer radii or whether
+     * the radii will be drawn as individual lines.
+     *
+     * @return The value of the flag.
+     *
+     * @see #setFillSpaceBetweenInnerAndOuter(boolean)
+     */
+    public boolean isFillSpaceBetweenInnerAndOuter() {
+        return fillSpaceBetweenInnerAndOuter;
+    }
+
+    /**
      * Sets the outer radius and sends a {@link DialLayerChangeEvent} to all
      * registered listeners.
      *
@@ -329,15 +364,29 @@ public class StandardDialRange extends AbstractDialLayer implements DialLayer,
         double angleMin = scale.valueToAngle(this.lowerBound);
         double angleMax = scale.valueToAngle(this.upperBound);
 
-        Arc2D arcInner = new Arc2D.Double(arcRectInner, angleMin,
-                angleMax - angleMin, Arc2D.OPEN);
-        Arc2D arcOuter = new Arc2D.Double(arcRectOuter, angleMax,
-                angleMin - angleMax, Arc2D.OPEN);
 
         g2.setPaint(this.paint);
         g2.setStroke(new BasicStroke(2.0f));
-        g2.draw(arcInner);
-        g2.draw(arcOuter);
+
+        if(fillSpaceBetweenInnerAndOuter) {
+            Arc2D arcInner = new Arc2D.Double(arcRectInner, angleMin,
+                    angleMax - angleMin, Arc2D.PIE);
+            Arc2D arcOuter = new Arc2D.Double(arcRectOuter, angleMax,
+                    angleMin - angleMax, Arc2D.PIE);
+
+            Area difference = new Area(arcOuter);
+            difference.subtract(new Area(arcInner));
+
+            g2.fill(difference);
+        } else {
+            Arc2D arcInner = new Arc2D.Double(arcRectInner, angleMin,
+                    angleMax - angleMin, Arc2D.OPEN);
+            Arc2D arcOuter = new Arc2D.Double(arcRectOuter, angleMax,
+                    angleMin - angleMax, Arc2D.OPEN);
+
+            g2.draw(arcInner);
+            g2.draw(arcOuter);
+        }
     }
 
     /**
@@ -355,6 +404,9 @@ public class StandardDialRange extends AbstractDialLayer implements DialLayer,
             return false;
         }
         StandardDialRange that = (StandardDialRange) obj;
+        if(this.fillSpaceBetweenInnerAndOuter != that.fillSpaceBetweenInnerAndOuter) {
+            return false;
+        }
         if (this.scaleIndex != that.scaleIndex) {
             return false;
         }
@@ -392,6 +444,7 @@ public class StandardDialRange extends AbstractDialLayer implements DialLayer,
         temp = Double.doubleToLongBits(this.outerRadius);
         result = 37 * result + (int) (temp ^ (temp >>> 32));
         result = 37 * result + HashUtilities.hashCodeForPaint(this.paint);
+        result = HashUtilities.hashCode(result, fillSpaceBetweenInnerAndOuter);
         return result;
     }
 
