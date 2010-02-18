@@ -399,7 +399,7 @@ public class XYPointerAnnotation extends XYTextAnnotation
 
         g2.setStroke(this.arrowStroke);
         g2.setPaint(this.arrowPaint);
-        Line2D line = new Line2D.Double(startX, startY, endX, endY);
+        Line2D line = new Line2D.Double(startX, startY, (arrowLeftX+arrowRightX)/2, (arrowLeftY+arrowRightY)/2);
         g2.draw(line);
         g2.fill(arrow);
 
