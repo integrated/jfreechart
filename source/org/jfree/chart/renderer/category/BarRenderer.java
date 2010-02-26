@@ -996,6 +996,7 @@ public class BarRenderer extends AbstractCategoryItemRenderer
 
         final double value = dataValue.doubleValue();
         PlotOrientation orientation = plot.getOrientation();
+        // minimum x/y co-ordinate as appropriate for the orientation.
         double barW0 = calculateBarW0(plot, orientation, dataArea, domainAxis,
                 state, row, column);
         double[] barL0L1 = calculateBarL0L1(value);
@@ -1025,7 +1026,7 @@ public class BarRenderer extends AbstractCategoryItemRenderer
         double barL0Adj = 0.0;
         RectangleEdge barBase;
         if (orientation == PlotOrientation.HORIZONTAL) {
-            if (positive && inverted || !positive && !inverted) {
+            if (!(positive ^ inverted)) {
                 barL0Adj = barLengthAdj;
                 barBase = RectangleEdge.RIGHT;
             }
@@ -1034,7 +1035,7 @@ public class BarRenderer extends AbstractCategoryItemRenderer
             }
         }
         else {
-            if (positive && !inverted || !positive && inverted) {
+            if (positive ^ inverted) {
                 barL0Adj = barLengthAdj;
                 barBase = RectangleEdge.BOTTOM;
             }

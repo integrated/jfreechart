@@ -1972,13 +1972,6 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
         Shape savedClip = g2.getClip();
         g2.clip(dataArea);
 
-        if(!isGridLinesOverData()) {
-            doGridLineDraw(g2, parentState, dataArea, axisStateMap);
-            // redraw the axes so they appear over the gridlines.
-            drawAxes(g2, area, dataArea, state);
-        }
-
-
         // draw the markers...
         int rendererCount = getRendererCount();
         for (int i = 0; i < rendererCount; i++) {
@@ -1986,6 +1979,12 @@ public class CategoryPlot extends AbstractDomainRangePlot implements ValueAxisPl
         }
         for (int i = 0; i < rendererCount; i++) {
             drawRangeMarkers(g2, dataArea, i, Layer.BACKGROUND);
+        }
+
+        if(!isGridLinesOverData()) {
+            doGridLineDraw(g2, parentState, dataArea, axisStateMap);
+            // redraw the axes so they appear over the gridlines.
+            drawAxes(g2, area, dataArea, state);
         }
 
         // now render data items...

@@ -71,5 +71,4 @@ public interface Values2D {
      *         or <code>column</code> is out of bounds.
      */
     public Number getValue(int row, int column);
-
 }
