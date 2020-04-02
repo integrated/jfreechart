@@ -1,3 +1,5 @@
+Patched version of JFreeChart, used by Iplus.
+
 ********************************
 *  JFREECHART: Version 1.0.12  *
 ********************************
